@@ -7,4 +7,6 @@
     <color name="purple">#0D0222</color>
     <color name="pink">#FE0FA0</color>
     <color name="red_900">#B71C1C</color>
+    <color name="grey_700">#616161</color>
+    <color name="grey_200">#EEEEEE</color>
 </resources>
