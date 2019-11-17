@@ -13,6 +13,9 @@ import com.far.virtualmenu.Controllers.ProductsController;
 import com.far.virtualmenu.Controllers.ProductsSubTypesController;
 import com.far.virtualmenu.Controllers.ProductsTypesController;
 import com.far.virtualmenu.Globales.Tablas;
+import com.far.virtualmenu.Utils.Funciones;
+
+import java.util.Date;
 
 public class DB extends SQLiteOpenHelper {
     private static DB instance;
@@ -80,5 +83,22 @@ public class DB extends SQLiteOpenHelper {
             resutl = true;
         }c.close();
         return resutl;
+    }
+
+    /**
+     * obtiene el ultimo MDATE guardada en la base de datos local en la tabla especificada.
+     * @return
+     */
+    public static Date getLastMDateSaved(Context context, String table){
+        Date date = null;
+        String sql = "SELECT mdate as MDATE " +
+                "FROM "+table+" " +
+                "ORDER BY mdate DESC " +
+                "LIMIT 1 ";
+        Cursor c = getInstance(context).getReadableDatabase().rawQuery(sql, null);
+        if(c.moveToFirst()){
+            date = Funciones.parseStringToDate(c.getString(c.getColumnIndex("MDATE")));
+        }c.close();
+        return date;
     }
 }

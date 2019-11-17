@@ -64,9 +64,9 @@ public class GridFragment extends Fragment {
         ArrayList<ItemMenuDetailModel> array = new ArrayList<>();
         array.add(new ItemMenuDetailModel("Combo 1","Amburguesa + papas pequena + refresco 12oz", 200, "https://i0.wp.com/enzos.gofoodpng.biz/wp-content/uploads/2018/03/Chips-and-a-330ml.png?fit=484%2C368&ssl=1"));
         array.add(new ItemMenuDetailModel("Combo 2","2 Tacos de pollo + Papas fritas + Refresco 12oz", 250, "https://www.deltaco.com/files/menu/item/thumb_1.jpg?v=2.6"));
-        array.add(new ItemMenuDetailModel("Combo 3","Hot dog + papas mediana + refresco 12oz", 180, "https://www.fastfood-dubrovnik.com/menu-burger-tiger/combo-menu/img/hot-dog-menu.png"));
+        array.add(new ItemMenuDetailModel("Combo 3","Hot dog + papas mediana + refresco 12oz", 180, "https://defia.es/291-medium_default/combo-hot-dog.jpg"));
         array.add(new ItemMenuDetailModel("Combo 4","2 Pizza medianas + Papotas + Vegetales + Refresco 60oz", 1200, "https://5.imimg.com/data5/VE/GG/MY-53040683/combo-for-family-28just-499-2f-29-500x500.jpg"));
-        array.add(new ItemMenuDetailModel("Banana Split","Banana split + toping + mermelada", 120, "https://media.self.com/photos/57d8bf334b76f0f832a0efde/master/pass/banana-split-620.jpg"));
+        array.add(new ItemMenuDetailModel("Banana Split","Banana split + toping + mermelada", 120, "https://www.tasteofhome.com/wp-content/uploads/2017/10/exps37953_Page_23.jpg"));
         /*array.add(new ItemMenuDetailModel("Combo 2","", 200, ""));
         array.add(new ItemMenuDetailModel("Combo 3","", 200, ""));
         array.add(new ItemMenuDetailModel("Combo 4","", 200, ""));
