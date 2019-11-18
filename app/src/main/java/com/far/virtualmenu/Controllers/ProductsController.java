@@ -5,10 +5,15 @@ import android.content.Context;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
 
+import com.far.virtualmenu.Adapters.Models.ProductRowModel;
 import com.far.virtualmenu.CloudFireStoreObjects.Licenses;
 import com.far.virtualmenu.CloudFireStoreObjects.Products;
+import com.far.virtualmenu.CloudFireStoreObjects.ProductsMeasure;
+import com.far.virtualmenu.DataBase.CloudFireStoreDB;
 import com.far.virtualmenu.DataBase.DB;
+import com.far.virtualmenu.Generic.KV2;
 import com.far.virtualmenu.Globales.Tablas;
+import com.far.virtualmenu.Model.ProductModel;
 import com.far.virtualmenu.Utils.Funciones;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -113,7 +118,7 @@ public class ProductsController {
     }
 
 
-/*
+
     public ArrayList<ProductRowModel> getProductsPRM(String where, String[] args, String campoOrder){
         ArrayList<ProductRowModel> result = new ArrayList<>();
         if(campoOrder == null){campoOrder = DESCRIPTION;}
@@ -135,7 +140,36 @@ public class ProductsController {
 
         return result;
 
-    }*/
+    }
+
+
+
+    public ArrayList<ProductModel> getProductsRM(String where, String[] args, String campoOrder){
+        ArrayList<ProductModel> result = new ArrayList<>();
+        if(campoOrder == null){campoOrder = DESCRIPTION;}
+        where=((where != null)? "WHERE "+where:"");
+        try {
+
+            String sql = "SELECT p."+CODE+" as CODE, p."+DESCRIPTION+" AS DESCRIPTION, pt."+ProductsTypesController.CODE+" as PTCODE, pt."+ProductsTypesController.DESCRIPTION+" as PTDESCRIPTION, pst."+ProductsSubTypesController.CODE+" AS PSTCODE, pst."+ProductsSubTypesController.DESCRIPTION+" AS PSTDESCRIPTION, p."+MDATE+" AS MDATE " +
+                    "FROM "+TABLE_NAME+" p " +
+                    "LEFT JOIN "+ProductsTypesController.TABLE_NAME+" pt ON pt."+ProductsTypesController.CODE+" = p."+TYPE+" "+
+                    "LEFT JOIN "+ProductsSubTypesController.TABLE_NAME+" pst ON pst."+ProductsSubTypesController.CODE+" = "+SUBTYPE+" "+
+                    where;
+            Cursor c = DB.getInstance(context).getReadableDatabase().rawQuery(sql, args);
+            while(c.moveToNext()){//String code, String description, ArrayList<ProductImage> images, boolean enabled
+                String codeProduct = c.getString(c.getColumnIndex("CODE"));
+                result.add(new ProductModel(codeProduct,
+                        c.getString(c.getColumnIndex("DESCRIPTION")),
+                        ProductsImagesController.getInstance(context).getProductImageByCodeProduct(codeProduct),
+                        true));
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
+        return result;
+
+    }
 
 
     public void getDataFromFireBase(String key, OnSuccessListener<QuerySnapshot> onSuccessListener,
@@ -173,6 +207,12 @@ public class ProductsController {
     }
 
     public void sendToFireBase(Products product){
+        sendToFireBase(product, null);
+
+    }
+
+
+    public void sendToFireBase(Products product, ArrayList<ProductsMeasure> newMeasures){
         try {
             WriteBatch lote = db.batch();
 
@@ -182,6 +222,45 @@ public class ProductsController {
                 lote.update(getReferenceFireStore().document(product.getCODE()), product.toMap());
             }
 
+            if (newMeasures != null && !newMeasures.isEmpty()){
+
+                String notIn=" NOT IN ('1'";
+                for(ProductsMeasure pm: newMeasures){
+                    String where = ProductsMeasureController.CODEMEASURE+" = ? AND "+ProductsMeasureController.CODEPRODUCT+" = ?";
+                    String[]args = new String[]{pm.getCODEMEASURE(), pm.getCODEPRODUCT()};
+                    ArrayList<ProductsMeasure> existingPM = ProductsMeasureController.getInstance(context).getProductsMeasure(where, args);
+
+                    if(existingPM.size() >0){//ACTUALIZAR
+                        pm.setCODE(existingPM.get(0).getCODE());//sustituye el codigo nuevo por el existente en la base de datos
+                        pm.setDATE(existingPM.get(0).getDATE());//permanecer la fecha de creacion.
+                        pm.setMDATE(null);
+
+                        //ENVIAR A FIRE BASE
+                        lote.update(ProductsMeasureController.getInstance(context).getReferenceFireStore().document(pm.getCODE()), pm.toMap());
+
+                        //ACTUALIZAR LOCAL
+                        where = ProductsMeasureController.CODE+" = ?";
+                        ProductsMeasureController.getInstance(context).update(pm,where, new String[]{pm.getCODE()});
+
+                        notIn+=",'"+pm.getCODE()+"'";
+                    }else{//INSERTAR
+                        lote.set(ProductsMeasureController.getInstance(context).getReferenceFireStore().document(pm.getCODE()), pm.toMap());
+                        ProductsMeasureController.getInstance(context).insert(pm);
+                    }
+                }
+
+                notIn+=")";
+                String where = ProductsMeasureController.CODEPRODUCT+" = ? AND "+ProductsMeasureController.ENABLED+" = ? AND  "+ProductsMeasureController.CODE+notIn;
+                ArrayList<ProductsMeasure> toDisable = ProductsMeasureController.getInstance(context).getProductsMeasure(where, new String[]{product.getCODE(), "1"});
+                for(ProductsMeasure pm: toDisable){
+                    pm.setENABLED(false);
+                    pm.setMDATE(null);
+                    where = ProductsMeasureController.CODE+" = ?";
+                    ProductsMeasureController.getInstance(context).update(pm,where, new String[]{pm.getCODE()});
+
+                    lote.update(ProductsMeasureController.getInstance(context).getReferenceFireStore().document(pm.getCODE()), pm.toMap());
+                }
+            }
 
             lote.commit().addOnFailureListener(new OnFailureListener() {
                 @Override
@@ -195,7 +274,7 @@ public class ProductsController {
 
     }
 
-   /* public void deleteFromFireBase(Products product){
+    public void deleteFromFireBase(Products product){
         try {
             WriteBatch lote = db.batch();
             lote.delete(getReferenceFireStore().document(product.getCODE()));
@@ -214,6 +293,22 @@ public class ProductsController {
         }catch(Exception e){
             e.printStackTrace();
         }
-    }*/
+    }
 
+    /**
+     * retorna un arrayList con todas las  dependencias en otras tablas (llave foranea)
+     * @param code
+     * @return
+     */
+    public ArrayList<KV2> getDependencies(String code){
+        ArrayList<KV2> tables = new ArrayList<>();
+        if(DB.getInstance(context).hasDependencies(ProductsControlController.TABLE_NAME,ProductsControlController.CODEPRODUCT,code))
+            tables.add(new KV2(ProductsControlController.TABLE_NAME,ProductsControlController.CODEPRODUCT,code));
+        if(DB.getInstance(context).hasDependencies(ProductsMeasureController.TABLE_NAME,ProductsMeasureController.CODEPRODUCT,code))
+            tables.add(new KV2(ProductsMeasureController.TABLE_NAME,ProductsMeasureController.CODEPRODUCT,code));
+
+
+        return tables;
+        //priceList,productsControl, productsMeasure,combos
+    }
 }

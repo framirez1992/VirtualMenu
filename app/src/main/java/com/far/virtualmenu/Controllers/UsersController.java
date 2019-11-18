@@ -7,6 +7,8 @@ import android.support.annotation.NonNull;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
+import com.far.virtualmenu.Adapters.Models.SimpleSeleccionRowModel;
+import com.far.virtualmenu.Adapters.Models.UserRowModel;
 import com.far.virtualmenu.CloudFireStoreObjects.Licenses;
 import com.far.virtualmenu.CloudFireStoreObjects.Users;
 import com.far.virtualmenu.DataBase.DB;
@@ -268,15 +270,15 @@ public class UsersController {
         spn.setAdapter(new ArrayAdapter<KV>(context, android.R.layout.simple_list_item_1,spnList));
     }
 
-   /* public ArrayList<UserRowModel> getUserSRM(String where, String[] args, String campoOrder){
+    public ArrayList<UserRowModel> getUserSRM(String where, String[] args, String campoOrder){
         ArrayList<UserRowModel> result = new ArrayList<>();
         if(campoOrder == null){campoOrder = USERNAME;}
         where=((where != null)? "WHERE "+where:"");
         try {
 
-            String sql = "SELECT u."+CODE+" as CODE,u."+SYSTEMCODE+" as SYSTEMCODE, u."+USERNAME+" AS USERNAME, u."+ENABLED+" ENABLED, ut."+UserTypesController.DESCRIPTION+" as ROLE, u."+MDATE+" AS MDATE " +
+            String sql = "SELECT u."+CODE+" as CODE,u."+SYSTEMCODE+" as SYSTEMCODE, u."+USERNAME+" AS USERNAME, u."+ENABLED+" ENABLED, r."+RolesController.DESCRIPTION+" as ROLE, u."+MDATE+" AS MDATE " +
                     "FROM "+TABLE_NAME+" u " +
-                    "INNER JOIN "+UserTypesController.TABLE_NAME+" ut on u."+ROLE+" = ut."+UserTypesController.CODE+" "+
+                    "INNER JOIN "+RolesController.TABLE_NAME+" r on u."+SYSTEMCODE+" = r."+RolesController.CODE+" "+
                     where;
             Cursor c = DB.getInstance(context).getReadableDatabase().rawQuery(sql, args);
             while(c.moveToNext()){
@@ -293,7 +295,7 @@ public class UsersController {
 
         return result;
 
-    }*/
+    }
 
     /**
      * Simple seleccion row model
@@ -302,15 +304,15 @@ public class UsersController {
      * @param campoOrder
      * @return
      */
-  /*  public ArrayList<SimpleSeleccionRowModel> getUserSSRM(String where, String[] args, String campoOrder){
+    public ArrayList<SimpleSeleccionRowModel> getUserSSRM(String where, String[] args, String campoOrder){
         ArrayList<SimpleSeleccionRowModel> result = new ArrayList<>();
         if(campoOrder == null){campoOrder = USERNAME;}
         where=((where != null)? "WHERE "+where:"");
         try {
 
-            String sql = "SELECT u."+CODE+" as CODE, u."+USERNAME+" AS USERNAME, u."+ENABLED+" ENABLED, ut."+UserTypesController.DESCRIPTION+" as ROLE, u."+MDATE+" AS MDATE " +
+            String sql = "SELECT u."+CODE+" as CODE, u."+USERNAME+" AS USERNAME, u."+ENABLED+" ENABLED, r."+RolesController.DESCRIPTION+" as ROLE, u."+MDATE+" AS MDATE " +
                     "FROM "+TABLE_NAME+" u " +
-                    "INNER JOIN "+UserTypesController.TABLE_NAME+" ut on u."+ROLE+" = ut."+UserTypesController.CODE+" "+
+                    "INNER JOIN "+RolesController.TABLE_NAME+" r on u."+SYSTEMCODE+" = r."+RolesController.CODE+" "+
                      where
                     +" ORDER BY "+campoOrder;
             Cursor c = DB.getInstance(context).getReadableDatabase().rawQuery(sql, args);
@@ -325,7 +327,7 @@ public class UsersController {
 
         return result;
 
-    }*/
+    }
 
 
 

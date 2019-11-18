@@ -16,9 +16,9 @@ import com.far.virtualmenu.Utils.CODES;
 public class MaintenanceFragment extends Fragment {
 
 
-    ImageView btnFamily, btnGroup, btnMeasures, btnProducts,btnFamilyInv, btnGroupInv, btnMeasuresInv, btnProductsInv, btnUsers, btnUserRol, btnControls
-    ,btnActualizationCenter, btnUsersControl, btnRolesControl, btnClients, btnPrinter;
-    LinearLayout llMainScreen,llClients, llMaintenanceControls, llMaintenanceUsers, llMaintenanceProducts,llMaintenanceInventory, llConfiguration;
+    ImageView btnFamily, btnGroup, btnMeasures, btnProducts,btnProductsImages, btnUsers, btnControls
+    , btnUsersControl, btnClients, btnPrinter;
+    LinearLayout llMainScreen, llMaintenanceControls, llMaintenanceUsers, llMaintenanceProducts, llConfiguration;
     public MaintenanceFragment() {
         // Required empty public constructor
     }
@@ -39,24 +39,16 @@ public class MaintenanceFragment extends Fragment {
         llMaintenanceControls = view.findViewById(R.id.llMaintenanceControls);
         llMaintenanceUsers = view.findViewById(R.id.llMaintenanceUsers);
         llMaintenanceProducts = view.findViewById(R.id.llMaintenanceProducts);
-        llMaintenanceInventory = view.findViewById(R.id.llMaintenanceInventory);
-        llClients = view.findViewById(R.id.llClients);
         llConfiguration = view.findViewById(R.id.llConfiguration);
 
         btnFamily = view.findViewById(R.id.btnFamily);
         btnGroup = view.findViewById(R.id.btnGroups);
         btnMeasures = view.findViewById(R.id.btnMeasures);
         btnProducts = view.findViewById(R.id.btnProducts);
-        btnFamilyInv = view.findViewById(R.id.btnFamilyInv);
-        btnGroupInv = view.findViewById(R.id.btnGroupsInv);
-        btnMeasuresInv = view.findViewById(R.id.btnMeasuresInv);
-        btnProductsInv = view.findViewById(R.id.btnProductsInv);
+        btnProductsImages = view.findViewById(R.id.btnProductsImages);
         btnUsers = view.findViewById(R.id.btnUsers);
-        btnUserRol = view.findViewById(R.id.btnUserRol);
         btnControls = view.findViewById(R.id.btnControls);
-        btnActualizationCenter = view.findViewById(R.id.btnActualizationCenter);
         btnUsersControl = view.findViewById(R.id.btnUsersControl);
-        btnRolesControl = view.findViewById(R.id.btnRolesControl);
         btnClients = view.findViewById(R.id.btnClients);
         btnPrinter = view.findViewById(R.id.btnPrinter);
 
@@ -64,26 +56,17 @@ public class MaintenanceFragment extends Fragment {
         btnGroup.setOnClickListener(imageClick);
         btnMeasures.setOnClickListener(imageClick);
         btnProducts.setOnClickListener(imageClick);
-
-        btnFamilyInv.setOnClickListener(imageClick);
-        btnGroupInv.setOnClickListener(imageClick);
-        btnMeasuresInv.setOnClickListener(imageClick);
-        btnProductsInv.setOnClickListener(imageClick);
+        btnProductsImages.setOnClickListener(imageClick);
 
         btnUsers.setOnClickListener(imageClick);
-        btnUserRol.setOnClickListener(imageClick);
 
         btnControls.setOnClickListener(imageClick);
         btnUsersControl.setOnClickListener(imageClick);
-        btnRolesControl.setOnClickListener(imageClick);
 
         btnClients.setOnClickListener(imageClick);
 
         btnPrinter.setOnClickListener(imageClick);
 
-
-
-        btnActualizationCenter.setOnClickListener(imageClick);
 
 
 
@@ -93,44 +76,33 @@ public class MaintenanceFragment extends Fragment {
 
         @Override
         public void onClick(View v) {
-            /*Intent i = null;
+            Intent i = null;
             switch (v.getId()){
-                case R.id.btnFamily:
-                case R.id.btnFamilyInv:
+               case R.id.btnFamily:
                     i = new Intent(getActivity(), MaintenanceProductTypes.class);
-                    i.putExtra(CODES.EXTRA_TYPE_FAMILY, (v.getId() == R.id.btnFamilyInv)? CODES.ENTITY_TYPE_EXTRA_INVENTORY:CODES.ENTITY_TYPE_EXTRA_PRODUCTSFORSALE );
                     break;
                 case R.id.btnMeasures:
-                case R.id.btnMeasuresInv:
                     i = new Intent(getActivity(), MaintenanceUnitMeasure.class);
-                    i.putExtra(CODES.EXTRA_TYPE_FAMILY, (v.getId() == R.id.btnMeasuresInv)? CODES.ENTITY_TYPE_EXTRA_INVENTORY:CODES.ENTITY_TYPE_EXTRA_PRODUCTSFORSALE );
                     break;
                 case R.id.btnUsers:
                     i = new Intent(getActivity(), MaintenanceUsers.class);
                     break;
-                case R.id.btnUserRol:
-                    i = new Intent(getActivity(), MaintenanceUserTypes.class);
-                    break;
+
                 case R.id.btnGroups:
-                case R.id.btnGroupsInv:
                     i = new Intent(getActivity(), MaintenanceProductSubTypes.class);
-                    i.putExtra(CODES.EXTRA_TYPE_FAMILY, (v.getId() == R.id.btnGroupsInv)? CODES.ENTITY_TYPE_EXTRA_INVENTORY:CODES.ENTITY_TYPE_EXTRA_PRODUCTSFORSALE );
-                    break;
+                     break;
                 case R.id.btnProducts:
-                case R.id.btnProductsInv:
                     i = new Intent(getActivity(), MaintenanceProducts.class);
-                    i.putExtra(CODES.EXTRA_TYPE_FAMILY, (v.getId() == R.id.btnProductsInv)? CODES.ENTITY_TYPE_EXTRA_INVENTORY:CODES.ENTITY_TYPE_EXTRA_PRODUCTSFORSALE );
                     break;
-                case R.id.btnActualizationCenter:
+                case R.id.btnProductsImages:
+                    i = new Intent(getActivity(), MainUpload.class);
+                    break;
+
+               /* case R.id.btnActualizationCenter:
                     i = new Intent(getActivity(), MainActualizationCenter.class);
                     break;
                 case R.id.btnControls:
                     i = new Intent(getActivity(), MaintenanceUsersControl.class);
-                    break;
-                case R.id.btnRolesControl:
-                    i =new Intent(getActivity(), MainAssignation.class);
-                    i.putExtra(CODES.EXTRA_MAINASSIGNATION_TABLE, UserControlController.TABLE_NAME);
-                    i.putExtra(CODES.EXTRA_MAINASSIGNATION_TARGET, CODES.EXTRA_MAINASSIGNATION_TARGET_ROLESCONTROL);
                     break;
                 case R.id.btnUsersControl:
                     i =new Intent(getActivity(), MainAssignation.class);
@@ -142,16 +114,19 @@ public class MaintenanceFragment extends Fragment {
                     break;
                 case R.id.btnPrinter:
                     i = new Intent(getActivity(), com.example.bluetoothlibrary.BluetoothScan.class);
-                    break;
+                    break;*/
 
 
             }
 
+            if(i == null){
+                return;
+            }
             try {
                 startActivity(i);
             }catch (Exception e){
                 e.printStackTrace();
-            }*/
+            }
         }
 
 

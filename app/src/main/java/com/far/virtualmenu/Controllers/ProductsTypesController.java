@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
+import com.far.virtualmenu.Adapters.Models.SimpleRowModel;
 import com.far.virtualmenu.CloudFireStoreObjects.Licenses;
 import com.far.virtualmenu.CloudFireStoreObjects.ProductsTypes;
 import com.far.virtualmenu.DataBase.DB;
@@ -141,7 +142,7 @@ public class ProductsTypesController {
     }
 
 
-   /* public ArrayList<SimpleRowModel> getAllProductTypesSRM(String where, String[] args){
+    public ArrayList<SimpleRowModel> getAllProductTypesSRM(String where, String[] args){
         ArrayList<SimpleRowModel> result = new ArrayList<>();
         String orderBy = ORDER+" ASC, "+DESCRIPTION;
         try {
@@ -155,7 +156,7 @@ public class ProductsTypesController {
 
         return result;
 
-    }*/
+    }
 
     /**
      * Simple seleccion row model
@@ -295,5 +296,23 @@ public class ProductsTypesController {
     }
 
 
+    /**
+     * retorna true si el codigo tiene dependencias en otras tablas (llave foranea)
+     * @param code
+     * @return
+     */
+    public String hasDependencies(String code){
+        String msg = "";
+        ArrayList<String> tables = new ArrayList<>();
+        if(DB.getInstance(context).hasDependencies(ProductsSubTypesController.TABLE_NAME,ProductsSubTypesController.CODETYPE,code))
+            tables.add(ProductsSubTypesController.TABLE_NAME);
+        if(DB.getInstance(context).hasDependencies(ProductsController.TABLE_NAME,ProductsController.TYPE,code))
+            tables.add(ProductsController.TABLE_NAME);
+
+        for(String s: tables){
+            msg+= s+"\n";
+        }
+        return msg;
+    }
 
 }

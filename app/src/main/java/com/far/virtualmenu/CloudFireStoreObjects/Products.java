@@ -21,9 +21,9 @@ public class Products {
     public Products(){
 
     }
-    public Products(String code, String description, String type, String subType){
+    public Products(String code, String description, String type, String subType, boolean combo){
     this.CODE = code; this.DESCRIPTION = description; this.TYPE = type;
-    this.SUBTYPE = subType;
+    this.SUBTYPE = subType;this.COMBO = combo;
     }
 
     public HashMap<String, Object> toMap(){

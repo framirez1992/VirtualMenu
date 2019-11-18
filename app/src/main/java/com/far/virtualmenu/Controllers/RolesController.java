@@ -176,4 +176,17 @@ public class RolesController {
         }
 
     }
+
+
+    public void fillSpnRoles(Spinner spn, boolean addTodos){
+        ArrayList<Roles> result = getRoles(null, null, null);
+        ArrayList<KV> spnList = new ArrayList<>();
+        if(addTodos){
+            spnList.add(new KV("0", "TODOS"));
+        }
+        for(Roles r: result){
+            spnList.add(new KV(r.getCODE(), r.getDESCRIPTION()));
+        }
+        spn.setAdapter(new ArrayAdapter<KV>(context, android.R.layout.simple_list_item_1,spnList));
+    }
 }

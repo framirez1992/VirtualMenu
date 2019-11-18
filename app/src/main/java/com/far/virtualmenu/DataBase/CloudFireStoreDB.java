@@ -2,6 +2,7 @@ package com.far.virtualmenu.DataBase;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import android.support.annotation.NonNull;
 
 import com.far.virtualmenu.CloudFireStoreObjects.Devices;
 import com.far.virtualmenu.CloudFireStoreObjects.Licenses;
@@ -11,6 +12,13 @@ import com.far.virtualmenu.CloudFireStoreObjects.UsersDevices;
 import com.far.virtualmenu.Controllers.CompanyController;
 import com.far.virtualmenu.Controllers.DevicesController;
 import com.far.virtualmenu.Controllers.LicenseController;
+import com.far.virtualmenu.Controllers.MeasureUnitsController;
+import com.far.virtualmenu.Controllers.ProductsControlController;
+import com.far.virtualmenu.Controllers.ProductsController;
+import com.far.virtualmenu.Controllers.ProductsMeasureController;
+import com.far.virtualmenu.Controllers.ProductsSubTypesController;
+import com.far.virtualmenu.Controllers.ProductsTypesController;
+import com.far.virtualmenu.Controllers.RolesController;
 import com.far.virtualmenu.Controllers.UsersController;
 import com.far.virtualmenu.Generic.KV2;
 import com.far.virtualmenu.Globales.Tablas;
@@ -35,35 +43,20 @@ public class CloudFireStoreDB {
     private static CloudFireStoreDB instance;
 
     Licenses license = null;
-
-    //AreasController areasController;
-    //AreasDetailController areasDetailController;
     DevicesController devicesController;
     UsersController usersController;
-    //UserTypesController userTypesController;
     LicenseController licenseController;
-    /*CombosController combosController;
+    //CombosController combosController;
     CompanyController companyController;
     MeasureUnitsController measureUnitsController;
-    MeasureUnitsInvController measureUnitsInvController;
-    PriceListController priceListController;
-    ProductsController productsController;
-    ProductsInvController productsInvController;
-    ProductsControlController productsControlController;*/
-    //ProductsMeasureController productsMeasureController;
-    //ProductsMeasureInvController productsMeasureInvController;
-    /*ProductsTypesController productsTypesController;
-    ProductsTypesInvController productsTypesInvController;
-    ProductsSubTypesController productsSubTypesController;
-    ProductsSubTypesInvController productsSubTypesInvController;
-    SalesController salesController;
-    UserInboxController userInboxController;
-    UserControlController userControlController;
-    TableCodeController tableCodeController;
-    TableFilterController tableFilterController;
     RolesController rolesController;
-    StoreHouseController storeHouseController;
-    StoreHouseDetailController storeHouseDetailController;*/
+    //PriceListController priceListController;
+    //ProductsControlController productsControlController;
+    ProductsMeasureController productsMeasureController;
+    /*ProductsTypesController productsTypesController;
+    ProductsSubTypesController productsSubTypesController;
+    UserControlController userControlController;
+    ;*/
 
     SQLiteDatabase sqlWritable;
     OnFailureListener failureListener;
@@ -81,6 +74,7 @@ public class CloudFireStoreDB {
         usersController =  UsersController.getInstance(context);
         //userTypesController = UserTypesController.getInstance(context);
         licenseController = LicenseController.getInstance(context);
+        rolesController = RolesController.getInstance(context);
         /*combosController = new CombosController(context);
         companyController =  CompanyController.getInstance(context);
         measureUnitsController =  MeasureUnitsController.getInstance(context);
@@ -88,7 +82,7 @@ public class CloudFireStoreDB {
         priceListController = new PriceListController(context);
         productsController =  ProductsController.getInstance(context);
         productsInvController = ProductsInvController.getInstance(context);*/
-       // productsMeasureController = ProductsMeasureController.getInstance(context);
+        productsMeasureController = ProductsMeasureController.getInstance(context);
         //productsMeasureInvController = ProductsMeasureInvController.getInstance(context);
        /* productsTypesController = ProductsTypesController.getInstance(context);
         productsTypesInvController = ProductsTypesInvController.getInstance(context);
@@ -99,7 +93,6 @@ public class CloudFireStoreDB {
         userControlController = UserControlController.getInstance(context);
         tableCodeController = TableCodeController.getInstance(context);
         tableFilterController = TableFilterController.getInstance(context);
-        rolesController = RolesController.getInstance(context);
         productsControlController = ProductsControlController.getInstance(context);
         storeHouseController = StoreHouseController.getInstance(context);
         storeHouseDetailController = StoreHouseDetailController.getInstance(context);*/
@@ -124,7 +117,7 @@ public class CloudFireStoreDB {
         CollectionReference GeneralLicensesCollection = fs.collection(Tablas.generalLicencias);
         DocumentReference Cliente = GeneralLicensesCollection.document(licencia.getCODE());
         //Creando y llenando el documento Cliente
-        Cliente.set(licencia);
+        Cliente.set(licencia).addOnFailureListener(failureListener);
 
 
         //agregando el primer dispositivo
@@ -134,9 +127,9 @@ public class CloudFireStoreDB {
         //////////// JERARQUIA DE ROLES     /////////////////////////////////
         CollectionReference GeneralRolesCollection = fs.collection(Tablas.generalRoles);
 
-        Roles su = new Roles("0","SU");
-        Roles admin = new Roles("1","Administrador");
-        Roles usuario = new Roles("2", "Usuario");
+        Roles su = new Roles("0","SU");//Hace Todas las operaciones posibles
+        Roles admin = new Roles("1","Administrador");//Administra los productos, familias, grupos, precios
+        Roles usuario = new Roles("2", "Usuario");//Muestran el menu
 
         GeneralRolesCollection.document(su.getCODE()).set(su);
         GeneralRolesCollection.document(admin.getCODE()).set(admin);
@@ -146,7 +139,7 @@ public class CloudFireStoreDB {
         //////////// JERARQUIA USUARIOS      ///////////////////////////////
         CollectionReference GeneralUsersCollection = fs.collection(Tablas.generalUsers);
         DocumentReference userLicense = GeneralUsersCollection.document(licencia.getCODE());
-        userLicense.collection(Tablas.generalUsersUsers).add(new Users("Admin", "0", "admin1212345", "admin", "", "", true).toMap());
+        userLicense.collection(Tablas.generalUsersUsers).add(new Users("Admin", "0", "admin1212345", "admin", "0", "", true).toMap());
         UsersDevices ud = new UsersDevices();
         ud.setCODE(Funciones.generateCode());
         ud.setCODEDEVICE(Funciones.getPhoneID(context));
@@ -221,10 +214,25 @@ public class CloudFireStoreDB {
             for (DocumentSnapshot doc : querySnapshot) {
                 devicesController.insert(doc.toObject(Devices.class));
             }
-            okListener.sendMessage("FINALIZADO CORRECTAMENTE ");
-            okListener.OnFireBaseEndContact(1);
+            okListener.sendMessage("CARGANDO ROLES ");
+            rolesController.getDataFromFireBase(onSuccessListenerRoles, failureListener);
+
             //okListener.sendMessage("CARGANDO MEASURE UNITS ");
             //measureUnitsController.getDataFromFireBase(license.getCODE(), onSuccessListenerMeasureUnits, failureListener);
+        }
+    };
+
+    public OnSuccessListener<QuerySnapshot> onSuccessListenerRoles = new OnSuccessListener<QuerySnapshot>() {
+        @Override
+        public void onSuccess(QuerySnapshot querySnapshot) {
+            rolesController.delete("", null);
+            for (DocumentSnapshot doc : querySnapshot) {
+                rolesController.insert(doc.toObject(Roles.class));
+            }
+           /* okListener.sendMessage("CARGANDO PRODUCTS SUB TYPES ");
+            productsSubTypesController.getDataFromFireBase(license.getCODE(), onSuccessListenerProductsSubTypes, failureListener);*/
+            okListener.sendMessage("FINALIZADO CORRECTAMENTE ");
+            okListener.OnFireBaseEndContact(1);
         }
     };
 
@@ -390,17 +398,7 @@ public class CloudFireStoreDB {
     };
 
 
-    public OnSuccessListener<QuerySnapshot> onSuccessListenerRoles = new OnSuccessListener<QuerySnapshot>() {
-        @Override
-        public void onSuccess(QuerySnapshot querySnapshot) {
-            rolesController.delete("", null);
-            for (DocumentSnapshot doc : querySnapshot) {
-                rolesController.insert(doc.toObject(Roles.class));
-            }
-            okListener.sendMessage("CARGANDO PRODUCTS SUB TYPES ");
-            productsSubTypesController.getDataFromFireBase(license.getCODE(), onSuccessListenerProductsSubTypes, failureListener);
-        }
-    };
+
 
 
     public OnSuccessListener<QuerySnapshot> onSuccessListenerProductsSubTypes = new OnSuccessListener<QuerySnapshot>() {
@@ -572,38 +570,24 @@ public class CloudFireStoreDB {
 
         }
     }*/
-/*
+
     public ArrayList<DocumentReference> getDocumentsReferencesByTableName(KV2 data){
-        switch (data.getKey()){
-        //case AreasController.TABLE_NAME: break;
-        //case AreasDetailController.TABLE_NAME: break;
+        switch (data.getCode()){
         //case CombosController.TABLE_NAME: return combosController.getReferences(data.getDescription(), data.getDescription2());
         case CompanyController.TABLE_NAME: break;
         case DevicesController.TABLE_NAME: break;
         case LicenseController.TABLE_NAME: break;
         case MeasureUnitsController.TABLE_NAME: break;
-        case MeasureUnitsInvController.TABLE_NAME: break;
         //case PriceListController.TABLE_NAME: break;
         case ProductsControlController.TABLE_NAME: break;
         case ProductsController.TABLE_NAME: break;
-        case ProductsInvController.TABLE_NAME: break;
-        case ProductsMeasureController.TABLE_NAME: return productsMeasureController.getReferences(data.getValue(), data.getValue2());
-        case ProductsMeasureInvController.TABLE_NAME: return productsMeasureInvController.getReferences(data.getValue(), data.getValue2());
+        case ProductsMeasureController.TABLE_NAME: return productsMeasureController.getReferences(data.getDescription(), data.getDescription2());
         case ProductsSubTypesController.TABLE_NAME: break;
-        case ProductsSubTypesInvController.TABLE_NAME: break;
         case ProductsTypesController.TABLE_NAME: break;
-        case ProductsTypesInvController.TABLE_NAME: break;
         case RolesController.TABLE_NAME: break;
-        case SalesController.TABLE_NAME: break;
-        case SalesController.TABLE_NAME_DETAIL: break;
-       // case StoreHouseController.TABLE_NAME: break;
-        //case StoreHouseDetailController.TABLE_NAME: break;
-        //case TableCodeController.TABLE_NAME: break;
-       // case TableFilterController.TABLE_NAME: break;
-        case UserControlController.TABLE_NAME: break;
+        //case UserControlController.TABLE_NAME: break;
         //case UsersDevicesController.TABLE_NAME: break;
-        case UserTypesController.TABLE_NAME: break;
         }
         return null;
-    }*/
+    }
 }

@@ -61,11 +61,9 @@ public class AdminConfiguration extends AppCompatActivity implements OnFailureLi
     }
 
     public void addLicense() {
-        try {
+
             CloudFireStoreDB.getInstance(AdminConfiguration.this, AdminConfiguration.this, AdminConfiguration.this).crearNuevaEstructuraFireStore();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+
     }
 
     @Override

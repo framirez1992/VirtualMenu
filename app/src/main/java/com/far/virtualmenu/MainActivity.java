@@ -292,44 +292,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public void setUpForUserType(){
-        MenuItem mantenimientoInventario = nav.getMenu().findItem(R.id.goMantInventario);
         MenuItem mantenimientoProductos = nav.getMenu().findItem(R.id.goMantProductos);
         MenuItem mantenimientoUsuarios = nav.getMenu().findItem(R.id.goMantUsuarios);
-        MenuItem mantenimientoClientes = nav.getMenu().findItem(R.id.goMantClientes);
         MenuItem mantenimientoControles = nav.getMenu().findItem(R.id.goMantControls);
-        MenuItem crearOrdenes = nav.getMenu().findItem(R.id.goMenu);
-        MenuItem facturar = nav.getMenu().findItem(R.id.goReceip);
-        MenuItem reportes = nav.getMenu().findItem(R.id.goReports);
 
-        mantenimientoInventario.setVisible(false);
+
         mantenimientoProductos.setVisible(false);
         mantenimientoUsuarios.setVisible(false);
-        mantenimientoClientes.setVisible(false);
         mantenimientoControles.setVisible(false);
-        crearOrdenes.setVisible(false);
-        facturar.setVisible(false);
-        reportes.setVisible(false);
 
         if(usersController.isSuperUser() || usersController.isAdmin()){//SU o Administrador
             //mantenimientoInventario.setVisible(usersController.isSuperUser());
-            mantenimientoProductos.setVisible(usersController.isSuperUser());
+            mantenimientoProductos.setVisible((usersController.isSuperUser() || usersController.isAdmin()));
             mantenimientoUsuarios.setVisible(usersController.isSuperUser());
-            mantenimientoClientes.setVisible(usersController.isSuperUser());
             mantenimientoControles.setVisible(usersController.isSuperUser());
-
-            crearOrdenes.setVisible(usersController.isSuperUser());
-            facturar.setVisible(usersController.isSuperUser());
-            reportes.setVisible(true);
-        }else {
-
-          /*  if(UserControlController.getInstance(MainActivity.this).createOrders()){
-                nav.getMenu().findItem(R.id.goMenu).setVisible(true);
-            }
-            if(UserControlController.getInstance(MainActivity.this).chargeOrders()){
-                nav.getMenu().findItem(R.id.goReceip).setVisible(true);
-            }*/
-
-
         }
 
     }
@@ -354,13 +330,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void changeModule(int id){
 
         if((usersController.isSuperUser() || usersController.isAdmin())) {
-            fragmentMaintenance.llMaintenanceInventory.setVisibility((id == R.id.goMantInventario) ? View.VISIBLE : View.GONE);
             fragmentMaintenance.llMaintenanceProducts.setVisibility((id == R.id.goMantProductos) ? View.VISIBLE : View.GONE);
             fragmentMaintenance.llMaintenanceUsers.setVisibility((id == R.id.goMantUsuarios) ? View.VISIBLE : View.GONE);
             //fragmentMaintenance.llMaintenanceAreas.setVisibility((id == R.id.goMantAreas) ? View.VISIBLE : View.GONE);
             fragmentMaintenance.llMaintenanceControls.setVisibility((id == R.id.goMantControls) ? View.VISIBLE : View.GONE);
             fragmentMaintenance.llMainScreen.setVisibility((id == R.id.goMainScreen) ? View.VISIBLE : View.GONE);
-            fragmentMaintenance.llClients.setVisibility((id == R.id.goMantClientes) ? View.VISIBLE : View.GONE);
             fragmentMaintenance.llConfiguration.setVisibility((id == R.id.goConfiguration) ? View.VISIBLE : View.GONE);
 
         }

@@ -16,12 +16,19 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.far.virtualmenu.Adapters.Models.ProductRowModel;
 import com.far.virtualmenu.Adapters.ProductsAdapter;
+import com.far.virtualmenu.Controllers.ProductsController;
+import com.far.virtualmenu.Controllers.ProductsSubTypesController;
+import com.far.virtualmenu.Controllers.ProductsTypesController;
+import com.far.virtualmenu.Generic.KV;
 import com.far.virtualmenu.Model.ProductModel;
 import com.far.virtualmenu.Utils.Funciones;
 import com.far.virtualmenu.interfaces.ListableActivity;
@@ -36,10 +43,12 @@ public class ProductsEdition extends Fragment {
 
     Activity parent;
     RecyclerView rvList;
+    Spinner spnProductType, spnProductSubType;
     ImageView imgSeach, imgHideSearch;
     EditText etSearch;
     LinearLayout llSearch;
-    String lastSerach;
+    String lastSearch;
+    String lastFamilia, lastGrupo;
 
     public ProductsEdition() {
         // Required empty public constructor
@@ -67,6 +76,15 @@ public class ProductsEdition extends Fragment {
 
         imgSeach.setVisibility(View.VISIBLE);
 
+        spnProductType = view.findViewById(R.id.spn);
+        spnProductSubType = view.findViewById(R.id.spn2);
+        ((TextView)view.findViewById(R.id.spnTitle)).setText("Familia");
+        ((TextView)view.findViewById(R.id.spnTitle2)).setText("Grupo");
+
+        ProductsTypesController.getInstance(getActivity()).fillSpinner(spnProductType,true);
+        ProductsSubTypesController.getInstance(getActivity()).fillSpinner(spnProductSubType,true);
+
+
         etSearch.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -74,10 +92,10 @@ public class ProductsEdition extends Fragment {
                     if(etSearch.getText().toString().trim().equals("")){
                         return false;
                     }
-                    lastSerach = etSearch.getText().toString();
+                    lastSearch = etSearch.getText().toString();
                     imgHideSearch.performClick();
 
-                    refreshList(lastSerach);
+                    refreshList();
 
                     return true;
 
@@ -105,7 +123,36 @@ public class ProductsEdition extends Fragment {
             }
         });
 
-        refreshList("");
+
+        spnProductType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                KV familia = (KV)spnProductType.getSelectedItem();
+                lastFamilia = (familia.getKey().equals("0"))?null: familia.getKey();
+                ProductsSubTypesController.getInstance(getActivity()).fillSpinner(spnProductSubType, true, familia.getKey());
+
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+        spnProductSubType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                KV grupo = (KV)spnProductSubType.getSelectedItem();
+                lastGrupo = (grupo.getKey().equals("0"))?null:grupo.getKey() ;
+                refreshList();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+        refreshList();
     }
 
     public void setParent(Activity activity){
@@ -113,21 +160,7 @@ public class ProductsEdition extends Fragment {
     }
 
 
-    public void refreshList(String data){
-      /*  objects.clear();
-        String where = " 1 = 1 ";
-        ArrayList<String> values = new ArrayList<>();
-        String[] args = null;
-
-            if(data != null){
-                where += " AND "+ProductsTypesController.DESCRIPTION+" like ?";
-                values.add(data+"%");
-            }
-            args = values.toArray(new String[values.size()]);
-
-            objects.addAll(productsTypesController.getAllProductTypesSRM(where, args));
-
-        adapter.notifyDataSetChanged();*/
+  /*  public void refreshList(String data){
         ArrayList<ProductModel> values = new ArrayList<>();
         values.add(new ProductModel("0", "Pulpo en salsa", true));
         values.add(new ProductModel("1", "Salmon ahumado", true));
@@ -139,6 +172,35 @@ public class ProductsEdition extends Fragment {
         ProductsAdapter pa = new ProductsAdapter(parent,(ListableActivity)parent, values);
         rvList.setAdapter(pa);
         rvList.invalidate();
+    }*/
+
+    public void refreshList(){
+        String where = "1 = 1 ";
+        String[] args = null;
+
+        ArrayList<String> x = new ArrayList<>();
+        if(lastSearch != null){
+            where+=" AND p."+ProductsController.DESCRIPTION+" like  ? ";
+            x.add(lastSearch+"%");
+        }
+        if(lastFamilia != null){
+            where+= "AND pt."+ ProductsTypesController.CODE+" = ? ";
+            x.add(lastFamilia);
+        }
+
+        if(lastGrupo != null){
+            where+= "AND pst."+ProductsSubTypesController.CODE+" = ? ";
+            x.add(lastGrupo);
+        }
+
+        if(x.size() > 0){
+            args = x.toArray(new String[x.size()]);
+        }
+        ArrayList<ProductModel> values = ProductsController.getInstance(getActivity()).getProductsRM(where, args, null);
+        ProductsAdapter pa = new ProductsAdapter(parent,(ListableActivity)parent, values);
+        rvList.setAdapter(pa);
+        rvList.invalidate();
     }
+
 
 }

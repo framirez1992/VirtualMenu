@@ -11,11 +11,6 @@
         <menu>
 
             <item
-                android:id="@+id/goMantInventario"
-                android:icon="@drawable/ic_inventario"
-                android:title="Inventario" />
-
-            <item
                 android:id="@+id/goMantProductos"
                 android:icon="@drawable/products"
                 android:title="Productos" />
@@ -26,49 +21,13 @@
                 android:title="Usuarios" />
 
             <item
-                android:id="@+id/goMantClientes"
-                android:icon="@drawable/clients"
-                android:title="Clientes"/>
-
-            <item
                 android:id="@+id/goMantControls"
                 android:icon="@drawable/controls"
-                android:title="Controles" />
+                android:title="Controles"
+                android:visible="false"/>
         </menu>
     </item>
 
-
-
-    <item android:title="Venta">
-        <menu>
-            <item
-                android:id="@+id/goMenu"
-                android:icon="@drawable/ic_action_monetization_on"
-                android:title="Ventas" />
-
-
-        </menu>
-    </item>
-
-    <item android:title="Recibos">
-        <menu>
-
-            <item
-                android:id="@+id/goReceip"
-                android:icon="@drawable/ic_receipt"
-                android:title="Facturas" />
-        </menu>
-    </item>
-
-    <item android:title="Reportes">
-        <menu>
-            <item
-                android:id="@+id/goReports"
-                android:icon="@drawable/pie_chart"
-                android:title="Reportes"
-                android:visible="true"/>
-        </menu>
-    </item>
 
     <item android:title="Configuracion">
         <menu>

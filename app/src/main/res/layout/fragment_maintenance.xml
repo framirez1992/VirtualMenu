@@ -54,7 +54,8 @@
                     <TableRow android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
-                        android:padding="20dp">
+                        android:padding="20dp"
+                        android:visibility="gone">
 
                         <LinearLayout android:layout_width="0dp"
                             android:layout_height="match_parent"
@@ -177,209 +178,6 @@
 
             </LinearLayout>
 
-
-           <!-- //////////////  INVENTARIO    ///////////////// -->
-            <LinearLayout android:id="@+id/llMaintenanceInventory"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:visibility="gone">
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:padding="15dp"
-                    android:layout_gravity="center">
-
-                    <ImageView
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        android:src="@drawable/ic_inventario"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:text="Inventory"
-                        android:textStyle="bold"
-                        android:textSize="20sp"
-                        android:gravity="center_vertical"/>
-
-                </LinearLayout>
-
-
-                <TableLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical">
-
-                    <TableRow android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:padding="20dp">
-
-                        <LinearLayout android:layout_width="0dp"
-                            android:layout_height="match_parent"
-                            android:layout_weight="1"
-                            android:gravity="center"
-                            android:orientation="vertical">
-
-                            <android.support.v7.widget.CardView
-                                android:layout_width="100dp"
-                                android:layout_height="100dp"
-                                app:cardCornerRadius="50dp"
-                                app:cardBackgroundColor="@color/colorPrimary">
-
-                                <ImageView android:id="@+id/btnFamilyInv"
-                                    android:layout_width="60dp"
-                                    android:layout_height="60dp"
-                                    android:src="@drawable/family"
-                                    android:background="?attr/selectableItemBackgroundBorderless"
-                                    android:tint="@color/white"
-                                    android:layout_gravity="center"/>
-                            </android.support.v7.widget.CardView>
-
-
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:text="Family"
-                                android:gravity="center"
-                                android:textStyle="bold"/>
-
-                        </LinearLayout>
-
-                        <LinearLayout android:layout_width="0dp"
-                            android:layout_height="match_parent"
-                            android:layout_weight="1"
-                            android:gravity="center"
-                            android:orientation="vertical">
-
-                            <android.support.v7.widget.CardView
-                                android:layout_width="100dp"
-                                android:layout_height="100dp"
-                                app:cardCornerRadius="50dp"
-                                app:cardBackgroundColor="@color/colorPrimary">
-                            <ImageView android:id="@+id/btnGroupsInv"
-                                android:layout_width="60dp"
-                                android:layout_height="60dp"
-                                android:src="@drawable/group"
-                                android:layout_gravity="center"
-                                android:background="?attr/selectableItemBackgroundBorderless"
-                                android:tint="@color/white"/>
-                            </android.support.v7.widget.CardView>
-
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:text="Groups"
-                                android:gravity="center"
-                                android:textStyle="bold"/>
-
-                        </LinearLayout>
-
-                        <LinearLayout android:layout_width="0dp"
-                            android:layout_height="match_parent"
-                            android:layout_weight="1"
-                            android:gravity="center"
-                            android:orientation="vertical">
-
-                            <android.support.v7.widget.CardView
-                                android:layout_width="100dp"
-                                android:layout_height="100dp"
-                                app:cardCornerRadius="50dp"
-                                app:cardBackgroundColor="@color/colorPrimary">
-                            <ImageView android:id="@+id/btnMeasuresInv"
-                                android:layout_width="80dp"
-                                android:layout_height="80dp"
-                                android:src="@drawable/measure"
-                                android:background="?attr/selectableItemBackgroundBorderless"
-                                android:rotation="90"
-                                android:tint="@color/white"
-                                android:layout_gravity="center"/>
-                            </android.support.v7.widget.CardView>
-
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:text="Measures"
-                                android:gravity="center"
-                                android:textStyle="bold"/>
-
-                        </LinearLayout>
-                    </TableRow>
-
-
-                    <TableRow android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:padding="20dp">
-
-                    <LinearLayout android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:gravity="center"
-                        android:orientation="vertical">
-                        <android.support.v7.widget.CardView
-                            android:layout_width="100dp"
-                            android:layout_height="100dp"
-                            app:cardCornerRadius="50dp"
-                            app:cardBackgroundColor="@color/colorPrimary">
-                        <ImageView android:id="@+id/btnProductsInv"
-                            android:layout_width="80dp"
-                            android:layout_height="80dp"
-                            android:src="@drawable/products"
-                            android:background="?attr/selectableItemBackgroundBorderless"
-                            android:layout_gravity="center"
-                            android:tint="@color/white"/>
-                        </android.support.v7.widget.CardView>
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Products"
-                            android:gravity="center"
-                            android:textStyle="bold"/>
-
-                    </LinearLayout>
-
-
-
-                        <LinearLayout android:layout_width="0dp"
-                            android:layout_height="match_parent"
-                            android:layout_weight="1"
-                            android:gravity="center"
-                            android:orientation="vertical">
-
-                            <android.support.v7.widget.CardView
-                            android:layout_width="100dp"
-                            android:layout_height="100dp"
-                            app:cardCornerRadius="50dp"
-                            app:cardBackgroundColor="@color/colorPrimary">
-                            <ImageView android:id="@+id/btnAlmacenes"
-                                android:layout_width="60dp"
-                                android:layout_height="60dp"
-                                android:src="@drawable/ic_inventario"
-                                android:background="?attr/selectableItemBackgroundBorderless"
-                                android:layout_gravity="center"
-                                android:tint="@color/white"/>
-                            </android.support.v7.widget.CardView>
-
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:text="Almacenes"
-                                android:gravity="center"
-                                android:textStyle="bold"/>
-
-                        </LinearLayout>
-
-
-                    </TableRow>
-
-                </TableLayout>
-
-            </LinearLayout>
 
 
             <!-- ////////////   SALES PRODUCTS  /////////////////  -->
@@ -544,6 +342,35 @@
                                 android:textStyle="bold"/>
 
                         </LinearLayout>
+
+
+                        <LinearLayout android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:orientation="vertical">
+                            <android.support.v7.widget.CardView
+                                android:layout_width="100dp"
+                                android:layout_height="100dp"
+                                app:cardCornerRadius="50dp"
+                                app:cardBackgroundColor="@color/colorPrimary">
+                                <ImageView android:id="@+id/btnProductsImages"
+                                    android:layout_width="80dp"
+                                    android:layout_height="80dp"
+                                    android:src="@drawable/image"
+                                    android:background="?attr/selectableItemBackgroundBorderless"
+                                    android:layout_gravity="center"
+                                    android:tint="@color/white"/>
+                            </android.support.v7.widget.CardView>
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Products Images"
+                                android:gravity="center"
+                                android:textStyle="bold"/>
+
+                        </LinearLayout>
                     </TableRow>
 
                 </TableLayout>
@@ -600,11 +427,13 @@
                         android:layout_weight="1"
                         android:gravity="center"
                         android:orientation="vertical">
+
                         <android.support.v7.widget.CardView
                             android:layout_width="120dp"
                             android:layout_height="120dp"
                             app:cardBackgroundColor="@color/colorPrimary"
-                            app:cardCornerRadius="60dp">
+                            app:cardCornerRadius="60dp"
+                            android:visibility="gone">
                         <ImageView android:id="@+id/btnUserRol"
                             android:layout_width="80dp"
                             android:layout_height="80dp"
@@ -747,7 +576,8 @@
                                 android:layout_width="120dp"
                                 android:layout_height="120dp"
                                 app:cardBackgroundColor="@color/colorPrimary"
-                                app:cardCornerRadius="60dp">
+                                app:cardCornerRadius="60dp"
+                                android:visibility="gone">
                             <ImageView android:id="@+id/btnRolesControl"
                                 android:layout_width="80dp"
                                 android:layout_height="80dp"

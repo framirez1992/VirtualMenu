@@ -16,6 +16,7 @@ public class Tablas {
     public static final String generalUsersPriceList = "PriceList";
     public static final String generalUsersProducts = "Products";
     public static final String generalUsersProductsControl = "ProductsControl";
+    public static final String generalUsersProductsImages = "ProductsImages";
     public static final String generalUsersProductsMeasure = "ProductsMeasure";
     public static final String generalUsersProductsTypes = "ProductsTypes";
     public static final String generalUsersProductsSubTypes = "ProductsSubTypes";

@@ -8,10 +8,15 @@ import android.database.sqlite.SQLiteOpenHelper;
 import com.far.virtualmenu.Controllers.CompanyController;
 import com.far.virtualmenu.Controllers.DevicesController;
 import com.far.virtualmenu.Controllers.LicenseController;
+import com.far.virtualmenu.Controllers.MeasureUnitsController;
 import com.far.virtualmenu.Controllers.ProductsControlController;
 import com.far.virtualmenu.Controllers.ProductsController;
+import com.far.virtualmenu.Controllers.ProductsImagesController;
+import com.far.virtualmenu.Controllers.ProductsMeasureController;
 import com.far.virtualmenu.Controllers.ProductsSubTypesController;
 import com.far.virtualmenu.Controllers.ProductsTypesController;
+import com.far.virtualmenu.Controllers.RolesController;
+import com.far.virtualmenu.Controllers.UsersController;
 import com.far.virtualmenu.Globales.Tablas;
 import com.far.virtualmenu.Utils.Funciones;
 
@@ -36,16 +41,19 @@ public class DB extends SQLiteOpenHelper {
         try {
             db.beginTransaction();
             db.execSQL(LicenseController.QUERY_CREATE);
-            //db.execSQL(CombosController.QUERY_CREATE);
             db.execSQL(CompanyController.QUERY_CREATE);
             db.execSQL(DevicesController.QUERY_CREATE);
-            //db.execSQL(MeasureUnitsController.QUERY_CREATE);
+            //db.execSQL(CombosController.QUERY_CREATE);
+            db.execSQL(MeasureUnitsController.QUERY_CREATE);
            // db.execSQL(PriceListController.QUERY_CREATE);
             db.execSQL(ProductsController.QUERY_CREATE);
             db.execSQL(ProductsTypesController.QUERY_CREATE);
             db.execSQL(ProductsSubTypesController.QUERY_CREATE);
-            //db.execSQL(ProductsMeasureController.QUERY_CREATE);
+            db.execSQL(ProductsMeasureController.QUERY_CREATE);
+            db.execSQL(ProductsImagesController.QUERY_CREATE);
             db.execSQL(ProductsControlController.QUERY_CREATE);
+            db.execSQL(UsersController.QUERY_CREATE);
+            db.execSQL(RolesController.QUERY_CREATE);
             //db.execSQL(UserControlController.QUERY_CREATE);
 
 

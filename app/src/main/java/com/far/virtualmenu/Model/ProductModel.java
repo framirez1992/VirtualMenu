@@ -1,21 +1,23 @@
 package com.far.virtualmenu.Model;
 
+import com.far.virtualmenu.CloudFireStoreObjects.ProductImage;
+
 import java.util.ArrayList;
 
 public class ProductModel {
     String code, description;
     boolean enabled;
-    ArrayList<String> images;
+    ArrayList<ProductImage> images;
 
     public ProductModel(){
 
     }
 
-    public ProductModel(String code, String description, boolean enabled){
+    public ProductModel(String code, String description, ArrayList<ProductImage> images, boolean enabled){
         this.code = code;
         this.description = description;
         this.enabled = enabled;
-        images = new ArrayList<>();
+        this.images = images;
     }
 
     public String getCode() {
@@ -42,11 +44,11 @@ public class ProductModel {
         this.enabled = enabled;
     }
 
-    public ArrayList<String> getImages() {
+    public ArrayList<ProductImage> getImages() {
         return images;
     }
 
-    public void setImages(ArrayList<String> images) {
+    public void setImages(ArrayList<ProductImage> images) {
         this.images = images;
     }
 

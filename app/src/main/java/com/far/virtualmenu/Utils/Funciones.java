@@ -1,13 +1,26 @@
 package com.far.virtualmenu.Utils;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
+import android.support.v4.widget.ImageViewCompat;
+import android.support.v7.widget.CardView;
+import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+
+import com.far.virtualmenu.Generic.KV2;
+import com.far.virtualmenu.R;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -198,5 +211,77 @@ public class Funciones {
         edit.clear();
         edit.commit();
     }
+
+    public static Dialog getCustomDialog2Btn(Context context, int color, String title, String msg, int icon, View.OnClickListener positive, View.OnClickListener negative){
+        Dialog d = new Dialog(context);
+        d.setContentView(R.layout.msg_2_buttons);
+        d.setCancelable(false);
+        ((CardView)d.findViewById(R.id.cvCard)).setCardBackgroundColor(color);
+        ((TextView)d.findViewById(R.id.tvTitle)).setText(title);
+        ((TextView)d.findViewById(R.id.tvMsg)).setText(msg);
+        ImageView img = ((ImageView)d.findViewById(R.id.img));
+        img.setImageResource(icon);
+        ImageViewCompat.setImageTintList(img, ColorStateList.valueOf(color));
+        CardView btnPositive = ((CardView)d.findViewById(R.id.btnPositive));
+        btnPositive.setCardBackgroundColor(color);
+        btnPositive.setOnClickListener(positive);
+        ((CardView)d.findViewById(R.id.btnNegative)).setOnClickListener(negative);
+        try{
+            d.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return d;
+    }
+
+    public static void showAlertDependencies(Context c, String msgDependency){
+        AlertDialog a = new AlertDialog.Builder(c).create();
+        a.setMessage("No se puede eliminar debido a las siguientes dependencias: \n"+msgDependency);
+        a.show();
+    }
+
+    public static Dialog getAlertDeleteAllDependencies(Context c, String itemName, ArrayList<KV2> tables){
+        String msgDependency = "";
+        for(KV2 s: tables){
+            msgDependency+= s.getCode()+"\n";
+        }
+        String msg = "Esta seguro que desea eliminar ["+itemName+"]  permanentemente?\nTambien seran eliminadas todas las dependencias en: \n"+msgDependency;
+        final Dialog d = getCustomDialog2Btn(c,c.getResources().getColor(R.color.red_700),"Delete", msg,R.drawable.delete,null, null);
+        d.findViewById(R.id.btnNegative).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                d.dismiss();
+            }
+        });
+        return d;
+    }
+
+    public static Dialog getLoadingDialog(Context context, String msg){
+        Dialog d = new Dialog(context);
+        d.setContentView(R.layout.loading);
+        ((TextView)d.findViewById(R.id.tvMsg)).setText(msg);
+        return d;
+    }
+
+    public static Dialog getCustomDialog(Context context, int color, String title, String msg, int icon, View.OnClickListener listener){
+        Dialog d = new Dialog(context);
+        d.setContentView(R.layout.custom_dialog_1btn);
+        ((RelativeLayout)d.findViewById(R.id.rlBackground)).setBackgroundColor(color);
+        ((TextView)d.findViewById(R.id.tvTitle)).setText(title);
+        ((TextView)d.findViewById(R.id.tvMsg)).setText(msg);
+        ((ImageView)d.findViewById(R.id.img)).setImageResource(icon);
+        CardView cvOk = ((CardView)d.findViewById(R.id.cvOk));
+        cvOk.setCardBackgroundColor(color);
+        cvOk.setOnClickListener(listener);
+        try{
+            d.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return d;
+    }
+
 
 }

@@ -14,27 +14,44 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".AdminConfiguration"></activity>
+        <activity android:name=".MaintenanceProducts"></activity>
+        <activity android:name=".MaintenanceUnitMeasure" />
+        <activity android:name=".MaintenanceProductSubTypes" />
+        <activity android:name=".MaintenanceProductTypes" />
+        <activity android:name=".MaintenanceUsers" />
+        <activity android:name=".AdminConfiguration" />
         <activity android:name=".MainActivity" />
-        <activity android:name=".Login" />
-        <activity
-            android:name=".MainUpload"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
-           <!-- <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>-->
-        </activity>
-        <activity
-            android:name=".MainMenuActivity"
-            android:screenOrientation="landscape"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+        <activity android:name=".Login">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".MainUpload"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+
+            <!--
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            -->
+        </activity>
+        <activity
+            android:name=".MainMenuActivity"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+
+            <!--
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            -->
 
         </activity>
     </application>
