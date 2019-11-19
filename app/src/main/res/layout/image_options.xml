@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:cardCornerRadius="10dp"
+    android:layout_margin="50dp"
+    app:cardBackgroundColor="@color/gray_900">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <android.support.v7.widget.RecyclerView android:id="@+id/rvList"
+            android:layout_width="match_parent"
+            android:layout_height="400dp"
+            android:src="@color/grey_200"
+            android:visibility="gone"/>
+
+        <ImageView android:id="@+id/img"
+            android:layout_width="match_parent"
+            android:layout_height="400dp" />
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="50dp"
+            android:gravity="center">
+
+            <TextView android:id="@+id/tvMessage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textColor="@color/red_700"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:padding="10dp"/>
+
+
+            <android.support.v7.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="20dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:visibility="visible"
+                    android:gravity="center"
+                    android:padding="20dp">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+                        <android.support.v7.widget.CardView
+                            android:id="@+id/btnDelete"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
+                            app:cardBackgroundColor="@color/red_700"
+                            app:cardCornerRadius="25dp">
+
+                            <ImageView
+                                android:layout_width="40dp"
+                                android:layout_height="40dp"
+                                android:src="@drawable/delete"
+                                android:tint="@color/white"
+                                android:layout_gravity="center"/>
+                        </android.support.v7.widget.CardView>
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Borrar"
+                            android:textStyle="bold"
+                            android:gravity="center_horizontal"/>
+                    </LinearLayout>
+
+                </LinearLayout>
+            </android.support.v7.widget.CardView>
+
+        </LinearLayout>
+    </LinearLayout>
+</android.support.v7.widget.CardView>

@@ -9,8 +9,14 @@ import com.far.virtualmenu.CloudFireStoreObjects.ProductImage;
 import com.far.virtualmenu.DataBase.DB;
 import com.far.virtualmenu.Globales.Tablas;
 import com.far.virtualmenu.Utils.Funciones;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
 
@@ -46,6 +52,30 @@ public class ProductsImagesController {
         return reference;
     }
 
+
+    public void sendToFireBase(ProductImage pm, OnFailureListener failureListener){
+            WriteBatch lote = db.batch();
+            lote.set(getReferenceFireStore().document(pm.getCODE()), pm.toMap());
+            lote.commit().addOnFailureListener(failureListener);
+
+    }
+
+    public void searchProductsImages(String codeProduct, OnSuccessListener<QuerySnapshot> success, OnCompleteListener<QuerySnapshot> complete, OnFailureListener failure){
+
+
+            getReferenceFireStore().
+                    whereEqualTo(CODEPRODUCT, codeProduct).//mayor que, ya que las fechas (la que buscamos de la DB) tienen hora, minuto y segundos.
+                    get().
+                    addOnSuccessListener(success).addOnCompleteListener(complete).
+                    addOnFailureListener(failure);
+
+    }
+
+    public void deleteFromFireBase(ProductImage pi, OnSuccessListener onSuccessListener){
+            WriteBatch lote = db.batch();
+            lote.delete(getReferenceFireStore().document(pi.getCODE()));
+            lote.commit().addOnSuccessListener(onSuccessListener);
+    }
 
     public long insert(ProductImage p){
         ContentValues cv = new ContentValues();

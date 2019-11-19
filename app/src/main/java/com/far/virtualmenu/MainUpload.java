@@ -1,5 +1,6 @@
 package com.far.virtualmenu;
 
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
@@ -10,24 +11,31 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
+import com.far.virtualmenu.CloudFireStoreObjects.ProductImage;
 import com.far.virtualmenu.CloudFireStoreObjects.Products;
 import com.far.virtualmenu.Controllers.ProductsController;
+import com.far.virtualmenu.Controllers.ProductsImagesController;
 import com.far.virtualmenu.Model.ProductModel;
 import com.far.virtualmenu.interfaces.ListableActivity;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
-public class MainUpload extends AppCompatActivity implements ListableActivity {
+public class MainUpload extends AppCompatActivity implements ListableActivity, OnFailureListener {
 
 
     String lastSearch = null;
-    UploadsFragment uploadsFragment;
     ProductsEdition productsEdition;
+    UploadsFragment uploadsFragment;
     ProductsController productsController;
-
+    Fragment lastFragment;
 
     ProductModel pm;
     @Override
@@ -115,11 +123,17 @@ public class MainUpload extends AppCompatActivity implements ListableActivity {
 
     @Override
     public void onClick(Object obj) {
-        pm = (ProductModel)obj;
+        if(obj instanceof ProductModel){
+            pm = (ProductModel)obj;
+        }else if(obj instanceof ProductImage){
+            uploadsFragment.callOptionDialog((ProductImage)obj);
+        }
+
     }
 
 
     public void changeFragment(Fragment f, int id) {
+        lastFragment = f;
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.replace(id, f);
         ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
@@ -127,11 +141,23 @@ public class MainUpload extends AppCompatActivity implements ListableActivity {
         ft.commit();
     }
 
+    @Override
+    public void onBackPressed() {
+        if(lastFragment == uploadsFragment){
+            showProductsearch();
+        }else {
+            super.onBackPressed();
+        }
+    }
+
     public void addNewPhoto(){
         uploadsFragment.setProductModel(pm);
         changeFragment(uploadsFragment, R.id.details);
     }
 
+    public void showProductsearch(){
+        changeFragment(productsEdition,  R.id.details);
+    }
 
     public void setUpListeners(){
         productsController.getReferenceFireStore().addSnapshotListener(new EventListener<QuerySnapshot>() {
@@ -154,5 +180,40 @@ public class MainUpload extends AppCompatActivity implements ListableActivity {
             }
         });
 
+
+
+    }
+
+
+    public void SaveProductImage(ProductImage pi){
+        ProductsImagesController productsImagesController = ProductsImagesController.getInstance(this);
+        productsImagesController.sendToFireBase(pi, this);
+        refreshImages();
+    }
+
+    public void deleteProductImage(final ProductImage pi){
+        ProductsImagesController productsImagesController = ProductsImagesController.getInstance(this);
+        productsImagesController.deleteFromFireBase(pi, new OnSuccessListener() {
+            @Override
+            public void onSuccess(Object o) {
+                pm.getImages().remove(pi);
+                refreshImages();
+            }
+        });
+
+    }
+
+    public void refreshImages(){
+        if(lastFragment == uploadsFragment){
+            uploadsFragment.refreshImages();
+        }
+    }
+
+
+
+
+    @Override
+    public void onFailure(@NonNull Exception e) {
+        Toast.makeText(MainUpload.this, e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
     }
 }

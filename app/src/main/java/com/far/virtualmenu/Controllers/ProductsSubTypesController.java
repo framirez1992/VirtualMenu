@@ -13,16 +13,19 @@ import com.far.virtualmenu.DataBase.DB;
 import com.far.virtualmenu.Generic.KV;
 import com.far.virtualmenu.Globales.Tablas;
 import com.far.virtualmenu.Utils.Funciones;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 
 public class ProductsSubTypesController {
@@ -318,6 +321,37 @@ public class ProductsSubTypesController {
             msg+= s+"\n";
         }
         return msg;
+    }
+
+
+    public void searchChanges(OnSuccessListener<QuerySnapshot> success, OnCompleteListener<QuerySnapshot> complete, OnFailureListener failure){
+
+        Date mdate = DB.getLastMDateSaved(context, TABLE_NAME);
+        if(mdate != null){
+            getReferenceFireStore().
+                    whereGreaterThan(MDATE, mdate).//mayor que, ya que las fechas (la que buscamos de la DB) tienen hora, minuto y segundos.
+                    get().
+                    addOnSuccessListener(success).addOnCompleteListener(complete).
+                    addOnFailureListener(failure);
+        }else{//TODOS
+            getReferenceFireStore().
+                    get().
+                    addOnSuccessListener(success).addOnCompleteListener(complete).
+                    addOnFailureListener(failure);
+        }
+
+    }
+
+    public void consumeQuerySnapshot(QuerySnapshot querySnapshot){
+        if (querySnapshot != null && querySnapshot.getDocuments()!= null && querySnapshot.getDocuments().size() > 0) {
+            for(DocumentSnapshot doc: querySnapshot){
+                ProductsSubTypes obj = doc.toObject(ProductsSubTypes.class);
+                if(update(obj, CODE+"=?", new String[]{obj.getCODE()}) <=0){
+                    insert(obj);
+                }
+            }
+        }
+
     }
 
 }

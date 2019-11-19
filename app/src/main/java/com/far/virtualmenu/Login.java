@@ -306,8 +306,14 @@ public class Login extends AppCompatActivity implements OnFailureListener, FireB
                     Funciones.savePreferences(Login.this, CODES.PREFERENCE_USERSKEY_USERTYPE, UsersController.getInstance(Login.this).getUserByCode(codeUser).getROLE());
                     ((TextView)findViewById(R.id.tvErrorMsg)).setText("");
 
-                    Intent i = new Intent(Login.this, MainActivity.class);
-                    startActivity(i);
+                    if(UsersController.getInstance(Login.this).isAdmin()|| UsersController.getInstance(Login.this).isSuperUser()){
+                        Intent i = new Intent(Login.this, MainActivity.class);
+                        startActivity(i);
+                    }else{
+                        Intent i = new Intent(Login.this, MainMenuActivity.class);
+                        startActivity(i);
+                    }
+
 
                 }else{
                     Snackbar.make(findViewById(R.id.root), "ERROR obteniendo Usuario", Snackbar.LENGTH_LONG).show();

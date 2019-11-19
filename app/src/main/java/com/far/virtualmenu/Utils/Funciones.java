@@ -2,15 +2,18 @@ package com.far.virtualmenu.Utils;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
+import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.v4.widget.ImageViewCompat;
 import android.support.v7.widget.CardView;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.webkit.MimeTypeMap;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -281,6 +284,12 @@ public class Funciones {
         }
 
         return d;
+    }
+
+    public static String getFileExtension(Context context, Uri uri){
+        ContentResolver cr = context.getContentResolver();
+        MimeTypeMap mime = MimeTypeMap.getSingleton();
+        return mime.getExtensionFromMimeType(cr.getType(uri));
     }
 
 
