@@ -6,10 +6,10 @@ import android.database.Cursor;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
-import com.far.virtualmenu.Adapters.Models.SimpleRowModel;
 import com.far.virtualmenu.Adapters.Models.TitleDetailRowModel;
+import com.far.virtualmenu.CloudFireStoreObjects.Attributes;
 import com.far.virtualmenu.CloudFireStoreObjects.Licenses;
-import com.far.virtualmenu.CloudFireStoreObjects.ProductsTypes;
+import com.far.virtualmenu.CloudFireStoreObjects.Attributes;
 import com.far.virtualmenu.DataBase.DB;
 import com.far.virtualmenu.Generic.KV;
 import com.far.virtualmenu.Globales.Tablas;
@@ -28,9 +28,8 @@ import com.google.firebase.firestore.WriteBatch;
 import java.util.ArrayList;
 import java.util.Date;
 
-
-public class ProductsTypesController {
-    public static final  String TABLE_NAME = "PRODUCTSTYPES";
+public class AttributesController {
+    public static final  String TABLE_NAME = "ATTRIBUTES";
     public static String CODE = "code", DESCRIPTION = "description", ORDER = "orden",ENABLED = "enabled",  DATE="date", MDATE="mdate";
     public static String[]colums = new String[]{CODE, DESCRIPTION, ORDER,ENABLED, DATE, MDATE};
     public static String QUERY_CREATE = "CREATE TABLE "+TABLE_NAME+" ("
@@ -38,14 +37,14 @@ public class ProductsTypesController {
 
     Context context;
     FirebaseFirestore db;
-    private static ProductsTypesController instance;
-    private ProductsTypesController(Context c){
+    private static AttributesController instance;
+    private AttributesController(Context c){
         this.context = c;
         this.db = FirebaseFirestore.getInstance();
     }
-    public static ProductsTypesController getInstance(Context context){
+    public static AttributesController getInstance(Context context){
         if(instance == null){
-            instance = new ProductsTypesController(context);
+            instance = new AttributesController(context);
         }
         return instance;
     }
@@ -55,10 +54,10 @@ public class ProductsTypesController {
         if(l == null){
             return null;
         }
-        CollectionReference reference = db.collection(Tablas.generalUsers).document(l.getCODE()).collection(Tablas.generalUsersProductsTypes);
+        CollectionReference reference = db.collection(Tablas.generalUsers).document(l.getCODE()).collection(Tablas.generalUsersAttributes);
         return reference;
     }
-    public long insert(ProductsTypes pt){
+    public long insert(Attributes pt){
         ContentValues cv = new ContentValues();
         cv.put(CODE,pt.getCODE());
         cv.put(DESCRIPTION,pt.getDESCRIPTION());
@@ -71,11 +70,11 @@ public class ProductsTypesController {
         return result;
     }
 
-    public long update(ProductsTypes pt){
+    public long update(Attributes pt){
         String where = CODE+" = ?";
         return update(pt, where, new String[]{pt.getCODE()});
     }
-    public long update(ProductsTypes pt, String where, String[] args){
+    public long update(Attributes pt, String where, String[] args){
         ContentValues cv = new ContentValues();
         cv.put(CODE,pt.getCODE() );
         cv.put(DESCRIPTION,pt.getDESCRIPTION());
@@ -88,7 +87,7 @@ public class ProductsTypesController {
         return result;
     }
 
-    public long delete(ProductsTypes pt){
+    public long delete(Attributes pt){
         return delete(CODE+" = ?", new String[]{pt.getCODE()});
     }
 
@@ -97,16 +96,16 @@ public class ProductsTypesController {
         return result;
     }
 
-    public ArrayList<ProductsTypes> getProductTypes(String[] camposFiltros,String[]argumentos, String campoOrderBy){
+    public ArrayList<Attributes> getAttributes(String[] camposFiltros, String[]argumentos, String campoOrderBy){
 
-        ArrayList<ProductsTypes> result = new ArrayList<>();
+        ArrayList<Attributes> result = new ArrayList<>();
         if(campoOrderBy == null){
             campoOrderBy=DESCRIPTION;
         }
         try {
             Cursor c =  DB.getInstance(context).getReadableDatabase().query(TABLE_NAME, colums, ((camposFiltros!=null)?DB.getWhereFormat(camposFiltros):null), argumentos, null, null, campoOrderBy);
             while (c.moveToNext()){
-                result.add(new ProductsTypes(c));
+                result.add(new Attributes(c));
             }
             c.close();
         }catch (Exception e){
@@ -117,14 +116,14 @@ public class ProductsTypesController {
 
     public int getCount(String destiny){
         int result = 0;
-        ArrayList<ProductsTypes> pts = getProductTypes(null, null, null);
+        ArrayList<Attributes> pts = getAttributes(null, null, null);
         if(pts != null){
             result =  pts.size();
         }
         return result;
     }
-    public ProductsTypes getProductTypeByCode(String code){
-        ArrayList<ProductsTypes> pts = getProductTypes(new String[]{CODE}, new String[]{code}, null);
+    public Attributes getAtributeByCode(String code){
+        ArrayList<Attributes> pts = getAttributes(new String[]{CODE}, new String[]{code}, null);
         if(pts.size()>0){
             return  pts.get(0);
         }
@@ -165,7 +164,7 @@ public class ProductsTypesController {
     }*/
 
 
-    public ArrayList<TitleDetailRowModel> getAllProductTypesTDRM(String where, String[] args){
+    public ArrayList<TitleDetailRowModel> getAllAttributesTDRM(String where, String[] args){
         ArrayList<TitleDetailRowModel> result = new ArrayList<>();
         String orderBy = ORDER+" ASC, "+DESCRIPTION;
         try {
@@ -192,30 +191,8 @@ public class ProductsTypesController {
      * @param campoOrder
      * @return
      */
-   /* public ArrayList<SimpleSeleccionRowModel> getProductTypesSSRM(String where, String[] args, String campoOrder){
-        ArrayList<SimpleSeleccionRowModel> result = new ArrayList<>();
-        if(campoOrder == null){campoOrder = DESCRIPTION;}
-        where=((where != null)? "WHERE "+where:"");
-        try {
 
-            String sql = "SELECT "+CODE+" as CODE, "+DESCRIPTION+" as DESCRIPTION " +
-                    "FROM "+TABLE_NAME+"  " +
-                    where;
-            Cursor c = DB.getInstance(context).getReadableDatabase().rawQuery(sql, args);
-            while(c.moveToNext()){
-                String code = c.getString(c.getColumnIndex("CODE"));
-                String name = c.getString(c.getColumnIndex("DESCRIPTION"));
-                result.add(new SimpleSeleccionRowModel(code,name ,false));
-            }
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-
-        return result;
-
-    }*/
-
-    public void sendToFireBase(ProductsTypes pt){
+    public void sendToFireBase(Attributes pt){
         try {
             WriteBatch lote = db.batch();
             lote.set(getReferenceFireStore().document(pt.getCODE()), pt.toMap());
@@ -227,7 +204,7 @@ public class ProductsTypesController {
     }
 
 
-    public void deleteFromFireBase(ProductsTypes pt){
+    public void deleteFromFireBase(Attributes pt){
         try {
             getReferenceFireStore().document(pt.getCODE()).delete();
         }catch(Exception e){
@@ -239,16 +216,16 @@ public class ProductsTypesController {
     public void getDataFromFireBase(String key, OnSuccessListener<QuerySnapshot> onSuccessListener,
                                     OnFailureListener onFailureListener){
         try {
-            Task<QuerySnapshot> measureUnits = db.collection(Tablas.generalUsers).document(key).collection(Tablas.generalUsersProductsTypes).get();
-            measureUnits.addOnSuccessListener(onSuccessListener);
-            measureUnits.addOnFailureListener(onFailureListener);
+            Task<QuerySnapshot> attributes = db.collection(Tablas.generalUsers).document(key).collection(Tablas.generalUsersAttributes).get();
+            attributes.addOnSuccessListener(onSuccessListener);
+            attributes.addOnFailureListener(onFailureListener);
         }catch(Exception e){
             e.printStackTrace();
         }
     }
 
 
-    public void getAllDataFromFireBase(String key, OnFailureListener onFailureListener){
+    public void getAllDataFromFireBase(OnFailureListener onFailureListener){
         try {
             Task<QuerySnapshot> reference = getReferenceFireStore().get();
             reference.addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
@@ -256,7 +233,7 @@ public class ProductsTypesController {
                 public void onSuccess(QuerySnapshot querySnapshot) {
                     if(querySnapshot != null && querySnapshot.getDocumentChanges()!= null && !querySnapshot.getDocumentChanges().isEmpty()){
                         for(DocumentChange dc : querySnapshot.getDocumentChanges()) {
-                            ProductsTypes object = dc.getDocument().toObject(ProductsTypes.class);
+                            Attributes object = dc.getDocument().toObject(Attributes.class);
                             String where = CODE+" = ?";
                             String[]args = new String[]{object.getCODE()};
                             delete(where, args);
@@ -274,48 +251,15 @@ public class ProductsTypesController {
 
 
     public void fillSpinner(Spinner spn, boolean addTodos){
-        String orderBy = ProductsTypesController.ORDER+" ASC, "+ProductsTypesController.DESCRIPTION;
-        ArrayList<ProductsTypes> list = getProductTypes(null,null, orderBy);
+        String orderBy = AttributesController.ORDER+" ASC, "+AttributesController.DESCRIPTION;
+        ArrayList<Attributes> list = getAttributes(null,null, orderBy);
         ArrayList<KV> data = new ArrayList<>();
         if(addTodos){
             KV obj = new KV("0", "TODOS");
             data.add(obj);
         }
-        for(ProductsTypes pt : list){
+        for(Attributes pt : list){
             data.add(new KV(pt.getCODE(), pt.getDESCRIPTION()));
-        }
-
-        ArrayAdapter<KV> adapter = new ArrayAdapter<KV>(context,android.R.layout.simple_list_item_1, data);
-        spn.setAdapter(adapter);
-    }
-
-    /**
-     * Retorna los ProductTypes de los productos que estan bloqueados
-     * @param spn
-     * @param addTodos
-     */
-    public void fillSpinnerForLockedProducts(Spinner spn, boolean addTodos){
-        ArrayList<KV> data = new ArrayList<>();
-        if(addTodos){
-            KV obj = new KV("0", "TODOS");
-            data.add(obj);
-        }
-        try {
-            String sql = "SELECT pt." + ProductsTypesController.CODE + ", pt." + ProductsTypesController.DESCRIPTION + " " +
-                    "FROM " + ProductsTypesController.TABLE_NAME + " pt " +
-                    "INNER JOIN " + ProductsController.TABLE_NAME + " p on p." + ProductsController.TYPE + " = pt." + ProductsTypesController.CODE + " " +
-                    "INNER JOIN " + ProductsControlController.TABLE_NAME + " pc on pc." + ProductsControlController.CODEPRODUCT + " = p." + ProductsController.CODE + " " +
-                    "WHERE pc." + ProductsControlController.BLOQUED + " = ? " +
-                    "GROUP BY pt." + ProductsTypesController.CODE + ", pt." + ProductsTypesController.DESCRIPTION + " " +
-                    "ORDER BY pt." + ProductsTypesController.ORDER + " ASC, pt." + ProductsTypesController.DESCRIPTION;
-
-            Cursor c = DB.getInstance(context).getReadableDatabase().rawQuery(sql, new String[]{"1"});
-            while (c.moveToNext()) {
-                data.add(new KV(c.getString(0), c.getString(1)));
-            }
-            c.close();
-        }catch (Exception e){
-            e.printStackTrace();
         }
 
         ArrayAdapter<KV> adapter = new ArrayAdapter<KV>(context,android.R.layout.simple_list_item_1, data);
@@ -331,10 +275,8 @@ public class ProductsTypesController {
     public String hasDependencies(String code){
         String msg = "";
         ArrayList<String> tables = new ArrayList<>();
-        if(DB.getInstance(context).hasDependencies(ProductsSubTypesController.TABLE_NAME,ProductsSubTypesController.CODETYPE,code))
-            tables.add(ProductsSubTypesController.TABLE_NAME);
-        if(DB.getInstance(context).hasDependencies(ProductsController.TABLE_NAME,ProductsController.TYPE,code))
-            tables.add(ProductsController.TABLE_NAME);
+        if(DB.getInstance(context).hasDependencies(AttributeTypesController.TABLE_NAME,AttributeTypesController.CODEATTRIBUTE,code))
+            tables.add(AttributeTypesController.TABLE_NAME);
 
         for(String s: tables){
             msg+= s+"\n";
@@ -364,7 +306,7 @@ public class ProductsTypesController {
     public void consumeQuerySnapshot(QuerySnapshot querySnapshot){
         if (querySnapshot != null && querySnapshot.getDocuments()!= null && querySnapshot.getDocuments().size() > 0) {
             for(DocumentSnapshot doc: querySnapshot){
-                ProductsTypes obj = doc.toObject(ProductsTypes.class);
+                Attributes obj = doc.toObject(Attributes.class);
                 if(update(obj, CODE+"=?", new String[]{obj.getCODE()}) <=0){
                     insert(obj);
                 }

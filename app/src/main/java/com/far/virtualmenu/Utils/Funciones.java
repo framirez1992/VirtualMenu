@@ -292,5 +292,9 @@ public class Funciones {
         return mime.getExtensionFromMimeType(cr.getType(uri));
     }
 
+    public static String convertToHexColor(int color){
+        return String.format("#%06X", (0xFFFFFF & color));
+    }
+
 
 }

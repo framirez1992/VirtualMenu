@@ -224,7 +224,7 @@ public class ProductsDialogfragment extends DialogFragment implements OnFailureL
             String description = etName.getText().toString();
             String productType = ((KV)spnFamily.getSelectedItem()).getKey();
             String productSubType = ((KV)spnGroup.getSelectedItem()).getKey();
-            Products product = new Products(code, description, productType, productSubType, false);
+            Products product = new Products(code, description, productType, productSubType, true, false);
 
             ArrayList<ProductsMeasure> list = new ArrayList<>();
             for(EditSelectionRowModel ssrm: selected){

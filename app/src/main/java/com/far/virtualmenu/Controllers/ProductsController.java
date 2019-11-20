@@ -34,11 +34,11 @@ public class ProductsController {
 
     public static final String TABLE_NAME ="PRODUCTS";
     public static  String CODE = "code", DESCRIPTION = "description",
-            TYPE = "type",SUBTYPE = "subtype",  COMBO = "combo", DATE = "date", MDATE="mdate";
-    public static String[] columns = new String[]{CODE, DESCRIPTION,TYPE, SUBTYPE, COMBO, DATE, MDATE};
+            TYPE = "type",SUBTYPE = "subtype", ENABLED = "enabled",  COMBO = "combo", DATE = "date", MDATE="mdate";
+    public static String[] columns = new String[]{CODE, DESCRIPTION,TYPE, SUBTYPE, ENABLED, COMBO, DATE, MDATE};
 
     public static String QUERY_CREATE = "CREATE TABLE "+TABLE_NAME+"("
-            +CODE+" TEXT, "+DESCRIPTION+" TEXT, "+TYPE+" TEXT, "+SUBTYPE+" TEXT, "+
+            +CODE+" TEXT, "+DESCRIPTION+" TEXT, "+TYPE+" TEXT, "+SUBTYPE+" TEXT, "+ENABLED+" NUMERIC, "+
             COMBO+" BOOLEAN, "+DATE+" TEXT, "+MDATE+" TEXT)";
     Context context;
     FirebaseFirestore db;
@@ -72,6 +72,7 @@ public class ProductsController {
         cv.put(DESCRIPTION,p.getDESCRIPTION());
         cv.put(TYPE, p.getTYPE());
         cv.put(SUBTYPE,p.getSUBTYPE() );
+        cv.put(ENABLED,p.isENABLED() );
         cv.put(COMBO,p.isCOMBO() );
         cv.put(DATE, Funciones.getFormatedDate(p.getDATE()));
         cv.put(MDATE, Funciones.getFormatedDate(p.getMDATE()));
@@ -86,6 +87,7 @@ public class ProductsController {
         cv.put(DESCRIPTION,p.getDESCRIPTION());
         cv.put(TYPE, p.getTYPE());
         cv.put(SUBTYPE,p.getSUBTYPE());
+        cv.put(ENABLED,p.isENABLED() );
         cv.put(COMBO,p.isCOMBO() );
         cv.put(MDATE, Funciones.getFormatedDate(p.getMDATE()));
 

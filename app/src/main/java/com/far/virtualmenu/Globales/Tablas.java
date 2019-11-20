@@ -10,6 +10,8 @@ public class Tablas {
     public static final String generalRoles = "GENERAL_ROLES";
 
     //GENERAL_USERS childs
+    public static final String generalUsersAttributes = "Attributes";
+    public static final String generalUsersAttributeTypes = "AttributeTypes";
     public static final String generalUsersCombos = "Combos";
     public static final String generalUsersCompany = "Company";
     public static final String generalUsersMeasureUnits = "MeasureUnits";

@@ -15,15 +15,15 @@ import java.util.HashMap;
 @IgnoreExtraProperties
 public class Products {
     private String CODE, DESCRIPTION,TYPE, SUBTYPE;
-    private boolean COMBO;
+    private boolean ENABLED, COMBO;
     private @ServerTimestamp
     Date DATE, MDATE;
     public Products(){
 
     }
-    public Products(String code, String description, String type, String subType, boolean combo){
+    public Products(String code, String description, String type, String subType,boolean enabled,  boolean combo){
     this.CODE = code; this.DESCRIPTION = description; this.TYPE = type;
-    this.SUBTYPE = subType;this.COMBO = combo;
+    this.SUBTYPE = subType;this.ENABLED = enabled; this.COMBO = combo;
     }
 
     public HashMap<String, Object> toMap(){
@@ -32,6 +32,7 @@ public class Products {
         map.put(ProductsController.DESCRIPTION,DESCRIPTION);
         map.put(ProductsController.TYPE,TYPE );
         map.put(ProductsController.SUBTYPE, SUBTYPE);
+        map.put(ProductsController.ENABLED,ENABLED );
         map.put(ProductsController.COMBO,COMBO );
         map.put(ProductsController.DATE, (DATE == null)? FieldValue.serverTimestamp():DATE);
         map.put(ProductsController.MDATE, (MDATE == null)? FieldValue.serverTimestamp():MDATE);
@@ -44,6 +45,7 @@ public class Products {
         this.DESCRIPTION = c.getString(c.getColumnIndex(ProductsController.DESCRIPTION));
         this.TYPE = c.getString(c.getColumnIndex(ProductsController.TYPE));
         this.SUBTYPE = c.getString(c.getColumnIndex(ProductsController.SUBTYPE));
+        this.ENABLED = c.getString(c.getColumnIndex(ProductsController.ENABLED)).equals("1");
         this.COMBO = c.getString(c.getColumnIndex(ProductsController.COMBO)).equals("1");
         this.MDATE = Funciones.parseStringToDate(c.getString(c.getColumnIndex(ProductsController.MDATE)));
         this.DATE = Funciones.parseStringToDate(c.getString(c.getColumnIndex(ProductsController.DATE)));
@@ -87,6 +89,14 @@ public class Products {
 
     public void setCOMBO(boolean COMBO) {
         this.COMBO = COMBO;
+    }
+
+    public boolean isENABLED() {
+        return ENABLED;
+    }
+
+    public void setENABLED(boolean ENABLED) {
+        this.ENABLED = ENABLED;
     }
 
     public Date getDATE() {

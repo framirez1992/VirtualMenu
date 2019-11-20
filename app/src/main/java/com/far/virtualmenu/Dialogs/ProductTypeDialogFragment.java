@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.CheckBox;
 import android.widget.LinearLayout;
 
 import com.far.virtualmenu.CloudFireStoreObjects.ProductsTypes;
@@ -26,6 +27,7 @@ public  class ProductTypeDialogFragment extends DialogFragment implements OnFail
     LinearLayout llSave;
     TextInputEditText etName;
     TextInputEditText etOrden;
+    CheckBox cbActivate;
 
 
     ProductsTypesController productsTypesController;
@@ -96,6 +98,7 @@ public  class ProductTypeDialogFragment extends DialogFragment implements OnFail
         llSave = view.findViewById(R.id.llSave);
         etName = view.findViewById(R.id.etName);
         etOrden = view.findViewById(R.id.etOrden);
+        cbActivate = view.findViewById(R.id.cbActivate);
 
         llSave.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -136,7 +139,7 @@ public  class ProductTypeDialogFragment extends DialogFragment implements OnFail
             String code = Funciones.generateCode();
             String name = etName.getText().toString();
             int orden = etOrden.getText().toString().trim().equals("")?9999:Integer.parseInt(etOrden.getText().toString());
-            ProductsTypes pt = new ProductsTypes(code, name, orden);
+            ProductsTypes pt = new ProductsTypes(code, name, orden, cbActivate.isChecked());
             productsTypesController.sendToFireBase(pt);
 
             this.dismiss();
@@ -153,6 +156,7 @@ public  class ProductTypeDialogFragment extends DialogFragment implements OnFail
             tempObj.setDESCRIPTION(etName.getText().toString());
             tempObj.setMDATE(null);
             tempObj.setORDEN(orden);
+            tempObj.setENABLED(cbActivate.isChecked());
             productsTypesController.sendToFireBase(tempObj);
 
             this.dismiss();
@@ -168,6 +172,7 @@ public  class ProductTypeDialogFragment extends DialogFragment implements OnFail
     public void setUpToEditProductType(){
         etName.setText(tempObj.getDESCRIPTION());
         etOrden.setText(tempObj.getORDEN()+"");
+        cbActivate.setChecked(tempObj.isENABLED());
 
     }
 

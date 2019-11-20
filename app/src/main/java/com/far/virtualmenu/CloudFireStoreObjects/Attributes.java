@@ -2,18 +2,15 @@ package com.far.virtualmenu.CloudFireStoreObjects;
 
 import android.database.Cursor;
 
-import com.far.virtualmenu.Controllers.ProductsTypesController;
+import com.far.virtualmenu.Controllers.AttributesController;
 import com.far.virtualmenu.Utils.Funciones;
 import com.google.firebase.firestore.FieldValue;
-import com.google.firebase.firestore.IgnoreExtraProperties;
 import com.google.firebase.firestore.ServerTimestamp;
 
 import java.util.Date;
 import java.util.HashMap;
 
-
-@IgnoreExtraProperties
-public class ProductsTypes {
+public class Attributes {
     private String CODE, DESCRIPTION;
     private int ORDEN;
     private boolean ENABLED;
@@ -22,31 +19,31 @@ public class ProductsTypes {
     private @ServerTimestamp
     Date MDATE;
 
-    public ProductsTypes(){
+    public Attributes(){
 
     }
-    public ProductsTypes(String code, String description, int order, boolean enabled){
+    public Attributes(String code, String description, int order, boolean enabled){
         this.CODE = code; this.DESCRIPTION = description; this.ORDEN = order;this.ENABLED = enabled;
     }
 
     public HashMap<String, Object> toMap(){
         HashMap<String, Object> map = new HashMap<>();
-        map.put(ProductsTypesController.CODE, CODE);
-        map.put(ProductsTypesController.DESCRIPTION, DESCRIPTION);
-        map.put(ProductsTypesController.ORDER, ORDEN);
-        map.put(ProductsTypesController.ENABLED, ENABLED);
-        map.put(ProductsTypesController.DATE, (DATE == null)? FieldValue.serverTimestamp():DATE);
-        map.put(ProductsTypesController.MDATE,  (MDATE == null)? FieldValue.serverTimestamp():MDATE);
+        map.put(AttributesController.CODE, CODE);
+        map.put(AttributesController.DESCRIPTION, DESCRIPTION);
+        map.put(AttributesController.ORDER, ORDEN);
+        map.put(AttributesController.ENABLED, ENABLED);
+        map.put(AttributesController.DATE, (DATE == null)? FieldValue.serverTimestamp():DATE);
+        map.put(AttributesController.MDATE,  (MDATE == null)? FieldValue.serverTimestamp():MDATE);
         return map;
 
     }
-    public ProductsTypes(Cursor c){
-        this.CODE = c.getString(c.getColumnIndex(ProductsTypesController.CODE));
-        this.DESCRIPTION = c.getString(c.getColumnIndex(ProductsTypesController.DESCRIPTION));
-        this.ORDEN = c.getInt(c.getColumnIndex(ProductsTypesController.ORDER));
-        this.ENABLED = c.getString(c.getColumnIndex(ProductsTypesController.ORDER)).equals("1");
-        this.DATE = Funciones.parseStringToDate(c.getString(c.getColumnIndex(ProductsTypesController.DATE)));
-        this.MDATE = Funciones.parseStringToDate(c.getString(c.getColumnIndex(ProductsTypesController.MDATE)));
+    public Attributes(Cursor c){
+        this.CODE = c.getString(c.getColumnIndex(AttributesController.CODE));
+        this.DESCRIPTION = c.getString(c.getColumnIndex(AttributesController.DESCRIPTION));
+        this.ORDEN = c.getInt(c.getColumnIndex(AttributesController.ORDER));
+        this.ENABLED = c.getString(c.getColumnIndex(AttributesController.ORDER)).equals("1");
+        this.DATE = Funciones.parseStringToDate(c.getString(c.getColumnIndex(AttributesController.DATE)));
+        this.MDATE = Funciones.parseStringToDate(c.getString(c.getColumnIndex(AttributesController.MDATE)));
     }
 
     public String getCODE() {
@@ -96,6 +93,4 @@ public class ProductsTypes {
     public void setMDATE(Date MDATE) {
         this.MDATE = MDATE;
     }
-
-
 }

@@ -5,6 +5,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.far.virtualmenu.Controllers.AttributeTypesController;
+import com.far.virtualmenu.Controllers.AttributesController;
 import com.far.virtualmenu.Controllers.CompanyController;
 import com.far.virtualmenu.Controllers.DevicesController;
 import com.far.virtualmenu.Controllers.LicenseController;
@@ -43,6 +45,9 @@ public class DB extends SQLiteOpenHelper {
             db.execSQL(LicenseController.QUERY_CREATE);
             db.execSQL(CompanyController.QUERY_CREATE);
             db.execSQL(DevicesController.QUERY_CREATE);
+
+            db.execSQL(AttributesController.QUERY_CREATE);
+            db.execSQL(AttributeTypesController.QUERY_CREATE);
             //db.execSQL(CombosController.QUERY_CREATE);
             db.execSQL(MeasureUnitsController.QUERY_CREATE);
            // db.execSQL(PriceListController.QUERY_CREATE);

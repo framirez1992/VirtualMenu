@@ -21,7 +21,10 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.far.virtualmenu.Adapters.Models.ProductRowModel;
+import com.far.virtualmenu.Adapters.Models.ProductSubTypeRowModel;
 import com.far.virtualmenu.Adapters.Models.SimpleRowModel;
+import com.far.virtualmenu.Adapters.ProductSubTypeEditionAdapter;
 import com.far.virtualmenu.Adapters.SimpleRowEditionAdapter;
 import com.far.virtualmenu.CloudFireStoreObjects.Licenses;
 import com.far.virtualmenu.CloudFireStoreObjects.ProductsSubTypes;
@@ -29,6 +32,7 @@ import com.far.virtualmenu.CloudFireStoreObjects.ProductsTypes;
 import com.far.virtualmenu.Controllers.LicenseController;
 import com.far.virtualmenu.Controllers.ProductsSubTypesController;
 import com.far.virtualmenu.Controllers.ProductsTypesController;
+import com.far.virtualmenu.Dialogs.ColorPickDialog;
 import com.far.virtualmenu.Dialogs.ProductSubTypeDialogFragment;
 import com.far.virtualmenu.Generic.KV;
 import com.far.virtualmenu.Utils.Funciones;
@@ -43,8 +47,8 @@ import java.util.ArrayList;
 public class MaintenanceProductSubTypes extends AppCompatActivity implements ListableActivity {
 
     RecyclerView rvList;
-    ArrayList<SimpleRowModel> objects;
-    SimpleRowEditionAdapter adapter;
+    ArrayList<ProductSubTypeRowModel> objects;
+    ProductSubTypeEditionAdapter adapter;
     ProductsTypesController productsTypesController;
     ProductsSubTypesController productsSubTypesController;
     ProductsSubTypes productsSubType = null;
@@ -71,7 +75,7 @@ public class MaintenanceProductSubTypes extends AppCompatActivity implements Lis
 
         LinearLayoutManager manager = new LinearLayoutManager(MaintenanceProductSubTypes.this);
         rvList.setLayoutManager(manager);
-        adapter = new SimpleRowEditionAdapter(this,this, objects);
+        adapter = new ProductSubTypeEditionAdapter(this,this, objects);
         rvList.setAdapter(adapter);
 
         productsTypesController.fillSpinner(spnFamily, true);
@@ -192,9 +196,9 @@ public class MaintenanceProductSubTypes extends AppCompatActivity implements Lis
         ft.addToBackStack(null);
         DialogFragment newFragment = null;
         if(isNew)
-            newFragment = ProductSubTypeDialogFragment.newInstance(null);
+            newFragment = ProductSubTypeDialogFragment.newInstance(this, null);
         else
-            newFragment = ProductSubTypeDialogFragment.newInstance(productsSubType);
+            newFragment = ProductSubTypeDialogFragment.newInstance(this, productsSubType);
 
 
         // Create and show the dialog.
@@ -266,7 +270,7 @@ public class MaintenanceProductSubTypes extends AppCompatActivity implements Lis
             args = x.toArray(new String[x.size()]);
         }
 
-            objects.addAll(productsSubTypesController.getAllProductSubTypesSRM(where, args, order));
+            objects.addAll(productsSubTypesController.getAllProductSubTypesRM(where, args, order));
 
         adapter.notifyDataSetChanged();
     }
@@ -275,7 +279,7 @@ public class MaintenanceProductSubTypes extends AppCompatActivity implements Lis
     @Override
     public void onClick(Object obj) {
         productsSubType = null;
-        SimpleRowModel sr = (SimpleRowModel)obj;
+        ProductSubTypeRowModel sr = (ProductSubTypeRowModel)obj;
         productsSubType = productsSubTypesController.getProductTypeByCode(sr.getId());
 
     }
@@ -312,6 +316,21 @@ public class MaintenanceProductSubTypes extends AppCompatActivity implements Lis
         }
         return msgDependency;
     }
+
+
+
+    public void callColorDialog(View view){
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        Fragment prev = getSupportFragmentManager().findFragmentByTag("colorDialog");
+        if (prev != null) {
+            ft.remove(prev);
+        }
+        ft.addToBackStack(null);
+        DialogFragment newFragment =  ColorPickDialog.newInstance(this, view);
+        // Create and show the dialog.
+        newFragment.show(ft, "colorDialog");
+    }
+
 
 }
 

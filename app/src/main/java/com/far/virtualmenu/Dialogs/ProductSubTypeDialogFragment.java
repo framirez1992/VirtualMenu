@@ -1,5 +1,7 @@
 package com.far.virtualmenu.Dialogs;
 
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -9,6 +11,7 @@ import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 
@@ -16,17 +19,23 @@ import com.far.virtualmenu.CloudFireStoreObjects.ProductsSubTypes;
 import com.far.virtualmenu.Controllers.ProductsSubTypesController;
 import com.far.virtualmenu.Controllers.ProductsTypesController;
 import com.far.virtualmenu.Generic.KV;
+import com.far.virtualmenu.MaintenanceProductSubTypes;
 import com.far.virtualmenu.R;
 import com.far.virtualmenu.Utils.Funciones;
+import com.far.virtualmenu.interfaces.ListableActivity;
 import com.google.android.gms.tasks.OnFailureListener;
 
 public class ProductSubTypeDialogFragment extends DialogFragment implements OnFailureListener {
 
+    MaintenanceProductSubTypes parent;
     ProductsSubTypes tempObj;
     LinearLayout llFamilia;
     Spinner spnFamilia;
     LinearLayout llSave;
     TextInputEditText etName, etOrden;
+    CheckBox cbActivate;
+    View vTextColor, vBackground;
+    LinearLayout llBackground, llTextColor;
 
     ProductsSubTypesController productsSubTypesController;
 
@@ -34,9 +43,10 @@ public class ProductSubTypeDialogFragment extends DialogFragment implements OnFa
      * Create a new instance of MyDialogFragment, providing "num"
      * as an argument.
      */
-    public  static ProductSubTypeDialogFragment newInstance( ProductsSubTypes pt) {
+    public  static ProductSubTypeDialogFragment newInstance(MaintenanceProductSubTypes parent,  ProductsSubTypes pt) {
 
         ProductSubTypeDialogFragment f = new ProductSubTypeDialogFragment();
+        f.parent = parent;
         f.tempObj = pt;
 
         // Supply num input as an argument.
@@ -70,7 +80,7 @@ public class ProductSubTypeDialogFragment extends DialogFragment implements OnFa
                              Bundle savedInstanceState) {
 
 
-        return inflater.inflate(R.layout.dialog_spn_save, container, true);
+        return inflater.inflate(R.layout.add_edit_product_sub_type, container, true);
     }
 
     @Override
@@ -97,7 +107,14 @@ public class ProductSubTypeDialogFragment extends DialogFragment implements OnFa
         llSave = view.findViewById(R.id.llSave);
         etName = view.findViewById(R.id.etName);
         etOrden = view.findViewById(R.id.etOrden);
-        view.findViewById(R.id.tilOrden).setVisibility(View.VISIBLE);
+        cbActivate = view.findViewById(R.id.cbActivate);
+        vBackground = view.findViewById(R.id.vBackground);
+        vTextColor = view.findViewById(R.id.vTextColor);
+        llBackground = view.findViewById(R.id.llBackground);
+        llTextColor = view.findViewById(R.id.llTextColor);
+
+        llBackground.setOnClickListener(colorChangeListener);
+        llTextColor.setOnClickListener(colorChangeListener);
 
         ProductsTypesController.getInstance(getActivity()).fillSpinner(spnFamilia, false);
 
@@ -149,7 +166,9 @@ public class ProductSubTypeDialogFragment extends DialogFragment implements OnFa
             String name = etName.getText().toString();
             String codeProductType = ((KV)spnFamilia.getSelectedItem()).getKey();
             int orden = (etOrden.getText().toString().trim().equals(""))?9999:Integer.parseInt(etOrden.getText().toString());
-            ProductsSubTypes pst = new ProductsSubTypes(code,codeProductType,name, orden);
+            String hex1 = Funciones.convertToHexColor(((ColorDrawable)vBackground.getBackground()).getColor());
+            String hex2 = Funciones.convertToHexColor(((ColorDrawable)vTextColor.getBackground()).getColor());
+            ProductsSubTypes pst = new ProductsSubTypes(code,codeProductType,name,hex1, hex2, orden, cbActivate.isChecked());
             productsSubTypesController.sendToFireBase(pst);
 
 
@@ -162,11 +181,16 @@ public class ProductSubTypeDialogFragment extends DialogFragment implements OnFa
     public void EditProductSubType(){
         try {
             ProductsSubTypes pst = tempObj;
+            String hex1 = Funciones.convertToHexColor(((ColorDrawable)vBackground.getBackground()).getColor());
+            String hex2 = Funciones.convertToHexColor(((ColorDrawable)vTextColor.getBackground()).getColor());
             int orden = (etOrden.getText().toString().trim().equals(""))?9999:Integer.parseInt(etOrden.getText().toString());
             pst.setDESCRIPTION(etName.getText().toString());
             pst.setCODETYPE(((KV)spnFamilia.getSelectedItem()).getKey());
+            pst.setHEXCOLOR1(hex1);
+            pst.setHEXCOLOR2(hex2);
             pst.setMDATE(null);
             pst.setORDEN(orden);
+            pst.setENABLED(cbActivate.isChecked());
             productsSubTypesController.sendToFireBase(pst);
 
 
@@ -181,6 +205,9 @@ public class ProductSubTypeDialogFragment extends DialogFragment implements OnFa
         setFamilia();
         etName.setText(tempObj.getDESCRIPTION());
         etOrden.setText(tempObj.getORDEN()+"");
+        cbActivate.setChecked(tempObj.isENABLED());
+        vBackground.setBackgroundColor(Color.parseColor(tempObj.getHEXCOLOR1()));
+        vTextColor.setBackgroundColor(Color.parseColor(tempObj.getHEXCOLOR2()));
     }
     public void setFamilia(){
         for(int i = 0; i< spnFamilia.getAdapter().getCount(); i++){
@@ -195,4 +222,12 @@ public class ProductSubTypeDialogFragment extends DialogFragment implements OnFa
     public void onFailure(@NonNull Exception e) {
         llSave.setEnabled(true);
     }
+
+    View.OnClickListener colorChangeListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            View vColor = (v.getId() == R.id.llBackground)?vBackground:vTextColor;
+           parent.callColorDialog(vColor);
+        }
+    };
 }

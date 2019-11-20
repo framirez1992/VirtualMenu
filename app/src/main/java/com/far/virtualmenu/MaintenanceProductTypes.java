@@ -19,7 +19,9 @@ import android.view.Window;
 import android.widget.LinearLayout;
 
 import com.far.virtualmenu.Adapters.Models.SimpleRowModel;
+import com.far.virtualmenu.Adapters.Models.TitleDetailRowModel;
 import com.far.virtualmenu.Adapters.SimpleRowEditionAdapter;
+import com.far.virtualmenu.Adapters.TitleDetailRowEditionAdapter;
 import com.far.virtualmenu.CloudFireStoreObjects.Licenses;
 import com.far.virtualmenu.CloudFireStoreObjects.ProductsTypes;
 import com.far.virtualmenu.Controllers.LicenseController;
@@ -38,8 +40,8 @@ import java.util.ArrayList;
 public class MaintenanceProductTypes extends AppCompatActivity implements ListableActivity {
 
     RecyclerView rvList;
-    ArrayList<SimpleRowModel> objects;
-    SimpleRowEditionAdapter adapter;
+    ArrayList<TitleDetailRowModel> objects;
+    TitleDetailRowEditionAdapter adapter;
     ProductsTypesController productsTypesController;
 
     ProductsTypes productsType = null;
@@ -62,7 +64,7 @@ public class MaintenanceProductTypes extends AppCompatActivity implements Listab
 
         LinearLayoutManager manager = new LinearLayoutManager(MaintenanceProductTypes.this);
         rvList.setLayoutManager(manager);
-        adapter = new SimpleRowEditionAdapter(this,this, objects);
+        adapter = new TitleDetailRowEditionAdapter(this,this, objects);
         rvList.setAdapter(adapter);
 
         refreshList(lastSearch);
@@ -215,7 +217,7 @@ public class MaintenanceProductTypes extends AppCompatActivity implements Listab
             }
             args = values.toArray(new String[values.size()]);
 
-            objects.addAll(productsTypesController.getAllProductTypesSRM(where, args));
+            objects.addAll(productsTypesController.getAllProductTypesTDRM(where, args));
 
         adapter.notifyDataSetChanged();
     }
@@ -224,7 +226,7 @@ public class MaintenanceProductTypes extends AppCompatActivity implements Listab
     @Override
     public void onClick(Object obj) {
         productsType = null;
-        SimpleRowModel sr = (SimpleRowModel)obj;
+        TitleDetailRowModel sr = (TitleDetailRowModel)obj;
         productsType = productsTypesController.getProductTypeByCode(sr.getId());
 
 
