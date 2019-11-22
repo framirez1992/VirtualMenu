@@ -116,6 +116,28 @@
 
                     </LinearLayout>
 
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="20dp"
+                        android:text="Description"/>
+
+                    <ScrollView
+                        android:layout_width="match_parent"
+                        android:layout_height="200dp">
+
+                       <EditText android:id="@+id/etDescription"
+                           android:layout_width="match_parent"
+                           android:layout_height="match_parent" />
+                    </ScrollView>
+
+                    <CheckBox android:id="@+id/cbActivate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Activar"
+                        android:layout_marginTop="20dp"/>
+
                 </LinearLayout>
 
 

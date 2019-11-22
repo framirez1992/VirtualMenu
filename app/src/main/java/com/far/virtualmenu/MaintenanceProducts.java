@@ -40,6 +40,8 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 
+import javax.annotation.Nullable;
+
 public class MaintenanceProducts extends AppCompatActivity implements ListableActivity {
 
     RecyclerView rvList;
@@ -174,12 +176,11 @@ public class MaintenanceProducts extends AppCompatActivity implements ListableAc
                     productsMeasureController.delete(null, null);//limpia la tabla
 
                     for (DocumentSnapshot ds : querySnapshot) {
-
                         ProductsMeasure mu = ds.toObject(ProductsMeasure.class);
                         productsMeasureController.insert(mu);
                     }
 
-                    refreshList();
+                    //refreshList();
                 }
             });
 

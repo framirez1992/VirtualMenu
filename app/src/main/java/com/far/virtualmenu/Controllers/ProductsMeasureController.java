@@ -11,6 +11,7 @@ import com.far.virtualmenu.CloudFireStoreObjects.ProductsMeasure;
 import com.far.virtualmenu.DataBase.DB;
 import com.far.virtualmenu.Generic.KV2;
 import com.far.virtualmenu.Globales.Tablas;
+import com.far.virtualmenu.Model.PriceModel;
 import com.far.virtualmenu.Utils.Funciones;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -297,4 +298,21 @@ public class ProductsMeasureController {
 
     }
 
+    public ArrayList<PriceModel> getPriceModelsByCodeProduct(String codeProduct){
+        ArrayList<PriceModel> prices = new ArrayList<>();
+        try {
+            String sql = "SELECT mu." + MeasureUnitsController.DESCRIPTION + " as MDESCRIPTION, pm." + ProductsMeasureController.PRICE + " as PRICE " +
+                    "FROM " + ProductsMeasureController.TABLE_NAME + " pm " +
+                    "INNER JOIN " + MeasureUnitsController.TABLE_NAME + " mu on mu." + MeasureUnitsController.CODE + " = pm." + ProductsMeasureController.CODEMEASURE + " " +
+                    "AND pm." + ProductsMeasureController.CODEPRODUCT + " = '" + codeProduct + "' ";
+            Cursor c = DB.getInstance(context).getReadableDatabase().rawQuery(sql, null);
+            while (c.moveToNext()) {
+                prices.add(new PriceModel(c.getString(c.getColumnIndex("MDESCRIPTION")), c.getDouble(c.getColumnIndex("PRICE"))));
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return prices;
+    }
 }

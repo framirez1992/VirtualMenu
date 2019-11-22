@@ -25,7 +25,7 @@ public class DetailFragment extends Fragment {
 
     MainMenuActivity parentActivity;
     GridView gvPrices;
-    TextView tvTitle, tvTime;
+    TextView tvTitle,tvDescription, tvTime;
     CarouselView carouselView;
     LinearLayout llTime;
     ItemModel itemModel;
@@ -58,6 +58,7 @@ public class DetailFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         carouselView = view.findViewById(R.id.carouselView);
         tvTitle = view.findViewById(R.id.tvTitle);
+        tvDescription = view.findViewById(R.id.tvDescription);
         gvPrices = view.findViewById(R.id.gvPrices);
         llTime = view.findViewById(R.id.llTime);
         tvTime = view.findViewById(R.id.tvTime);
@@ -71,6 +72,7 @@ public class DetailFragment extends Fragment {
         if(itemModel != null){
 
             tvTitle.setText(itemModel.getTitle());
+            tvDescription.setText(itemModel.getDescription());
 
             if(itemModel.getTime() != null){
                 llTime.setVisibility(View.VISIBLE);

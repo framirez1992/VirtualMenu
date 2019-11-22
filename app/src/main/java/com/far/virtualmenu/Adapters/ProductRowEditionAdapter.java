@@ -57,14 +57,16 @@ public class ProductRowEditionAdapter extends RecyclerView.Adapter<ProductRowEdi
 
 
     public class ProductRowHolder extends RecyclerView.ViewHolder {
-        TextView tvCode, tvName, tvFamily, tvGroup;
-        ImageView imgMenu,imgTime ;
+        TextView tvCode, tvName, tvFamily, tvGroup, tvStatus;
+        ImageView imgStatus,  imgMenu,imgTime ;
         public ProductRowHolder(View itemView) {
             super(itemView);
             tvCode = itemView.findViewById(R.id.tvCode);
             tvName = itemView.findViewById(R.id.tvDescription);
             tvFamily = itemView.findViewById(R.id.tvFamily);
             tvGroup = itemView.findViewById(R.id.tvGroup);
+            tvStatus = itemView.findViewById(R.id.tvStatus);
+            imgStatus = itemView.findViewById(R.id.imgStatus);
             imgMenu = itemView.findViewById(R.id.imgMenu);
             imgTime = itemView.findViewById(R.id.imgTime);
         }
@@ -74,6 +76,8 @@ public class ProductRowEditionAdapter extends RecyclerView.Adapter<ProductRowEdi
             tvName.setText(prm.getDescription());
             tvFamily.setText(prm.getCodeTypeDesc());
             tvGroup.setText(prm.getCodeSubTypeDesc());
+            imgStatus.setImageResource((prm.isEnabled()?R.drawable.visible:R.drawable.invisible));
+            tvStatus.setText((prm.isEnabled()?"Activo":"Inactivo"));
             imgTime.setVisibility((prm.isInServer())?View.INVISIBLE:View.VISIBLE);
         }
 

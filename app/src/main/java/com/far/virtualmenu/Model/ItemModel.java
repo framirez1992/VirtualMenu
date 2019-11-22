@@ -5,23 +5,26 @@ import java.util.ArrayList;
 public class ItemModel {
     private static final String HEADER_TYPE ="h";
     private static final String DETAIL_TYPE="d";
-    String type, hexBackground;
-    String title, description, time;
+    String code, type, hexBackground;
+    String title, description,  time;
     ArrayList<String> urls;
     ArrayList<PriceModel> prices;
 
-    public static ItemModel initHeader(String title, String hexBackground){
+    public static ItemModel initHeader(String code, String title, String hexBackground){
         ItemModel lm = new ItemModel();
+        lm.code = code;
         lm.type = HEADER_TYPE;
         lm.title = title;
         lm.hexBackground = hexBackground;
         return  lm;
     }
 
-    public static ItemModel initDetail(String title, ArrayList<String> urls, double price){
+    public static ItemModel initDetail(String code, String title,String description, ArrayList<String> urls, double price){
         ItemModel lm = new ItemModel();
+        lm.code = code;
         lm.type = DETAIL_TYPE;
         lm.title = title;
+        lm.description = description;
         lm.hexBackground = "#FFFFFF";
         lm.urls = urls;
         lm.prices = new ArrayList<>();
@@ -29,10 +32,12 @@ public class ItemModel {
         return  lm;
     }
 
-    public static ItemModel initDetail(String title, ArrayList<String> urls, ArrayList<PriceModel> pm){
+    public static ItemModel initDetail(String code, String title,String description, ArrayList<String> urls, ArrayList<PriceModel> pm){
         ItemModel lm = new ItemModel();
+        lm.code = code;
         lm.type = DETAIL_TYPE;
         lm.title = title;
+        lm.description = description;
         lm.hexBackground = "#FFFFFF";
         lm.urls = urls;
         lm.prices = pm;
@@ -40,16 +45,26 @@ public class ItemModel {
     }
 
 
-    public static ItemModel initDetail(String title, String url,double price){
+    public static ItemModel initDetail(String code, String title,String description, String url,double price){
         ItemModel lm = new ItemModel();
+        lm.code = code;
         lm.type = DETAIL_TYPE;
         lm.title = title;
+        lm.description = description;
         lm.hexBackground = "#FFFFFF";
         lm.urls = new ArrayList<>();
         lm.urls.add(url);
         lm.prices = new ArrayList<>();
         lm.prices.add(new PriceModel("", price));
         return  lm;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
     }
 
     public String getHexBackground() {

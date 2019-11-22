@@ -2,15 +2,16 @@ package com.far.virtualmenu.Adapters.Models;
 
 public class ProductRowModel {
     String code, description, codeType,codeTypeDesc, codeSubType, codeSubTypeDesc;
-    boolean inServer;
+    boolean inServer, enabled;
 
-    public ProductRowModel(String code, String description, String codeType, String codeTypeDesc, String codeSubType, String codeSubTypeDesc, boolean inServer){
+    public ProductRowModel(String code, String description, String codeType, String codeTypeDesc, String codeSubType, String codeSubTypeDesc,boolean enabled,  boolean inServer){
         this.code = code;
         this.description = description;
         this.codeType = codeType;
         this.codeTypeDesc = codeTypeDesc;
         this.codeSubType = codeSubType;
         this.codeSubTypeDesc = codeSubTypeDesc;
+        this.enabled = enabled;
         this.inServer = inServer;
     }
 
@@ -60,6 +61,14 @@ public class ProductRowModel {
 
     public void setCodeSubTypeDesc(String codeSubTypeDesc) {
         this.codeSubTypeDesc = codeSubTypeDesc;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 
     public boolean isInServer() {

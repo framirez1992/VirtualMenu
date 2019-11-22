@@ -13,6 +13,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 
@@ -45,6 +47,8 @@ public class ProductsDialogfragment extends DialogFragment implements OnFailureL
     Spinner spnFamily, spnGroup;
     RecyclerView rvMeasures;
     LinearLayout llMeasureScreen, llMainScreen, llNext;
+    CheckBox cbActivate;
+    EditText etDescription;
 
     ProductsController productsController;
     ArrayList<EditSelectionRowModel> selected = new ArrayList<>() ;
@@ -121,8 +125,11 @@ public class ProductsDialogfragment extends DialogFragment implements OnFailureL
         etName = view.findViewById(R.id.etName);
         spnFamily = view.findViewById(R.id.spnFamilia);
         spnGroup = view.findViewById(R.id.spnGrupo);
+        etDescription = view.findViewById(R.id.etDescription);
         rvMeasures = view.findViewById(R.id.rvMeasures);
         rvMeasures.setLayoutManager(new LinearLayoutManager(getActivity()));
+        cbActivate = view.findViewById(R.id.cbActivate);
+
         ProductsTypesController.getInstance(getActivity()).fillSpinner(spnFamily, false);
         ProductsSubTypesController.getInstance(getActivity()).fillSpinner(spnGroup, false);
 
@@ -222,13 +229,14 @@ public class ProductsDialogfragment extends DialogFragment implements OnFailureL
         try {
             String code = etCode.getText().toString();
             String description = etName.getText().toString();
+            String menuDescription = etDescription.getText().toString();
             String productType = ((KV)spnFamily.getSelectedItem()).getKey();
             String productSubType = ((KV)spnGroup.getSelectedItem()).getKey();
-            Products product = new Products(code, description, productType, productSubType, true, false);
+            Products product = new Products(code, description,menuDescription, productType, productSubType, true, false);
 
             ArrayList<ProductsMeasure> list = new ArrayList<>();
             for(EditSelectionRowModel ssrm: selected){
-                list.add(new ProductsMeasure(Funciones.generateCode(), code, ssrm.getCode(),Double.parseDouble(ssrm.getText()),true, null, null));
+                list.add(new ProductsMeasure(Funciones.generateCode(), code, ssrm.getCode(),Double.parseDouble(ssrm.getText()),cbActivate.isChecked(), null, null));
             }
 
             productsController.sendToFireBase(product, list);
@@ -246,8 +254,10 @@ public class ProductsDialogfragment extends DialogFragment implements OnFailureL
         try {
             Products products = ((Products)tempObj);
             products.setDESCRIPTION(etName.getText().toString());
+            products.setMENUDESCRIPTION(etDescription.getText().toString());
             products.setTYPE(((KV)spnFamily.getSelectedItem()).getKey());
             products.setSUBTYPE(((KV)spnGroup.getSelectedItem()).getKey());
+            products.setENABLED(cbActivate.isChecked());
             products.setMDATE(null);
 
             ArrayList<ProductsMeasure> list = new ArrayList<>();
@@ -271,6 +281,8 @@ public class ProductsDialogfragment extends DialogFragment implements OnFailureL
         etCode.setText(p.getCODE());
         etCode.setEnabled(false);
         etName.setText(p.getDESCRIPTION());
+        etDescription.setText(p.getMENUDESCRIPTION());
+        cbActivate.setChecked(tempObj.isENABLED());
         setSpinnerposition(spnFamily, p.getTYPE());
         setSpinnerposition(spnGroup, p.getSUBTYPE());
 

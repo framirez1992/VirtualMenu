@@ -47,6 +47,8 @@ public class SimpleItemAdapter extends RecyclerView.Adapter<SimpleItemAdapter.It
                     listActivity.onClick(objects.get(position));
                 }
             });
+        }else{
+            holder.itemView.setOnClickListener(null);
         }
 
     }

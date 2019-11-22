@@ -10,6 +10,7 @@ import android.widget.Toast;
 
 import com.far.virtualmenu.Controllers.MeasureUnitsController;
 import com.far.virtualmenu.Controllers.ProductsController;
+import com.far.virtualmenu.Controllers.ProductsImagesController;
 import com.far.virtualmenu.Controllers.ProductsMeasureController;
 import com.far.virtualmenu.Controllers.ProductsSubTypesController;
 import com.far.virtualmenu.Controllers.ProductsTypesController;
@@ -90,6 +91,7 @@ public class MainMenuActivity extends AppCompatActivity implements ListableActiv
             case 2:ProductsController.getInstance(MainMenuActivity.this).searchChanges(this, this, this); break;
             case 3:ProductsMeasureController.getInstance(MainMenuActivity.this).searchChanges(this, this, this); break;
             case 4:MeasureUnitsController.getInstance(MainMenuActivity.this).searchChanges(this, this, this); break;
+            case 5:ProductsImagesController.getInstance(MainMenuActivity.this).searchChanges(this, this, this); break;
             default:
                 currentindex=0;
                 //tvMessage.setText("Finalizado Correctamente");
@@ -136,6 +138,7 @@ public class MainMenuActivity extends AppCompatActivity implements ListableActiv
             case 2:ProductsController.getInstance(MainMenuActivity.this).consumeQuerySnapshot(querySnapshot); break;
             case 3:ProductsMeasureController.getInstance(MainMenuActivity.this).consumeQuerySnapshot(querySnapshot); break;
             case 4:MeasureUnitsController.getInstance(MainMenuActivity.this).consumeQuerySnapshot(querySnapshot); break;
+            case 5:ProductsImagesController.getInstance(MainMenuActivity.this).consumeQuerySnapshot(querySnapshot); break;
             default:break;
         }
         currentindex++;

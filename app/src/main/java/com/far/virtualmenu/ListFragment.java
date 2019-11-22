@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.far.virtualmenu.Adapters.SimpleItemAdapter;
+import com.far.virtualmenu.Controllers.ProductsController;
 import com.far.virtualmenu.Model.ItemModel;
 import com.far.virtualmenu.Model.PriceModel;
 
@@ -56,8 +57,8 @@ public class ListFragment extends Fragment {
     }
 
     public void fillData(){
-        ArrayList<ItemModel> list  = new ArrayList<>();
-        ArrayList<String> urls = new ArrayList<>();
+        ArrayList<ItemModel> list  = ProductsController.getInstance(parentActivity).getItemModelMenu();
+       /* ArrayList<String> urls = new ArrayList<>();
         list.add(ItemModel.initHeader("Entradas","#0288D1"));
 
         urls.add("http://2.bp.blogspot.com/_xZi4NccTdcI/SYSBkmdhOTI/AAAAAAAAACI/9uwMp210vxc/s400/el_seto.jpg");
@@ -121,7 +122,7 @@ public class ListFragment extends Fragment {
         prices = new ArrayList<>();
         prices.add(new PriceModel("3 Unds", 220));
         prices.add(new PriceModel("6 Unds", 380));
-        list.add(ItemModel.initDetail("Chorizo", urls, prices));
+        list.add(ItemModel.initDetail("Chorizo", urls, prices));*/
 
 
         SimpleItemAdapter adapter = new SimpleItemAdapter(parentActivity,parentActivity,list);

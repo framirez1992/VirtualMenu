@@ -7,12 +7,17 @@ import android.support.annotation.NonNull;
 
 import com.far.virtualmenu.Adapters.Models.ProductRowModel;
 import com.far.virtualmenu.CloudFireStoreObjects.Licenses;
+import com.far.virtualmenu.CloudFireStoreObjects.ProductImage;
 import com.far.virtualmenu.CloudFireStoreObjects.Products;
+import com.far.virtualmenu.CloudFireStoreObjects.ProductsControl;
 import com.far.virtualmenu.CloudFireStoreObjects.ProductsMeasure;
+import com.far.virtualmenu.CloudFireStoreObjects.ProductsSubTypes;
 import com.far.virtualmenu.DataBase.CloudFireStoreDB;
 import com.far.virtualmenu.DataBase.DB;
 import com.far.virtualmenu.Generic.KV2;
 import com.far.virtualmenu.Globales.Tablas;
+import com.far.virtualmenu.Model.ItemModel;
+import com.far.virtualmenu.Model.PriceModel;
 import com.far.virtualmenu.Model.ProductModel;
 import com.far.virtualmenu.Utils.Funciones;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -33,12 +38,12 @@ import java.util.Date;
 public class ProductsController {
 
     public static final String TABLE_NAME ="PRODUCTS";
-    public static  String CODE = "code", DESCRIPTION = "description",
+    public static  String CODE = "code", DESCRIPTION = "description",MENUDESCRIPTION = "menudescription",
             TYPE = "type",SUBTYPE = "subtype", ENABLED = "enabled",  COMBO = "combo", DATE = "date", MDATE="mdate";
-    public static String[] columns = new String[]{CODE, DESCRIPTION,TYPE, SUBTYPE, ENABLED, COMBO, DATE, MDATE};
+    public static String[] columns = new String[]{CODE, DESCRIPTION,MENUDESCRIPTION, TYPE, SUBTYPE, ENABLED, COMBO, DATE, MDATE};
 
     public static String QUERY_CREATE = "CREATE TABLE "+TABLE_NAME+"("
-            +CODE+" TEXT, "+DESCRIPTION+" TEXT, "+TYPE+" TEXT, "+SUBTYPE+" TEXT, "+ENABLED+" NUMERIC, "+
+            +CODE+" TEXT, "+DESCRIPTION+" TEXT,"+MENUDESCRIPTION+" TEXT,  "+TYPE+" TEXT, "+SUBTYPE+" TEXT, "+ENABLED+" NUMERIC, "+
             COMBO+" BOOLEAN, "+DATE+" TEXT, "+MDATE+" TEXT)";
     Context context;
     FirebaseFirestore db;
@@ -70,6 +75,7 @@ public class ProductsController {
         ContentValues cv = new ContentValues();
         cv.put(CODE,p.getCODE() );
         cv.put(DESCRIPTION,p.getDESCRIPTION());
+        cv.put(MENUDESCRIPTION,p.getMENUDESCRIPTION());
         cv.put(TYPE, p.getTYPE());
         cv.put(SUBTYPE,p.getSUBTYPE() );
         cv.put(ENABLED,p.isENABLED() );
@@ -85,6 +91,7 @@ public class ProductsController {
         ContentValues cv = new ContentValues();
         cv.put(CODE,p.getCODE() );
         cv.put(DESCRIPTION,p.getDESCRIPTION());
+        cv.put(MENUDESCRIPTION,p.getMENUDESCRIPTION());
         cv.put(TYPE, p.getTYPE());
         cv.put(SUBTYPE,p.getSUBTYPE());
         cv.put(ENABLED,p.isENABLED() );
@@ -130,14 +137,22 @@ public class ProductsController {
         where=((where != null)? "WHERE "+where:"");
         try {
 
-            String sql = "SELECT p."+CODE+" as CODE, p."+DESCRIPTION+" AS DESCRIPTION, pt."+ProductsTypesController.CODE+" as PTCODE, pt."+ProductsTypesController.DESCRIPTION+" as PTDESCRIPTION, pst."+ProductsSubTypesController.CODE+" AS PSTCODE, pst."+ProductsSubTypesController.DESCRIPTION+" AS PSTDESCRIPTION, p."+MDATE+" AS MDATE " +
+            String sql = "SELECT p."+CODE+" as CODE, p."+DESCRIPTION+" AS DESCRIPTION,p."+ENABLED+" as ENABLED,  pt."+ProductsTypesController.CODE+" as PTCODE, pt."+ProductsTypesController.DESCRIPTION+" as PTDESCRIPTION, pst."+ProductsSubTypesController.CODE+" AS PSTCODE, " +
+                    "pst."+ProductsSubTypesController.DESCRIPTION+" AS PSTDESCRIPTION, p."+MDATE+" AS MDATE " +
                     "FROM "+TABLE_NAME+" p " +
                     "LEFT JOIN "+ProductsTypesController.TABLE_NAME+" pt ON pt."+ProductsTypesController.CODE+" = p."+TYPE+" "+
                     "LEFT JOIN "+ProductsSubTypesController.TABLE_NAME+" pst ON pst."+ProductsSubTypesController.CODE+" = "+SUBTYPE+" "+
                     where;
             Cursor c = DB.getInstance(context).getReadableDatabase().rawQuery(sql, args);
             while(c.moveToNext()){
-                result.add(new ProductRowModel(c.getString(c.getColumnIndex("CODE")), c.getString(c.getColumnIndex("DESCRIPTION")),c.getString(c.getColumnIndex("PTCODE")) ,c.getString(c.getColumnIndex("PTDESCRIPTION")),c.getString(c.getColumnIndex("PSTCODE")),c.getString(c.getColumnIndex("PSTDESCRIPTION")),c.getString(c.getColumnIndex("MDATE")) != null));
+                result.add(new ProductRowModel(c.getString(c.getColumnIndex("CODE")),
+                        c.getString(c.getColumnIndex("DESCRIPTION")),
+                        c.getString(c.getColumnIndex("PTCODE")) ,
+                        c.getString(c.getColumnIndex("PTDESCRIPTION")),
+                        c.getString(c.getColumnIndex("PSTCODE")),
+                        c.getString(c.getColumnIndex("PSTDESCRIPTION")),
+                        c.getString(c.getColumnIndex("ENABLED")).equals("1"),
+                        c.getString(c.getColumnIndex("MDATE")) != null));
             }
         }catch(Exception e){
             e.printStackTrace();
@@ -346,6 +361,45 @@ public class ProductsController {
                 }
             }
         }
+
+    }
+
+    public ArrayList<ItemModel> getItemModelMenu(){
+        ArrayList<ItemModel> list  = new ArrayList<>();
+
+        String sql = "SELECT pt."+ProductsTypesController.CODE+" as FCODE,pst."+ProductsSubTypesController.CODE+" as GCODE,  pst."+ProductsSubTypesController.DESCRIPTION+" as GDESCRIPTION, pst."+ProductsSubTypesController.HEXCOLOR1+" as GHEX1, " +
+                "p."+ProductsController.CODE+" as PCODE, p."+ ProductsController.DESCRIPTION+" as PDESCRIPTION, p."+ProductsController.MENUDESCRIPTION+" as  PMENUDESCRIPTION, pt."+ ProductsTypesController.ORDER+ ", pst."+ProductsSubTypesController.ORDER+" "+
+                "FROM "+ProductsController.TABLE_NAME+" p "+
+                "INNER JOIN "+ProductsTypesController.TABLE_NAME+" pt on pt."+ProductsTypesController.CODE+" = p."+ProductsController.TYPE+" AND pt." +ProductsTypesController.ENABLED+" = '1'  "+
+                "INNER JOIN "+ProductsSubTypesController.TABLE_NAME+" pst on pst."+ProductsSubTypesController.CODE+" = p."+ProductsController.SUBTYPE+" AND pst." +ProductsSubTypesController.ENABLED+" = '1' " +
+                "WHERE p."+ProductsController.ENABLED+" = '1' " +
+                "ORDER BY pt."+ ProductsTypesController.ORDER+", pst."+ProductsSubTypesController.ORDER+", p."+DESCRIPTION;
+    try {
+        Cursor c = DB.getInstance(context).getReadableDatabase().rawQuery(sql, null);
+        ItemModel lastHeader = ItemModel.initHeader("", "", "");
+        while (c.moveToNext()) {
+            String codeHeader = c.getString(c.getColumnIndex("GCODE"));
+            if (!lastHeader.getCode().equals(codeHeader)) {
+                lastHeader = null;
+                lastHeader = ItemModel.initHeader(codeHeader, c.getString(c.getColumnIndex("GDESCRIPTION")), c.getString(c.getColumnIndex("GHEX1")));
+                list.add(lastHeader);
+            }
+
+            String codeProduct = c.getString(c.getColumnIndex("PCODE"));
+            ArrayList<String> urls = new ArrayList<>();
+            for (ProductImage pi : ProductsImagesController.getInstance(context).getProductImageByCodeProduct(codeProduct)) {
+                urls.add(pi.getURL());
+            }
+
+            ArrayList<PriceModel> prices = ProductsMeasureController.getInstance(context).getPriceModelsByCodeProduct(codeProduct);
+            list.add(ItemModel.initDetail(codeProduct, c.getString(c.getColumnIndex("PDESCRIPTION")),c.getString(c.getColumnIndex("PMENUDESCRIPTION")), urls, prices));
+        }
+        c.close();
+    }catch (Exception e){
+        e.printStackTrace();
+    }
+
+        return list;
 
     }
 }

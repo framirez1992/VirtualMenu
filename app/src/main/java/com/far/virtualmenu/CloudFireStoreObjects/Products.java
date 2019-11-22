@@ -14,15 +14,15 @@ import java.util.HashMap;
 
 @IgnoreExtraProperties
 public class Products {
-    private String CODE, DESCRIPTION,TYPE, SUBTYPE;
+    private String CODE, DESCRIPTION,MENUDESCRIPTION, TYPE, SUBTYPE;
     private boolean ENABLED, COMBO;
     private @ServerTimestamp
     Date DATE, MDATE;
     public Products(){
 
     }
-    public Products(String code, String description, String type, String subType,boolean enabled,  boolean combo){
-    this.CODE = code; this.DESCRIPTION = description; this.TYPE = type;
+    public Products(String code, String description,String menuDescription,  String type, String subType,boolean enabled,  boolean combo){
+    this.CODE = code; this.DESCRIPTION = description; this.MENUDESCRIPTION = menuDescription; this.TYPE = type;
     this.SUBTYPE = subType;this.ENABLED = enabled; this.COMBO = combo;
     }
 
@@ -30,6 +30,7 @@ public class Products {
         HashMap<String, Object> map = new HashMap<>();
         map.put(ProductsController.CODE,CODE);
         map.put(ProductsController.DESCRIPTION,DESCRIPTION);
+        map.put(ProductsController.MENUDESCRIPTION,MENUDESCRIPTION);
         map.put(ProductsController.TYPE,TYPE );
         map.put(ProductsController.SUBTYPE, SUBTYPE);
         map.put(ProductsController.ENABLED,ENABLED );
@@ -43,6 +44,7 @@ public class Products {
     public Products(Cursor c){
         this.CODE = c.getString(c.getColumnIndex(ProductsController.CODE));
         this.DESCRIPTION = c.getString(c.getColumnIndex(ProductsController.DESCRIPTION));
+        this.MENUDESCRIPTION = c.getString(c.getColumnIndex(ProductsController.MENUDESCRIPTION));
         this.TYPE = c.getString(c.getColumnIndex(ProductsController.TYPE));
         this.SUBTYPE = c.getString(c.getColumnIndex(ProductsController.SUBTYPE));
         this.ENABLED = c.getString(c.getColumnIndex(ProductsController.ENABLED)).equals("1");
@@ -65,6 +67,14 @@ public class Products {
 
     public void setDESCRIPTION(String DESCRIPTION) {
         this.DESCRIPTION = DESCRIPTION;
+    }
+
+    public String getMENUDESCRIPTION() {
+        return MENUDESCRIPTION;
+    }
+
+    public void setMENUDESCRIPTION(String MENUDESCRIPTION) {
+        this.MENUDESCRIPTION = MENUDESCRIPTION;
     }
 
     public String getTYPE() {
