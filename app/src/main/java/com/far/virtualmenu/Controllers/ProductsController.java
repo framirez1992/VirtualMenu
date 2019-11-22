@@ -39,11 +39,11 @@ public class ProductsController {
 
     public static final String TABLE_NAME ="PRODUCTS";
     public static  String CODE = "code", DESCRIPTION = "description",MENUDESCRIPTION = "menudescription",
-            TYPE = "type",SUBTYPE = "subtype", ENABLED = "enabled",  COMBO = "combo", DATE = "date", MDATE="mdate";
-    public static String[] columns = new String[]{CODE, DESCRIPTION,MENUDESCRIPTION, TYPE, SUBTYPE, ENABLED, COMBO, DATE, MDATE};
+            TYPE = "type",SUBTYPE = "subtype",PREPTIME="preptime", ENABLED = "enabled",  COMBO = "combo", DATE = "date", MDATE="mdate";
+    public static String[] columns = new String[]{CODE, DESCRIPTION,MENUDESCRIPTION, TYPE, SUBTYPE,PREPTIME, ENABLED, COMBO, DATE, MDATE};
 
     public static String QUERY_CREATE = "CREATE TABLE "+TABLE_NAME+"("
-            +CODE+" TEXT, "+DESCRIPTION+" TEXT,"+MENUDESCRIPTION+" TEXT,  "+TYPE+" TEXT, "+SUBTYPE+" TEXT, "+ENABLED+" NUMERIC, "+
+            +CODE+" TEXT, "+DESCRIPTION+" TEXT,"+MENUDESCRIPTION+" TEXT,  "+TYPE+" TEXT, "+SUBTYPE+" TEXT,"+PREPTIME+" TEXT,  "+ENABLED+" NUMERIC, "+
             COMBO+" BOOLEAN, "+DATE+" TEXT, "+MDATE+" TEXT)";
     Context context;
     FirebaseFirestore db;
@@ -78,6 +78,7 @@ public class ProductsController {
         cv.put(MENUDESCRIPTION,p.getMENUDESCRIPTION());
         cv.put(TYPE, p.getTYPE());
         cv.put(SUBTYPE,p.getSUBTYPE() );
+        cv.put(PREPTIME,p.getPREPTIME() );
         cv.put(ENABLED,p.isENABLED() );
         cv.put(COMBO,p.isCOMBO() );
         cv.put(DATE, Funciones.getFormatedDate(p.getDATE()));
@@ -94,6 +95,7 @@ public class ProductsController {
         cv.put(MENUDESCRIPTION,p.getMENUDESCRIPTION());
         cv.put(TYPE, p.getTYPE());
         cv.put(SUBTYPE,p.getSUBTYPE());
+        cv.put(PREPTIME,p.getPREPTIME() );
         cv.put(ENABLED,p.isENABLED() );
         cv.put(COMBO,p.isCOMBO() );
         cv.put(MDATE, Funciones.getFormatedDate(p.getMDATE()));
@@ -242,9 +244,9 @@ public class ProductsController {
                 lote.update(getReferenceFireStore().document(product.getCODE()), product.toMap());
             }
 
+            String notIn=" NOT IN ('1'";
             if (newMeasures != null && !newMeasures.isEmpty()){
 
-                String notIn=" NOT IN ('1'";
                 for(ProductsMeasure pm: newMeasures){
                     String where = ProductsMeasureController.CODEMEASURE+" = ? AND "+ProductsMeasureController.CODEPRODUCT+" = ?";
                     String[]args = new String[]{pm.getCODEMEASURE(), pm.getCODEPRODUCT()};
@@ -261,25 +263,26 @@ public class ProductsController {
                         //ACTUALIZAR LOCAL
                         where = ProductsMeasureController.CODE+" = ?";
                         ProductsMeasureController.getInstance(context).update(pm,where, new String[]{pm.getCODE()});
-
-                        notIn+=",'"+pm.getCODE()+"'";
                     }else{//INSERTAR
                         lote.set(ProductsMeasureController.getInstance(context).getReferenceFireStore().document(pm.getCODE()), pm.toMap());
                         ProductsMeasureController.getInstance(context).insert(pm);
                     }
+                    notIn+=",'"+pm.getCODE()+"'";
                 }
 
-                notIn+=")";
-                String where = ProductsMeasureController.CODEPRODUCT+" = ? AND "+ProductsMeasureController.ENABLED+" = ? AND  "+ProductsMeasureController.CODE+notIn;
-                ArrayList<ProductsMeasure> toDisable = ProductsMeasureController.getInstance(context).getProductsMeasure(where, new String[]{product.getCODE(), "1"});
-                for(ProductsMeasure pm: toDisable){
-                    pm.setENABLED(false);
-                    pm.setMDATE(null);
-                    where = ProductsMeasureController.CODE+" = ?";
-                    ProductsMeasureController.getInstance(context).update(pm,where, new String[]{pm.getCODE()});
 
-                    lote.update(ProductsMeasureController.getInstance(context).getReferenceFireStore().document(pm.getCODE()), pm.toMap());
-                }
+            }
+
+            notIn+=")";
+            String where = ProductsMeasureController.CODEPRODUCT+" = ? AND "+ProductsMeasureController.ENABLED+" = ? AND  "+ProductsMeasureController.CODE+notIn;
+            ArrayList<ProductsMeasure> toDisable = ProductsMeasureController.getInstance(context).getProductsMeasure(where, new String[]{product.getCODE(), "1"});
+            for(ProductsMeasure pm: toDisable){
+                pm.setENABLED(false);
+                pm.setMDATE(null);
+                where = ProductsMeasureController.CODE+" = ?";
+                ProductsMeasureController.getInstance(context).update(pm,where, new String[]{pm.getCODE()});
+
+                lote.update(ProductsMeasureController.getInstance(context).getReferenceFireStore().document(pm.getCODE()), pm.toMap());
             }
 
             lote.commit().addOnFailureListener(new OnFailureListener() {
@@ -368,7 +371,8 @@ public class ProductsController {
         ArrayList<ItemModel> list  = new ArrayList<>();
 
         String sql = "SELECT pt."+ProductsTypesController.CODE+" as FCODE,pst."+ProductsSubTypesController.CODE+" as GCODE,  pst."+ProductsSubTypesController.DESCRIPTION+" as GDESCRIPTION, pst."+ProductsSubTypesController.HEXCOLOR1+" as GHEX1, " +
-                "p."+ProductsController.CODE+" as PCODE, p."+ ProductsController.DESCRIPTION+" as PDESCRIPTION, p."+ProductsController.MENUDESCRIPTION+" as  PMENUDESCRIPTION, pt."+ ProductsTypesController.ORDER+ ", pst."+ProductsSubTypesController.ORDER+" "+
+                "p."+ProductsController.CODE+" as PCODE, p."+ ProductsController.DESCRIPTION+" as PDESCRIPTION, p."+ProductsController.MENUDESCRIPTION+" as  PMENUDESCRIPTION,p."+ProductsController.PREPTIME+" as PREPTIME, " +
+                "pt."+ ProductsTypesController.ORDER+ ", pst."+ProductsSubTypesController.ORDER+" "+
                 "FROM "+ProductsController.TABLE_NAME+" p "+
                 "INNER JOIN "+ProductsTypesController.TABLE_NAME+" pt on pt."+ProductsTypesController.CODE+" = p."+ProductsController.TYPE+" AND pt." +ProductsTypesController.ENABLED+" = '1'  "+
                 "INNER JOIN "+ProductsSubTypesController.TABLE_NAME+" pst on pst."+ProductsSubTypesController.CODE+" = p."+ProductsController.SUBTYPE+" AND pst." +ProductsSubTypesController.ENABLED+" = '1' " +
@@ -392,7 +396,8 @@ public class ProductsController {
             }
 
             ArrayList<PriceModel> prices = ProductsMeasureController.getInstance(context).getPriceModelsByCodeProduct(codeProduct);
-            list.add(ItemModel.initDetail(codeProduct, c.getString(c.getColumnIndex("PDESCRIPTION")),c.getString(c.getColumnIndex("PMENUDESCRIPTION")), urls, prices));
+            list.add(ItemModel.initDetail(codeProduct, c.getString(c.getColumnIndex("PDESCRIPTION")),c.getString(c.getColumnIndex("PMENUDESCRIPTION")),
+                    c.getString(c.getColumnIndex("PREPTIME")), urls, prices));
         }
         c.close();
     }catch (Exception e){

@@ -304,7 +304,8 @@ public class ProductsMeasureController {
             String sql = "SELECT mu." + MeasureUnitsController.DESCRIPTION + " as MDESCRIPTION, pm." + ProductsMeasureController.PRICE + " as PRICE " +
                     "FROM " + ProductsMeasureController.TABLE_NAME + " pm " +
                     "INNER JOIN " + MeasureUnitsController.TABLE_NAME + " mu on mu." + MeasureUnitsController.CODE + " = pm." + ProductsMeasureController.CODEMEASURE + " " +
-                    "AND pm." + ProductsMeasureController.CODEPRODUCT + " = '" + codeProduct + "' ";
+                    "AND pm." + ProductsMeasureController.CODEPRODUCT + " = '" + codeProduct + "' AND "+ProductsMeasureController.ENABLED+" = '1' " +
+                    "ORDER BY pm."+ProductsMeasureController.PRICE+" ASC " ;
             Cursor c = DB.getInstance(context).getReadableDatabase().rawQuery(sql, null);
             while (c.moveToNext()) {
                 prices.add(new PriceModel(c.getString(c.getColumnIndex("MDESCRIPTION")), c.getDouble(c.getColumnIndex("PRICE"))));

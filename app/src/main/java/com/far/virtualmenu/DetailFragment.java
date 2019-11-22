@@ -74,9 +74,9 @@ public class DetailFragment extends Fragment {
             tvTitle.setText(itemModel.getTitle());
             tvDescription.setText(itemModel.getDescription());
 
-            if(itemModel.getTime() != null){
+            if(itemModel.getTime() != null && itemModel.getTime().split("-").length>1){
                 llTime.setVisibility(View.VISIBLE);
-                tvTime.setText(itemModel.getTime());
+                tvTime.setText(itemModel.getTime().replace("-M", " Minutos").replace("-H", " Horas"));
             }else{
                 llTime.setVisibility(View.GONE);
                 tvTime.setText("");

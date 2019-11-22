@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -44,11 +45,11 @@ public class ProductsDialogfragment extends DialogFragment implements OnFailureL
 
     LinearLayout llSave, llBack;
     TextInputEditText etCode, etName;
-    Spinner spnFamily, spnGroup;
+    Spinner spnFamily, spnGroup, spnTime;
     RecyclerView rvMeasures;
     LinearLayout llMeasureScreen, llMainScreen, llNext;
     CheckBox cbActivate;
-    EditText etDescription;
+    EditText etTime, etDescription;
 
     ProductsController productsController;
     ArrayList<EditSelectionRowModel> selected = new ArrayList<>() ;
@@ -125,6 +126,8 @@ public class ProductsDialogfragment extends DialogFragment implements OnFailureL
         etName = view.findViewById(R.id.etName);
         spnFamily = view.findViewById(R.id.spnFamilia);
         spnGroup = view.findViewById(R.id.spnGrupo);
+        etTime = view.findViewById(R.id.etTime);
+        spnTime = view.findViewById(R.id.spnTime);
         etDescription = view.findViewById(R.id.etDescription);
         rvMeasures = view.findViewById(R.id.rvMeasures);
         rvMeasures.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -167,10 +170,14 @@ public class ProductsDialogfragment extends DialogFragment implements OnFailureL
                 llMeasureScreen.setVisibility((llMeasureScreen.getVisibility() == View.GONE)?View.VISIBLE:View.GONE);
             }
         });
+        initSpnTime();
 
         if(tempObj != null){//EDIT
             setUpToEditUsers();
+        }else{//NEW
+            cbActivate.setChecked(true);
         }
+
 
         fillMeasures();
 
@@ -232,11 +239,12 @@ public class ProductsDialogfragment extends DialogFragment implements OnFailureL
             String menuDescription = etDescription.getText().toString();
             String productType = ((KV)spnFamily.getSelectedItem()).getKey();
             String productSubType = ((KV)spnGroup.getSelectedItem()).getKey();
-            Products product = new Products(code, description,menuDescription, productType, productSubType, true, false);
+            String prepTime = (etTime.getText().toString().isEmpty())?"":(etTime.getText().toString()+"-"+((KV)spnTime.getSelectedItem()).getKey());
+            Products product = new Products(code, description,menuDescription, productType, productSubType,prepTime, true, false);
 
             ArrayList<ProductsMeasure> list = new ArrayList<>();
             for(EditSelectionRowModel ssrm: selected){
-                list.add(new ProductsMeasure(Funciones.generateCode(), code, ssrm.getCode(),Double.parseDouble(ssrm.getText()),cbActivate.isChecked(), null, null));
+                list.add(new ProductsMeasure(Funciones.generateCode(), code, ssrm.getCode(),Double.parseDouble(ssrm.getText()),true, null, null));
             }
 
             productsController.sendToFireBase(product, list);
@@ -258,6 +266,8 @@ public class ProductsDialogfragment extends DialogFragment implements OnFailureL
             products.setTYPE(((KV)spnFamily.getSelectedItem()).getKey());
             products.setSUBTYPE(((KV)spnGroup.getSelectedItem()).getKey());
             products.setENABLED(cbActivate.isChecked());
+            String prepTime = (etTime.getText().toString().isEmpty())?"":(etTime.getText().toString()+"-"+((KV)spnTime.getSelectedItem()).getKey());
+            products.setPREPTIME(prepTime);
             products.setMDATE(null);
 
             ArrayList<ProductsMeasure> list = new ArrayList<>();
@@ -285,6 +295,12 @@ public class ProductsDialogfragment extends DialogFragment implements OnFailureL
         cbActivate.setChecked(tempObj.isENABLED());
         setSpinnerposition(spnFamily, p.getTYPE());
         setSpinnerposition(spnGroup, p.getSUBTYPE());
+
+        if(p.getPREPTIME() != null && p.getPREPTIME().split("-").length>1){
+            String[]time = p.getPREPTIME().split("-");
+            etTime.setText(time[0]);
+            setSpinnerposition(spnTime, time[1]);
+        }
 
 
     }
@@ -375,5 +391,13 @@ public class ProductsDialogfragment extends DialogFragment implements OnFailureL
         });
         errorDialog.setCancelable(false);
         errorDialog.show();
+    }
+
+    public void initSpnTime(){
+        ArrayList<KV> time = new ArrayList<>();
+        time.add(new KV("M", "Minutos"));
+        time.add(new KV("H", "Horas"));
+        ArrayAdapter<KV>adapter = new ArrayAdapter<KV>(getActivity(), android.R.layout.simple_list_item_1, time);
+        spnTime.setAdapter(adapter);
     }
 }

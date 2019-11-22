@@ -19,12 +19,13 @@ public class ItemModel {
         return  lm;
     }
 
-    public static ItemModel initDetail(String code, String title,String description, ArrayList<String> urls, double price){
+    public static ItemModel initDetail(String code, String title,String description,String time,  ArrayList<String> urls, double price){
         ItemModel lm = new ItemModel();
         lm.code = code;
         lm.type = DETAIL_TYPE;
         lm.title = title;
         lm.description = description;
+        lm.time = time;
         lm.hexBackground = "#FFFFFF";
         lm.urls = urls;
         lm.prices = new ArrayList<>();
@@ -32,12 +33,13 @@ public class ItemModel {
         return  lm;
     }
 
-    public static ItemModel initDetail(String code, String title,String description, ArrayList<String> urls, ArrayList<PriceModel> pm){
+    public static ItemModel initDetail(String code, String title,String description,String time,  ArrayList<String> urls, ArrayList<PriceModel> pm){
         ItemModel lm = new ItemModel();
         lm.code = code;
         lm.type = DETAIL_TYPE;
         lm.title = title;
         lm.description = description;
+        lm.time = time;
         lm.hexBackground = "#FFFFFF";
         lm.urls = urls;
         lm.prices = pm;
@@ -45,12 +47,13 @@ public class ItemModel {
     }
 
 
-    public static ItemModel initDetail(String code, String title,String description, String url,double price){
+    public static ItemModel initDetail(String code, String title,String description,String time,  String url,double price){
         ItemModel lm = new ItemModel();
         lm.code = code;
         lm.type = DETAIL_TYPE;
         lm.title = title;
         lm.description = description;
+        lm.time = time;
         lm.hexBackground = "#FFFFFF";
         lm.urls = new ArrayList<>();
         lm.urls.add(url);

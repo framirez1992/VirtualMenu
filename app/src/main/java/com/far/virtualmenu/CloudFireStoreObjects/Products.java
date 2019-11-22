@@ -14,16 +14,16 @@ import java.util.HashMap;
 
 @IgnoreExtraProperties
 public class Products {
-    private String CODE, DESCRIPTION,MENUDESCRIPTION, TYPE, SUBTYPE;
+    private String CODE, DESCRIPTION,MENUDESCRIPTION, TYPE, SUBTYPE, PREPTIME;
     private boolean ENABLED, COMBO;
     private @ServerTimestamp
     Date DATE, MDATE;
     public Products(){
 
     }
-    public Products(String code, String description,String menuDescription,  String type, String subType,boolean enabled,  boolean combo){
+    public Products(String code, String description,String menuDescription,  String type, String subType,String prepTime, boolean enabled,  boolean combo){
     this.CODE = code; this.DESCRIPTION = description; this.MENUDESCRIPTION = menuDescription; this.TYPE = type;
-    this.SUBTYPE = subType;this.ENABLED = enabled; this.COMBO = combo;
+    this.SUBTYPE = subType;this.PREPTIME = prepTime; this.ENABLED = enabled; this.COMBO = combo;
     }
 
     public HashMap<String, Object> toMap(){
@@ -33,6 +33,7 @@ public class Products {
         map.put(ProductsController.MENUDESCRIPTION,MENUDESCRIPTION);
         map.put(ProductsController.TYPE,TYPE );
         map.put(ProductsController.SUBTYPE, SUBTYPE);
+        map.put(ProductsController.PREPTIME, PREPTIME);
         map.put(ProductsController.ENABLED,ENABLED );
         map.put(ProductsController.COMBO,COMBO );
         map.put(ProductsController.DATE, (DATE == null)? FieldValue.serverTimestamp():DATE);
@@ -47,6 +48,7 @@ public class Products {
         this.MENUDESCRIPTION = c.getString(c.getColumnIndex(ProductsController.MENUDESCRIPTION));
         this.TYPE = c.getString(c.getColumnIndex(ProductsController.TYPE));
         this.SUBTYPE = c.getString(c.getColumnIndex(ProductsController.SUBTYPE));
+        this.PREPTIME = c.getString(c.getColumnIndex(ProductsController.PREPTIME));
         this.ENABLED = c.getString(c.getColumnIndex(ProductsController.ENABLED)).equals("1");
         this.COMBO = c.getString(c.getColumnIndex(ProductsController.COMBO)).equals("1");
         this.MDATE = Funciones.parseStringToDate(c.getString(c.getColumnIndex(ProductsController.MDATE)));
@@ -91,6 +93,14 @@ public class Products {
 
     public void setSUBTYPE(String SUBTYPE) {
         this.SUBTYPE = SUBTYPE;
+    }
+
+    public String getPREPTIME() {
+        return PREPTIME;
+    }
+
+    public void setPREPTIME(String PREPTIME) {
+        this.PREPTIME = PREPTIME;
     }
 
     public boolean isCOMBO() {
