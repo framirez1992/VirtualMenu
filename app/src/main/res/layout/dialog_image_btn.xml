@@ -4,7 +4,8 @@
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     app:cardCornerRadius="30dp"
-    android:layout_margin="50dp">
+    android:layout_margin="50dp"
+    app:cardBackgroundColor="@color/gray_900">
 
 
     <LinearLayout
@@ -15,7 +16,8 @@
         <ImageView android:id="@+id/img"
             android:layout_width="match_parent"
             android:layout_height="400dp"
-            android:src="@color/grey_200"/>
+            android:src="@color/grey_200"
+            android:scaleType="fitXY"/>
 
 
     <LinearLayout
@@ -41,7 +43,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="please wait..."
-                android:textColor="@android:color/black"
+                android:textColor="@android:color/white"
                 android:gravity="center"
                 android:textSize="10sp"
                 android:padding="10dp"/>
@@ -76,7 +78,7 @@
             android:layout_height="wrap_content"
             android:padding="10dp"
             android:text=""
-            android:textColor="@android:color/black"
+            android:textColor="@android:color/white"
             android:gravity="center"
             android:textStyle="bold"/>
     </LinearLayout>

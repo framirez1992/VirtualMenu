@@ -15,6 +15,7 @@ import com.far.virtualmenu.Controllers.LicenseController;
 import com.far.virtualmenu.Controllers.MeasureUnitsController;
 import com.far.virtualmenu.Controllers.ProductsControlController;
 import com.far.virtualmenu.Controllers.ProductsController;
+import com.far.virtualmenu.Controllers.ProductsImagesController;
 import com.far.virtualmenu.Controllers.ProductsMeasureController;
 import com.far.virtualmenu.Controllers.ProductsSubTypesController;
 import com.far.virtualmenu.Controllers.ProductsTypesController;
@@ -53,6 +54,7 @@ public class CloudFireStoreDB {
     //PriceListController priceListController;
     //ProductsControlController productsControlController;
     ProductsMeasureController productsMeasureController;
+    ProductsImagesController productsImagesController;
     /*ProductsTypesController productsTypesController;
     ProductsSubTypesController productsSubTypesController;
     UserControlController userControlController;
@@ -83,6 +85,7 @@ public class CloudFireStoreDB {
         productsController =  ProductsController.getInstance(context);
         productsInvController = ProductsInvController.getInstance(context);*/
         productsMeasureController = ProductsMeasureController.getInstance(context);
+        productsImagesController = ProductsImagesController.getInstance(context);
         //productsMeasureInvController = ProductsMeasureInvController.getInstance(context);
        /* productsTypesController = ProductsTypesController.getInstance(context);
         productsTypesInvController = ProductsTypesInvController.getInstance(context);
@@ -581,6 +584,7 @@ public class CloudFireStoreDB {
         //case PriceListController.TABLE_NAME: break;
         case ProductsControlController.TABLE_NAME: break;
         case ProductsController.TABLE_NAME: break;
+        case ProductsImagesController.TABLE_NAME: return productsImagesController.getReferences(data.getDescription(), data.getDescription2());
         case ProductsMeasureController.TABLE_NAME: return productsMeasureController.getReferences(data.getDescription(), data.getDescription2());
         case ProductsSubTypesController.TABLE_NAME: break;
         case ProductsTypesController.TABLE_NAME: break;

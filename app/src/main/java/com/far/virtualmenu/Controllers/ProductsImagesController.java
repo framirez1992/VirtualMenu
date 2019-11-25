@@ -14,28 +14,33 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 import java.util.Date;
 
 public class ProductsImagesController {
     public static final String TABLE_NAME ="PRODUCTSIMAGES";
-    public static  String CODE = "code",CODEPRODUCT = "codeproduct", URL = "url", DATE = "date", MDATE="mdate";
-    public static String[] columns = new String[]{CODE, CODEPRODUCT,URL,  DATE, MDATE};
+    public static  String CODE = "code",CODEPRODUCT = "codeproduct", URL = "url",ORDER = "orden", DATE = "date", MDATE="mdate";
+    public static String[] columns = new String[]{CODE, CODEPRODUCT,URL,ORDER,  DATE, MDATE};
 
     public static String QUERY_CREATE = "CREATE TABLE "+TABLE_NAME+"("
-            +CODE+" TEXT, "+CODEPRODUCT+" TEXT, "+URL+" TEXT,  "+DATE+" TEXT, "+MDATE+" TEXT)";
+            +CODE+" TEXT, "+CODEPRODUCT+" TEXT, "+URL+" TEXT,"+ORDER+" INTEGER, "+DATE+" TEXT, "+MDATE+" TEXT)";
     Context context;
     FirebaseFirestore db;
+    StorageReference mStorageRef;
     static ProductsImagesController instance;
 
     private ProductsImagesController(Context c){
         this.context = c;
-        db = FirebaseFirestore.getInstance();
+        db = FirebaseFirestore.getInstance();//Base de datos
+        mStorageRef = FirebaseStorage.getInstance().getReference();//Archivos
     }
 
     public static ProductsImagesController getInstance(Context context){
@@ -55,10 +60,10 @@ public class ProductsImagesController {
     }
 
 
-    public void sendToFireBase(ProductImage pm, OnFailureListener failureListener){
+    public void sendToFireBase(ProductImage pm, OnFailureListener failureListener, OnSuccessListener successListener){
             WriteBatch lote = db.batch();
             lote.set(getReferenceFireStore().document(pm.getCODE()), pm.toMap());
-            lote.commit().addOnFailureListener(failureListener);
+            lote.commit().addOnSuccessListener(successListener).addOnFailureListener(failureListener);
 
     }
 
@@ -84,6 +89,7 @@ public class ProductsImagesController {
         cv.put(CODE,p.getCODE() );
         cv.put(CODEPRODUCT,p.getCODEPRODUCT());
         cv.put(URL, p.getURL());
+        cv.put(ORDER, p.getORDEN());
         cv.put(DATE, Funciones.getFormatedDate(p.getDATE()));
         cv.put(MDATE, Funciones.getFormatedDate(p.getMDATE()));
 
@@ -96,6 +102,7 @@ public class ProductsImagesController {
         cv.put(CODE,p.getCODE() );
         cv.put(CODEPRODUCT,p.getCODEPRODUCT());
         cv.put(URL, p.getURL());
+        cv.put(ORDER, p.getORDEN());
         cv.put(MDATE, Funciones.getFormatedDate(p.getMDATE()));
 
         long result = DB.getInstance(context).getWritableDatabase().update(TABLE_NAME,cv,where, args);
@@ -131,7 +138,7 @@ public class ProductsImagesController {
 
     public ArrayList<ProductImage> getProductImageByCodeProduct(String codeProduct){
         String where = CODEPRODUCT+" = ?";
-        ArrayList<ProductImage> pi = getProductsImages(where, new String[]{codeProduct}, null);
+        ArrayList<ProductImage> pi = getProductsImages(where, new String[]{codeProduct}, ORDER+" ASC, "+MDATE+" DESC");
         return pi;
     }
 
@@ -165,6 +172,28 @@ public class ProductsImagesController {
             }
         }
 
+    }
+
+
+    public ArrayList<DocumentReference> getReferences(String field, String value){
+        ArrayList<DocumentReference> references = new ArrayList<>();
+        ArrayList<ProductImage> objs = getProductsImages(field+" = ? ", new String[]{value}, null);
+        if(objs != null){
+            for(ProductImage c: objs){
+                references.add(getReferenceFireStore().document(c.getCODE()));
+            }
+        }
+        return references;
+    }
+
+
+    public void deleteFromStorage(ProductImage productImage, OnSuccessListener onSuccessListener, OnFailureListener failureListener){
+        StorageReference storageReference = mStorageRef.getStorage().getReferenceFromUrl(productImage.getURL());
+        storageReference.delete().addOnSuccessListener(onSuccessListener).addOnFailureListener(failureListener);
+    }
+    public void deleteFromStorage(String url, OnSuccessListener onSuccessListener, OnFailureListener failureListener){
+        StorageReference storageReference = mStorageRef.getStorage().getReferenceFromUrl(url);
+        storageReference.delete().addOnSuccessListener(onSuccessListener).addOnFailureListener(failureListener);
     }
 
 }

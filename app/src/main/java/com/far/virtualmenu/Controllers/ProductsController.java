@@ -298,10 +298,13 @@ public class ProductsController {
     }
 
     public void deleteFromFireBase(Products product){
-        try {
+            boolean hasimages=false;
             WriteBatch lote = db.batch();
             lote.delete(getReferenceFireStore().document(product.getCODE()));
             for(KV2 data: getDependencies(product.getCODE())){
+                if(data.getCode().equals(ProductsImagesController.TABLE_NAME)){
+                    hasimages = true;
+                }
                 for(DocumentReference dr : CloudFireStoreDB.getInstance(context, null, null).getDocumentsReferencesByTableName(data)){
                     lote.delete(dr);
                 }
@@ -313,9 +316,17 @@ public class ProductsController {
                     e.printStackTrace();
                 }
             });
-        }catch(Exception e){
-            e.printStackTrace();
-        }
+
+            if(hasimages){
+                for(ProductImage pi : ProductsImagesController.getInstance(context).getProductImageByCodeProduct(product.getCODE())){
+                    ProductsImagesController.getInstance(context).deleteFromStorage(pi.getURL(), null, new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            e.printStackTrace();
+                        }
+                    });
+                }
+            }
     }
 
     /**
@@ -329,6 +340,8 @@ public class ProductsController {
             tables.add(new KV2(ProductsControlController.TABLE_NAME,ProductsControlController.CODEPRODUCT,code));
         if(DB.getInstance(context).hasDependencies(ProductsMeasureController.TABLE_NAME,ProductsMeasureController.CODEPRODUCT,code))
             tables.add(new KV2(ProductsMeasureController.TABLE_NAME,ProductsMeasureController.CODEPRODUCT,code));
+        if(DB.getInstance(context).hasDependencies(ProductsImagesController.TABLE_NAME,ProductsImagesController.CODEPRODUCT,code))
+            tables.add(new KV2(ProductsImagesController.TABLE_NAME,ProductsImagesController.CODEPRODUCT,code));
 
 
         return tables;

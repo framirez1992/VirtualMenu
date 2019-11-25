@@ -2,6 +2,8 @@ package com.far.virtualmenu.Dialogs;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
+import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.widget.CardView;
 import android.view.LayoutInflater;
@@ -9,11 +11,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.far.virtualmenu.CloudFireStoreObjects.ProductImage;
+import com.far.virtualmenu.Controllers.ProductsImagesController;
 import com.far.virtualmenu.MainUpload;
 import com.far.virtualmenu.R;
+import com.far.virtualmenu.Utils.Funciones;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.annotations.Nullable;
@@ -26,12 +31,15 @@ public class ImageOptionsDialog extends DialogFragment implements OnFailureListe
     MainUpload parent;
     ProductImage productImage;
 
-    CardView  btnDelete;
-    TextView tvMessageDialog;
+    CardView  btnDelete, btnEdit,btnBack, btnSave;
+    TextView tvMessageDialog, tvOrder;
     //RecyclerView rvList;
     ImageView img;
 
-    private StorageReference mStorageRef;
+    LinearLayout llEdition, llMainOptions;
+    TextInputEditText etOrden;
+
+
 
     public  static ImageOptionsDialog newInstance(MainUpload parent, ProductImage pi) {
 
@@ -51,7 +59,6 @@ public class ImageOptionsDialog extends DialogFragment implements OnFailureListe
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mStorageRef = FirebaseStorage.getInstance().getReference();
 
         // Pick a style based on the num.
         int style = DialogFragment.STYLE_NO_TITLE, theme = 0;
@@ -95,19 +102,49 @@ public class ImageOptionsDialog extends DialogFragment implements OnFailureListe
     public void init(View view){
         //rvList = view.findViewById(R.id.rvList);
         tvMessageDialog = view.findViewById(R.id.tvMessage);
+        tvOrder = view.findViewById(R.id.tvOrder);
         img = view.findViewById(R.id.img);
+        llEdition = view.findViewById(R.id.llEdition);
+        llMainOptions = view.findViewById(R.id.llMainOptions);
         btnDelete = view.findViewById(R.id.btnDelete);
+        btnEdit  = view.findViewById(R.id.btnEdit);
+        btnBack = view.findViewById(R.id.btnBack);
+        btnSave  = view.findViewById(R.id.btnSave);
+        etOrden = view.findViewById(R.id.etOrden);
+
         btnDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 deleteImage();
             }
         });
+        btnEdit.setOnClickListener(changeViewListener);
+        btnBack.setOnClickListener(changeViewListener);
+        btnSave.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(validate()){
+                    save();
+                }
+            }
+        });
 
+        tvOrder.setText(productImage.getORDEN()+"");
         Picasso.with(parent).load(productImage.getURL()).into(img);
 
     }
 
+
+    View.OnClickListener changeViewListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            llMainOptions.setVisibility(v.getId() == R.id.btnBack?View.VISIBLE:View.GONE);
+            llEdition.setVisibility(v.getId()==R.id.btnEdit?View.VISIBLE:View.GONE);
+            if(v.getId()==R.id.btnEdit){
+                Funciones.showKeyBoard(etOrden);
+            }
+        }
+    };
 
 
 
@@ -120,15 +157,14 @@ public class ImageOptionsDialog extends DialogFragment implements OnFailureListe
     public void deleteImage(){
         startLoading();
         setMessage("Borrando...");
-        StorageReference storageReference = mStorageRef.getStorage().getReferenceFromUrl(productImage.getURL());
-        storageReference.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+        ProductsImagesController.getInstance(parent).deleteFromStorage(productImage, new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
                 endLoading();
                 parent.deleteProductImage(productImage);
                 dismiss();
             }
-        }).addOnFailureListener(this);
+        }, this);
 
     }
 
@@ -155,5 +191,31 @@ public class ImageOptionsDialog extends DialogFragment implements OnFailureListe
         //llProgressBar.setVisibility(View.INVISIBLE);
         setCancelable(true);
     }
+
+
+    public boolean validate(){
+        if(etOrden.getText().toString().isEmpty()){
+            Snackbar.make(getView(), "El orden no puede estar vacio", Snackbar.LENGTH_LONG).show();
+            return false;
+        }
+
+        return true;
+    }
+
+    public void save(){
+        startLoading();
+        setMessage("Actualizando...");
+        productImage.setORDEN(Integer.parseInt(etOrden.getText().toString()));
+        ProductsImagesController.getInstance(parent).sendToFireBase(productImage, this, new OnSuccessListener() {
+            @Override
+            public void onSuccess(Object o) {
+                ProductsImagesController.getInstance(parent).update(productImage, ProductsImagesController.CODE+" = ?", new String[]{productImage.getCODE()});
+                endLoading();
+                parent.refreshImages();
+                dismiss();
+            }
+        });
+    }
+
 
 }

@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.far.virtualmenu.CloudFireStoreObjects.ProductImage;
 import com.far.virtualmenu.R;
@@ -54,12 +55,15 @@ public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ImageHolde
 
     public class ImageHolder extends RecyclerView.ViewHolder {
         ImageView imageView;
+        TextView tvOrder;
         public ImageHolder(View itemView) {
             super(itemView);
             imageView = itemView.findViewById(R.id.img);
+            tvOrder = itemView.findViewById(R.id.tvOrder);
         }
 
         public void fillData(ProductImage pi){
+            tvOrder.setText(pi.getORDEN()+"");
             Picasso.with(context).load(pi.getURL()).into(imageView);
         }
     }

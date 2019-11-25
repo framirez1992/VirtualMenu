@@ -17,6 +17,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.far.virtualmenu.CloudFireStoreObjects.ProductImage;
+import com.far.virtualmenu.Controllers.ProductsImagesController;
 import com.far.virtualmenu.MainUpload;
 import com.far.virtualmenu.Model.ProductModel;
 import com.far.virtualmenu.R;
@@ -142,8 +143,9 @@ public class UploadDialog extends DialogFragment implements OnFailureListener {
                             taskSnapshot.getStorage().getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                                 @Override
                                 public void onSuccess(Uri uri) {
-                                    ProductImage productImage = new ProductImage(Funciones.generateCode(), productModel.getCode(), uri.toString());
-                                    productModel.getImages().add(productImage);
+                                    ProductImage productImage = new ProductImage(Funciones.generateCode(), productModel.getCode(), uri.toString(), 99);
+                                    ProductsImagesController.getInstance(parent).insert(productImage);
+                                    productModel.setImages(ProductsImagesController.getInstance(parent).getProductImageByCodeProduct(productModel.getCode()));
                                     parent.SaveProductImage(productImage);
                                     endLoading();
                                     dismiss();
@@ -184,7 +186,7 @@ public class UploadDialog extends DialogFragment implements OnFailureListener {
 
 
     public void setMessageUploadDialog(String message){
-        setMessageUploadDialog(message, android.R.color.black);
+        setMessageUploadDialog(message, android.R.color.white);
     }
     public void setMessageUploadDialog(String message, int color){
         tvMessageDialog.setText(message);

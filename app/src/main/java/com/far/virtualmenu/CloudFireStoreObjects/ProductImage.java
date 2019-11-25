@@ -12,13 +12,14 @@ import java.util.HashMap;
 
 public class ProductImage {
     private String CODE, CODEPRODUCT,URL;
+    private int ORDEN;
     private @ServerTimestamp
     Date DATE, MDATE;
     public ProductImage(){
 
     }
-    public ProductImage(String code, String codeProduct, String url){
-        this.CODE = code; this.CODEPRODUCT = codeProduct; this.URL = url;
+    public ProductImage(String code, String codeProduct, String url, int order){
+        this.CODE = code; this.CODEPRODUCT = codeProduct; this.URL = url; this.ORDEN = order;
     }
 
     public HashMap<String, Object> toMap(){
@@ -26,6 +27,7 @@ public class ProductImage {
         map.put(ProductsImagesController.CODE,CODE);
         map.put(ProductsImagesController.CODEPRODUCT,CODEPRODUCT);
         map.put(ProductsImagesController.URL,URL );
+        map.put(ProductsImagesController.ORDER,ORDEN );
         map.put(ProductsImagesController.DATE, (DATE == null)? FieldValue.serverTimestamp():DATE);
         map.put(ProductsImagesController.MDATE, (MDATE == null)? FieldValue.serverTimestamp():MDATE);
 
@@ -36,6 +38,7 @@ public class ProductImage {
         this.CODE = c.getString(c.getColumnIndex(ProductsImagesController.CODE));
         this.CODEPRODUCT = c.getString(c.getColumnIndex(ProductsImagesController.CODEPRODUCT));
         this.URL = c.getString(c.getColumnIndex(ProductsImagesController.URL));
+        this.ORDEN = c.getInt(c.getColumnIndex(ProductsImagesController.ORDER));
         this.MDATE = Funciones.parseStringToDate(c.getString(c.getColumnIndex(ProductsImagesController.MDATE)));
         this.DATE = Funciones.parseStringToDate(c.getString(c.getColumnIndex(ProductsImagesController.DATE)));
     }
@@ -62,6 +65,14 @@ public class ProductImage {
 
     public void setURL(String URL) {
         this.URL = URL;
+    }
+
+    public int getORDEN() {
+        return ORDEN;
+    }
+
+    public void setORDEN(int ORDEN) {
+        this.ORDEN = ORDEN;
     }
 
     public Date getDATE() {

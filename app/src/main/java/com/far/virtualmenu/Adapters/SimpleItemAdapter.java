@@ -23,10 +23,12 @@ public class SimpleItemAdapter extends RecyclerView.Adapter<SimpleItemAdapter.It
     ArrayList<ItemModel> objects;
     Context context;
     ListableActivity listActivity;
+    boolean newAdapter =false;//
     public SimpleItemAdapter(Context context, ListableActivity act, ArrayList<ItemModel> objects){
         this.context = context;
         this.listActivity = act;
         this.objects = objects;
+        this.newAdapter = true;
     }
     @NonNull
     @Override
@@ -51,6 +53,7 @@ public class SimpleItemAdapter extends RecyclerView.Adapter<SimpleItemAdapter.It
             holder.itemView.setOnClickListener(null);
         }
 
+
     }
 
     @Override
@@ -68,7 +71,6 @@ public class SimpleItemAdapter extends RecyclerView.Adapter<SimpleItemAdapter.It
       objects.get(pos).setHexBackground("#9E9E9E");
       notifyDataSetChanged();
     }
-
 
 
     public class ItemHolder extends RecyclerView.ViewHolder {

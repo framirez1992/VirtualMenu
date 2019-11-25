@@ -13,15 +13,33 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <android.support.v7.widget.RecyclerView android:id="@+id/rvList"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="400dp"
-            android:src="@color/grey_200"
-            android:visibility="gone"/>
+            android:layout_height="400dp">
+            <ImageView android:id="@+id/img"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
 
-        <ImageView android:id="@+id/img"
-            android:layout_width="match_parent"
-            android:layout_height="400dp" />
+            <android.support.v7.widget.CardView
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginBottom="20dp"
+                android:layout_marginRight="50dp"
+                app:cardCornerRadius="25dp">
+
+                <TextView android:id="@+id/tvOrder"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:textStyle="bold"
+                    android:textSize="20sp"
+                    android:gravity="center"
+                    android:text="99"/>
+
+            </android.support.v7.widget.CardView>
+        </RelativeLayout>
+
 
 
         <LinearLayout
@@ -50,38 +68,172 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:visibility="visible"
                     android:gravity="center"
                     android:padding="20dp">
+
+
+                    <LinearLayout android:id="@+id/llMainOptions"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center"
+                        android:visibility="visible"
+                        android:paddingTop="10dp">
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:layout_marginRight="20dp">
+                            <android.support.v7.widget.CardView
+                                android:id="@+id/btnDelete"
+                                android:layout_width="50dp"
+                                android:layout_height="50dp"
+                                app:cardBackgroundColor="@color/red_700"
+                                app:cardCornerRadius="25dp">
+
+                                <ImageView
+                                    android:layout_width="40dp"
+                                    android:layout_height="40dp"
+                                    android:src="@drawable/delete"
+                                    android:tint="@color/white"
+                                    android:layout_gravity="center"/>
+                            </android.support.v7.widget.CardView>
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Borrar"
+                                android:textStyle="bold"
+                                android:gravity="center_horizontal"/>
+                        </LinearLayout>
+
+
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:layout_marginLeft="20dp">
+                            <android.support.v7.widget.CardView
+                                android:id="@+id/btnEdit"
+                                android:layout_width="50dp"
+                                android:layout_height="50dp"
+                                app:cardBackgroundColor="@color/blue_600"
+                                app:cardCornerRadius="25dp">
+
+                                <ImageView
+                                    android:layout_width="40dp"
+                                    android:layout_height="40dp"
+                                    android:src="@drawable/img_order"
+                                    android:tint="@color/white"
+                                    android:layout_gravity="center"/>
+                            </android.support.v7.widget.CardView>
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Orden"
+                                android:textStyle="bold"
+                                android:gravity="center_horizontal"/>
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+
+
+                <LinearLayout android:id="@+id/llEdition"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:visibility="gone"
+                    android:paddingTop="10dp">
 
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:orientation="vertical">
                         <android.support.v7.widget.CardView
-                            android:id="@+id/btnDelete"
+                            android:id="@+id/btnBack"
                             android:layout_width="50dp"
                             android:layout_height="50dp"
-                            app:cardBackgroundColor="@color/red_700"
+                            app:cardBackgroundColor="@color/gray_400"
                             app:cardCornerRadius="25dp">
 
                             <ImageView
                                 android:layout_width="40dp"
                                 android:layout_height="40dp"
-                                android:src="@drawable/delete"
-                                android:tint="@color/white"
+                                android:src="@drawable/ic_arrow_back"
+                                android:tint="@android:color/black"
                                 android:layout_gravity="center"/>
                         </android.support.v7.widget.CardView>
 
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Borrar"
+                            android:text="Atras"
                             android:textStyle="bold"
                             android:gravity="center_horizontal"/>
                     </LinearLayout>
 
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal"
+                        android:gravity="right">
+
+                        <android.support.design.widget.TextInputLayout
+                            android:layout_width="80dp"
+                            android:layout_height="match_parent">
+                            <android.support.design.widget.TextInputEditText
+                                android:id="@+id/etOrden"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:hint="Orden"
+                                android:gravity="center"
+                                android:inputType="number"
+                                android:maxLength="3"/>
+                        </android.support.design.widget.TextInputLayout>
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:layout_marginLeft="10dp">
+                            <android.support.v7.widget.CardView
+                                android:id="@+id/btnSave"
+                                android:layout_width="50dp"
+                                android:layout_height="50dp"
+                                app:cardBackgroundColor="@color/colorPrimary"
+                                app:cardCornerRadius="25dp">
+
+                                <ImageView
+                                    android:layout_width="40dp"
+                                    android:layout_height="40dp"
+                                    android:src="@drawable/ic_save"
+                                    android:tint="@color/white"
+                                    android:layout_gravity="center"/>
+                            </android.support.v7.widget.CardView>
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Guardar"
+                                android:textStyle="bold"
+                                android:gravity="center_horizontal"/>
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+
                 </LinearLayout>
+
+
+                </LinearLayout>
+
+
             </android.support.v7.widget.CardView>
 
         </LinearLayout>

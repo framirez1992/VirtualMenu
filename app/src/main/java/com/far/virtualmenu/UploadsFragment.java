@@ -57,9 +57,6 @@ public class UploadsFragment extends Fragment implements OnSuccessListener<Query
     ProgressBar pb;
     RecyclerView rvList;
     TextView tvDescription;
-    Button btnSelect, btnUpload;
-    LinearLayout llProgress;
-    TextView tvProgress;
     CardView btnAddImage;
 
 
@@ -80,35 +77,16 @@ public class UploadsFragment extends Fragment implements OnSuccessListener<Query
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        //img = view.findViewById(R.id.img);
         pb = view.findViewById(R.id.pb);
         rvList = view.findViewById(R.id.rvList);
         rvList.setLayoutManager(new GridLayoutManager(parent,3));
         tvDescription = view.findViewById(R.id.tvDescription);
         btnAddImage = view.findViewById(R.id.btnAddImage);
-        btnSelect = view.findViewById(R.id.btnSelect);
-        btnUpload = view.findViewById(R.id.btnUpload);
-        llProgress = view.findViewById(R.id.llProgress);
-        tvProgress = view.findViewById(R.id.tvProgress);
 
         btnAddImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                searchImage();
-            }
-        });
-
-        btnSelect.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                searchImage();
-            }
-        });
-
-        btnUpload.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //uploadImage();
             }
         });
 
@@ -158,8 +136,9 @@ public class UploadsFragment extends Fragment implements OnSuccessListener<Query
         if (querySnapshot != null && querySnapshot.getDocuments()!= null && querySnapshot.getDocuments().size() > 0) {
             for(DocumentSnapshot doc: querySnapshot){
                 ProductImage obj = doc.toObject(ProductImage.class);
-                productModel.getImages().add(obj);
-
+                if(ProductsImagesController.getInstance(parent).update(obj, ProductsImagesController.CODE+" = ?", new String[]{obj.getCODE()}) <=0){
+                    productModel.getImages().add(obj);
+                }
             }
         }
         refreshImages();
@@ -207,7 +186,7 @@ public class UploadsFragment extends Fragment implements OnSuccessListener<Query
 
     public void refreshImages(){
 
-        ImagesAdapter adapter = new ImagesAdapter(parent,parent, productModel.getImages());
+        ImagesAdapter adapter = new ImagesAdapter(parent,parent, ProductsImagesController.getInstance(parent).getProductImageByCodeProduct(productModel.getCode()));
         rvList.setAdapter(adapter);
         rvList.invalidate();
 

@@ -187,8 +187,13 @@ public class MainUpload extends AppCompatActivity implements ListableActivity, O
 
     public void SaveProductImage(ProductImage pi){
         ProductsImagesController productsImagesController = ProductsImagesController.getInstance(this);
-        productsImagesController.sendToFireBase(pi, this);
-        refreshImages();
+        productsImagesController.sendToFireBase(pi, this, new OnSuccessListener() {
+            @Override
+            public void onSuccess(Object o) {
+                refreshImages();
+            }
+        });
+
     }
 
     public void deleteProductImage(final ProductImage pi){
@@ -196,7 +201,7 @@ public class MainUpload extends AppCompatActivity implements ListableActivity, O
         productsImagesController.deleteFromFireBase(pi, new OnSuccessListener() {
             @Override
             public void onSuccess(Object o) {
-                pm.getImages().remove(pi);
+                ProductsImagesController.getInstance(MainUpload.this).delete(ProductsImagesController.CODE+" = ?", new String[]{ pi.getCODE()});
                 refreshImages();
             }
         });
