@@ -43,11 +43,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     UsersController usersController;
     DevicesController devicesController;
     UsersDevicesController usersDevicesController;
-    //UserControlController userControlController;
     ProductsControlController productsControlController;
     RelativeLayout rlNotifications;
     CardView cvNotificacions;
-    TextView tvNotificationsNumber, tvTotalOrders;
+    TextView tvNotificationsNumber;
     ImageView imgMenu;
 
     DrawerLayout drawer;
@@ -62,7 +61,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         productsControlController = ProductsControlController.getInstance(MainActivity.this);
         usersController = UsersController.getInstance(MainActivity.this);
         usersDevicesController = UsersDevicesController.getInstance(MainActivity.this);
-        //serControlController = UserControlController.getInstance(MainActivity.this);
 
         rlNotifications = findViewById(R.id.rlNotifications);
         cvNotificacions = findViewById(R.id.cvNotifications);
@@ -126,14 +124,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         usersController.getReferenceFireStore().addSnapshotListener(usersListener);
         devicesController.getReferenceFireStore(licenseController.getLicense()).addSnapshotListener(deviceListener);
         usersDevicesController.getReferenceFireStore(licenseController.getLicense()).addSnapshotListener(userDevicesListener);
-        //userControlController.getReferenceFireStore().addSnapshotListener(userControlListener);
 
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        licenseController.setLastUpdateToFireBase();//Actualiza la licencia
+        //licenseController.setLastUpdateToFireBase();//Actualiza la licencia
     }
 
     @Override
@@ -287,8 +284,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public void startActivityLoginFromBegining(int code){
+
+        Funciones.savePreferences(MainActivity.this, CODES.EXTRA_SECURITY_ERROR_CODE, code);
         Intent intent = new Intent(getApplicationContext(), Login.class);
-        intent.putExtra(CODES.EXTRA_SECURITY_ERROR_CODE, code);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
 
@@ -307,8 +305,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if(usersController.isSuperUser() || usersController.isAdmin()){//SU o Administrador
             //mantenimientoInventario.setVisible(usersController.isSuperUser());
             mantenimientoProductos.setVisible((usersController.isSuperUser() || usersController.isAdmin()));
-            mantenimientoUsuarios.setVisible(usersController.isSuperUser());
-            mantenimientoControles.setVisible(usersController.isSuperUser());
+            //mantenimientoUsuarios.setVisible(usersController.isSuperUser());
+            //mantenimientoControles.setVisible(usersController.isSuperUser());
         }
 
     }

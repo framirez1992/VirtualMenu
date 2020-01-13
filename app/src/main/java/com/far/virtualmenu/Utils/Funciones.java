@@ -147,6 +147,22 @@ public class Funciones {
         return -1;
     }
 
+    public static int calcularDias(Date dateEnd, Date dateIni){
+        try {
+            Calendar c1 = Calendar.getInstance();c1.setTime(dateEnd);
+            Calendar c2 = Calendar.getInstance();c2.setTime(dateIni);
+
+            double d = c1.getTimeInMillis() - c2.getTimeInMillis();
+
+            long dias = Math.round(d / ( 24 * 60 * 60 * 1000));
+            return ((int) dias);
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
     public static String gerErrorMessage(int code){
         String message = "UNKNOWN";
         switch (code){

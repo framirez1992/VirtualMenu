@@ -38,4 +38,5 @@ public class CODES {
     /////////////////////////////////////////////
     //ACTIVITY EXTRA KEYS
     public static final String EXTRA_SECURITY_ERROR_CODE = "SECURITY_ERROR_CODE";
+    public static final String EXTRA_ADMIN_LICENSE = "EXTRA_ADMIN_LICENSE";
 }

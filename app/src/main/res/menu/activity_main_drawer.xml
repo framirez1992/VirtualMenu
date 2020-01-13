@@ -35,7 +35,7 @@
                 android:id="@+id/goConfiguration"
                 android:icon="@drawable/settings"
                 android:title="Configuration"
-                android:visible="true"/>
+                android:visible="false"/>
         </menu>
     </item>
 

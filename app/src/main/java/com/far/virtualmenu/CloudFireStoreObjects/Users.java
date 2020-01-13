@@ -5,6 +5,7 @@ import android.database.Cursor;
 import com.far.virtualmenu.Controllers.UsersController;
 import com.far.virtualmenu.Utils.CODES;
 import com.far.virtualmenu.Utils.Funciones;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.IgnoreExtraProperties;
 import com.google.firebase.firestore.ServerTimestamp;
@@ -19,6 +20,7 @@ public class Users {
     private  boolean ENABLED;
     private @ServerTimestamp
     Date DATE, MDATE;
+    DocumentReference documentReference;
 
     public Users(){
 
@@ -27,6 +29,11 @@ public class Users {
 
         this.CODE = cod; this.SYSTEMCODE = systemCode; this.PASSWORD = passwrd; this.USERNAME = usrName;
         this.ROLE = role; this.ENABLED = enabled;this.COMPANY = company;
+    }
+    public Users(String cod, String systemCode, String passwrd, String usrName,String company,  boolean enabled){
+
+        this.CODE = cod; this.SYSTEMCODE = systemCode; this.PASSWORD = passwrd; this.USERNAME = usrName;
+        this.ROLE = ""; this.ENABLED = enabled;this.COMPANY = company;
     }
 
     public HashMap<String, Object> toMap(){
@@ -128,4 +135,11 @@ public class Users {
         this.SYSTEMCODE = SYSTEMCODE;
     }
 
+    public DocumentReference getDocumentReference() {
+        return documentReference;
+    }
+
+    public void setDocumentReference(DocumentReference documentReference) {
+        this.documentReference = documentReference;
+    }
 }

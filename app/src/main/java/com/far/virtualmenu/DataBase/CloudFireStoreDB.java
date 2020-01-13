@@ -114,7 +114,7 @@ public class CloudFireStoreDB {
         ////////////////////////////////////////////////////////////////////////
         ////////  JERARQUIA DE LICENCIAS         //////////////////////////////
         String licCode = Funciones.generateCode();
-        Licenses licencia = new Licenses(licCode,licCode ,new Date(),Funciones.sumaDiasFecha(370), 0, 370, 5, true,true,new Date(),1);
+        Licenses licencia = new Licenses(licCode,"", licCode ,new Date(),Funciones.sumaDiasFecha(370), 0, 370, 5, true,true,new Date(),1);
 
         //creando documento con el key del nuevo cliente en la coleccion GENERAL_LICENSES
         CollectionReference GeneralLicensesCollection = fs.collection(Tablas.generalLicencias);

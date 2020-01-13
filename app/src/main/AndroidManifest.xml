@@ -14,7 +14,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MaintenanceProducts"></activity>
+        <activity android:name=".AdminLicenseUserDevice"></activity>
+        <activity android:name=".AdminLicenseUsers" />
+        <activity android:name=".AdminLicenseDevices" />
+        <activity android:name=".AdminLicenseTokens" />
+        <activity android:name=".MaintenanceProducts" />
         <activity android:name=".MaintenanceUnitMeasure" />
         <activity android:name=".MaintenanceProductSubTypes" />
         <activity android:name=".MaintenanceProductTypes" />
@@ -30,8 +34,8 @@
         </activity>
         <activity
             android:name=".MainUpload"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
 
             <!--
             <intent-filter>

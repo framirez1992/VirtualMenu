@@ -57,8 +57,8 @@ public class Login extends AppCompatActivity implements OnFailureListener, FireB
     Licenses license = null;
     Dialog cargaInicialDialog;
     LinearLayout llProgressBar;
-    TextInputEditText etUser, etPassword;
-    CardView btnLogin;
+    EditText etUser, etPassword;
+    TextView btnLogin;
     CardView btnAceptar;
     EditText etUserDialog, etKeyDialog;
     TextView tvMessageDialog, tvPhoneID;
@@ -66,7 +66,7 @@ public class Login extends AppCompatActivity implements OnFailureListener, FireB
 
     TextView tvMsgToken;
     EditText etToken;
-    Button btnOKToken;
+    CardView btnOKToken;
     LinearLayout llProgressBarToken;
     Dialog tokenDialog;
 
@@ -80,8 +80,9 @@ public class Login extends AppCompatActivity implements OnFailureListener, FireB
         setContentView(R.layout.activity_login);
         init();
         initDialog();
-        if(getIntent().getExtras()!= null && getIntent().getExtras().containsKey(CODES.EXTRA_SECURITY_ERROR_CODE)){
-            int code = getIntent().getExtras().getInt(CODES.EXTRA_SECURITY_ERROR_CODE);
+
+        if(Funciones.getPreferencesInt(Login.this, CODES.EXTRA_SECURITY_ERROR_CODE)>-1){
+            int code = Funciones.getPreferencesInt(Login.this, CODES.EXTRA_SECURITY_ERROR_CODE);
             ((TextView)findViewById(R.id.tvErrorMsg)).setText(Funciones.gerErrorMessage(code));
         }
     }
@@ -242,9 +243,6 @@ public class Login extends AppCompatActivity implements OnFailureListener, FireB
                     Snackbar.make(findViewById(R.id.root), "ERROR obteniendo Device", Snackbar.LENGTH_LONG).show();
                 }
             }
-
-           //btnLogin.setEnabled(true);
-           // findViewById(R.id.llProgress).setVisibility(View.INVISIBLE);
 
         }
 
@@ -542,6 +540,7 @@ public class Login extends AppCompatActivity implements OnFailureListener, FireB
     public void showTokenDialog(){
         try {
             tokenDialog = new Dialog(Login.this);
+            tokenDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
             tokenDialog.setContentView(R.layout.dialog_edit_button);
             tvMsgToken = tokenDialog.findViewById(R.id.tvMessage);
             etToken = tokenDialog.findViewById(R.id.etValue);
@@ -576,6 +575,9 @@ public class Login extends AppCompatActivity implements OnFailureListener, FireB
             });
 
             tokenDialog.show();
+            Window window = tokenDialog.getWindow();
+            window.setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            window.setBackgroundDrawableResource(android.R.color.transparent);
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -693,14 +695,17 @@ public class Login extends AppCompatActivity implements OnFailureListener, FireB
             if(queryDocumentSnapshots != null && queryDocumentSnapshots.size() >0 ){
                 DocumentSnapshot doc = queryDocumentSnapshots.getDocuments().get(0);
                 Token t = doc.toObject(Token.class);
+                if(t.isAutodelete()){
+                    TokenController.getInstance(Login.this).deleteFromFireBase(t);
+                }
                 Funciones.savePreferences(Login.this, CODES.PREFERENCE_LOGIN_BLOQUED, "");
+                Funciones.savePreferences(Login.this, CODES.EXTRA_SECURITY_ERROR_CODE, -1);
                 Funciones.savePreferences(Login.this, CODES.PREFERENCE_LOGIN_BLOQUED_TOKEN_ATTEMPS, "");
                 Funciones.savePreferences(Login.this, CODES.PREFERENCE_LOGIN_BLOQUED_REASON, "");
+                ((TextView)findViewById(R.id.tvErrorMsg)).setText("");
 
-                Licenses actualLicence = LicenseController.getInstance(Login.this).getLicense();
-                LicenseController.getInstance(Login.this).getQueryLicenceByCode(actualLicence.getCODE(), onSuccessLicence, onCompleteToken, onFailureToken);
                 tokenDialog.dismiss();
-                //TokenController.getInstance(Login.this).deleteFromFireBase(t);
+                recreate();
                 return;
             }
             String intentos = getTokenAttemps();
@@ -708,8 +713,6 @@ public class Login extends AppCompatActivity implements OnFailureListener, FireB
             Funciones.savePreferences(Login.this, CODES.PREFERENCE_LOGIN_BLOQUED_TOKEN_ATTEMPS, intentos);
 
             endLoadingToken();
-            //setMessageCargaInicial("Invalid User", R.color.red_700);
-            //endLoading();
         }
     };
 
@@ -760,10 +763,5 @@ public class Login extends AppCompatActivity implements OnFailureListener, FireB
         startActivity(new Intent(Login.this, AdminConfiguration.class));
     }
 
-    public void startActivityLoginFromBegining(){
-        Intent intent = new Intent(getApplicationContext(), Login.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent);
-    }
 
 }

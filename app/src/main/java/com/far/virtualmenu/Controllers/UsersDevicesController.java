@@ -3,7 +3,6 @@ package com.far.virtualmenu.Controllers;
 import android.content.Context;
 
 import com.far.virtualmenu.CloudFireStoreObjects.Licenses;
-import com.far.virtualmenu.CloudFireStoreObjects.Users;
 import com.far.virtualmenu.Globales.Tablas;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
