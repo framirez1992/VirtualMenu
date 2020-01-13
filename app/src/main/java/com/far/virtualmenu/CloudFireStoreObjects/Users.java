@@ -3,6 +3,7 @@ package com.far.virtualmenu.CloudFireStoreObjects;
 import android.database.Cursor;
 
 import com.far.virtualmenu.Controllers.UsersController;
+import com.far.virtualmenu.Utils.CODES;
 import com.far.virtualmenu.Utils.Funciones;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.IgnoreExtraProperties;
@@ -126,4 +127,5 @@ public class Users {
     public void setSYSTEMCODE(String SYSTEMCODE) {
         this.SYSTEMCODE = SYSTEMCODE;
     }
+
 }

@@ -210,16 +210,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         @Override
         public void onEvent(@Nullable QuerySnapshot querySnapshot, @Nullable FirebaseFirestoreException e) {
 
+            Devices devices =null;
             if (querySnapshot != null && querySnapshot.getDocuments()!= null && querySnapshot.getDocuments().size() > 0) {
                 devicesController.delete(null, null);
                 for(DocumentSnapshot doc: querySnapshot){
                     Devices d = doc.toObject(Devices.class);
                     if(d.getCODE().equals(Funciones.getPhoneID(MainActivity.this))) {
+                        devices = d;
                         devicesController.insert(d);
+                        break;
                     }
                 }
             }
-            validateDevices();
+            validateDevices(devices);
         }
     };
 
@@ -271,9 +274,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
-    public boolean validateDevices(){
+    public boolean validateDevices(Devices d){
 
-        int code = DevicesController.getInstance(MainActivity.this).validateDevice();
+        int code = DevicesController.getInstance(MainActivity.this).validateDevice(d);
 
         if(code == CODES.CODE_DEVICES_UNREGISTERED || code == CODES.CODE_DEVICES_DISABLED) {
             exitWithNoLoginCode(code);
@@ -323,6 +326,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             ft.replace(R.id.details, logoFragment);
             ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
             ft.commit();
+
+            Intent i = new Intent(MainActivity.this, MainMenuActivity.class);
+            startActivity(i);
         }
     }
 

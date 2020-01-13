@@ -24,6 +24,7 @@ public class SimpleItemAdapter extends RecyclerView.Adapter<SimpleItemAdapter.It
     Context context;
     ListableActivity listActivity;
     boolean newAdapter =false;//
+    int lastPos=0;
     public SimpleItemAdapter(Context context, ListableActivity act, ArrayList<ItemModel> objects){
         this.context = context;
         this.listActivity = act;
@@ -72,6 +73,9 @@ public class SimpleItemAdapter extends RecyclerView.Adapter<SimpleItemAdapter.It
       notifyDataSetChanged();
     }
 
+    public int getLastPos(){
+        return lastPos;
+    }
 
     public class ItemHolder extends RecyclerView.ViewHolder {
         TextView text;

@@ -80,4 +80,8 @@ public class GridFragment extends Fragment {
         gridView.invalidate();
     }
 
+    public void refresh(){
+
+    }
+
 }

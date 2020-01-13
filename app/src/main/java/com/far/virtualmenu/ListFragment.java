@@ -81,4 +81,19 @@ public class ListFragment extends Fragment {
 
 
     }
+
+
+    public void refresh(){
+        //SimpleItemAdapter adapter = ((SimpleItemAdapter)rvList.getAdapter());
+        //int lastPos = 0;
+       /* if(adapter != null){
+            lastPos = adapter.getLastPos();
+        }*/
+        fillData();
+        /*if(rvList.getAdapter()!= null && rvList.getAdapter().getItemCount()<=lastPos){
+            rvList.scrollToPosition(lastPos);
+        }*/
+
+
+    }
 }

@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
+import android.support.design.widget.TextInputEditText;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -56,8 +57,8 @@ public class Login extends AppCompatActivity implements OnFailureListener, FireB
     Licenses license = null;
     Dialog cargaInicialDialog;
     LinearLayout llProgressBar;
-    EditText etUser, etPassword;
-    Button btnLogin;
+    TextInputEditText etUser, etPassword;
+    CardView btnLogin;
     CardView btnAceptar;
     EditText etUserDialog, etKeyDialog;
     TextView tvMessageDialog, tvPhoneID;
@@ -68,6 +69,11 @@ public class Login extends AppCompatActivity implements OnFailureListener, FireB
     Button btnOKToken;
     LinearLayout llProgressBarToken;
     Dialog tokenDialog;
+
+    Users lastUser;
+    Devices lastDevice;
+    UsersDevices usersDevice;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -87,12 +93,6 @@ public class Login extends AppCompatActivity implements OnFailureListener, FireB
             Snackbar.make(findViewById(R.id.root), "Realize una carga inicial", Snackbar.LENGTH_LONG).show();
         }
 
-    }
-
-    public void startActivityLoginFromBegining(){
-        Intent intent = new Intent(getApplicationContext(), Login.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent);
     }
 
     @Override
@@ -124,7 +124,6 @@ public class Login extends AppCompatActivity implements OnFailureListener, FireB
     }
 
     public void init() {
-        try {
 
             FirebaseApp.initializeApp(Login.this);
             db = FirebaseFirestore.getInstance();
@@ -139,9 +138,6 @@ public class Login extends AppCompatActivity implements OnFailureListener, FireB
             etUser = findViewById(R.id.etUser);
             etPassword = findViewById(R.id.etPass);
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
 
 
         btnLogin.setOnClickListener(new View.OnClickListener() {
@@ -162,6 +158,145 @@ public class Login extends AppCompatActivity implements OnFailureListener, FireB
         showPhoneID();
     }
 
+
+    OnSuccessListener<QuerySnapshot> onSuccessListenerLogin = new OnSuccessListener<QuerySnapshot>() {
+
+        @Override
+        public void onSuccess(QuerySnapshot querySnapshot) {
+
+            if(querySnapshot == null || (querySnapshot != null && querySnapshot.isEmpty()) ){
+                btnLogin.setEnabled(true);
+                findViewById(R.id.llProgress).setVisibility(View.INVISIBLE);
+                Snackbar.make(findViewById(R.id.root), "Error de autenticacion", Snackbar.LENGTH_LONG).show();
+                return;
+            }
+            for (DocumentSnapshot document : querySnapshot.getDocuments()) {
+
+                if(document != null){
+                    lastUser = document.toObject(Users.class);
+                    usersController.delete(null, null);
+
+                    if(!isValidUser(lastUser)){
+                        btnLogin.setEnabled(true);
+                        findViewById(R.id.llProgress).setVisibility(View.INVISIBLE);
+                        return;
+                    }
+
+                    DevicesController.getInstance(Login.this).getFindThisDeviceFromFireBase(licenseController.getLicense(), onSuccessDevice, new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            findViewById(R.id.llProgress).setVisibility(View.INVISIBLE);
+                            btnLogin.setEnabled(true);
+                            Snackbar.make(findViewById(R.id.root), e.getMessage(), Snackbar.LENGTH_LONG).show();
+                            return;
+                        }
+                    });
+                    break;
+
+                }else{
+                    Snackbar.make(findViewById(R.id.root), "ERROR obteniendo Usuario", Snackbar.LENGTH_LONG).show();
+                }
+            }
+        }
+
+    };
+
+    OnSuccessListener<QuerySnapshot> onSuccessDevice = new OnSuccessListener<QuerySnapshot>() {
+
+        @Override
+        public void onSuccess(QuerySnapshot querySnapshot) {
+
+            if(querySnapshot == null || (querySnapshot != null && querySnapshot.isEmpty()) ){
+                btnLogin.setEnabled(true);
+                findViewById(R.id.llProgress).setVisibility(View.INVISIBLE);
+                Snackbar.make(findViewById(R.id.root), "Dispositivo no autorizado", Snackbar.LENGTH_LONG).show();
+                return;
+            }
+
+            for (DocumentSnapshot document : querySnapshot.getDocuments()) {
+
+                if(document != null ){
+                    lastDevice = document.toObject(Devices.class);
+                    devicesController.delete(null, null);
+
+                    if(!validateDevice(lastDevice)){
+                        lastUser = null;
+                        btnLogin.setEnabled(true);
+                        findViewById(R.id.llProgress).setVisibility(View.INVISIBLE);
+                        return;
+                    }
+
+                    UsersDevicesController.getInstance(Login.this).getUserDeviceFromFireBase(licenseController.getLicense(), lastUser.getCODE(), lastDevice.getCODE(), onSuccessUserDevice, new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            findViewById(R.id.llProgress).setVisibility(View.INVISIBLE);
+                            btnLogin.setEnabled(true);
+                            Snackbar.make(findViewById(R.id.root), e.getMessage(), Snackbar.LENGTH_LONG).show();
+                            return;
+                        }
+                    });
+
+
+
+                }else{
+                    Snackbar.make(findViewById(R.id.root), "ERROR obteniendo Device", Snackbar.LENGTH_LONG).show();
+                }
+            }
+
+           //btnLogin.setEnabled(true);
+           // findViewById(R.id.llProgress).setVisibility(View.INVISIBLE);
+
+        }
+
+    };
+
+
+
+    OnSuccessListener<QuerySnapshot> onSuccessUserDevice = new OnSuccessListener<QuerySnapshot>() {
+
+        @Override
+        public void onSuccess(QuerySnapshot querySnapshot) {
+
+            if(querySnapshot == null || (querySnapshot != null && querySnapshot.isEmpty()) ){
+                btnLogin.setEnabled(true);
+                findViewById(R.id.llProgress).setVisibility(View.INVISIBLE);
+                Snackbar.make(findViewById(R.id.root), "El dispositivo no esta asignado al usuario", Snackbar.LENGTH_LONG).show();
+                return;
+            }
+
+            for (DocumentSnapshot document : querySnapshot.getDocuments()) {
+
+                if(document != null){
+                    UsersDevices ud = document.toObject(UsersDevices.class);
+
+                    Funciones.clearPreference(Login.this);
+                    Funciones.savePreferences(Login.this, CODES.PREFERENCE_USERSKEY_CODE, lastUser.getCODE());
+                    Funciones.savePreferences(Login.this, CODES.PREFERENCE_USERSKEY_USERTYPE, lastUser.getROLE());
+                    ((TextView)findViewById(R.id.tvErrorMsg)).setText("");
+
+                    UsersController.getInstance(Login.this).insert(lastUser);
+                    DevicesController.getInstance(Login.this).insert(lastDevice);
+
+                    if(UsersController.getInstance(Login.this).isAdmin()|| UsersController.getInstance(Login.this).isSuperUser()){
+                        Intent i = new Intent(Login.this, MainActivity.class);
+                        startActivity(i);
+                    }else{
+                        Intent i = new Intent(Login.this, MainMenuActivity.class);
+                        startActivity(i);
+                    }
+
+                }else{
+                    Snackbar.make(findViewById(R.id.root), "ERROR obteniendo UserDevice", Snackbar.LENGTH_LONG).show();
+                }
+            }
+
+            btnLogin.setEnabled(true);
+            findViewById(R.id.llProgress).setVisibility(View.INVISIBLE);
+
+        }
+
+    };
+
     public void login() {
         try {
             findViewById(R.id.llProgress).setVisibility(View.VISIBLE);
@@ -175,7 +310,7 @@ public class Login extends AppCompatActivity implements OnFailureListener, FireB
                     public void onFailure(@NonNull Exception e) {
                         findViewById(R.id.llProgress).setVisibility(View.INVISIBLE);
                         btnLogin.setEnabled(true);
-                        Snackbar.make(findViewById(R.id.root), e.getMessage().toString(), Snackbar.LENGTH_LONG).show();
+                        Snackbar.make(findViewById(R.id.root), e.getMessage(), Snackbar.LENGTH_LONG).show();
                         return;
                     }
                 });
@@ -259,7 +394,6 @@ public class Login extends AppCompatActivity implements OnFailureListener, FireB
             endLoading();
             tvMessageDialog.setText("Finalizado");
             cargaInicialDialog.dismiss();
-            //Funciones.getDateOnline(Login.this);
             recreate();
 
         }
@@ -276,71 +410,26 @@ public class Login extends AppCompatActivity implements OnFailureListener, FireB
         setMessageCargaInicial(e.getMessage(),R.color.red_700);
     }
 
-    OnSuccessListener<QuerySnapshot> onSuccessListenerLogin = new OnSuccessListener<QuerySnapshot>() {
-
-        @Override
-        public void onSuccess(QuerySnapshot querySnapshot) {
-
-            if(querySnapshot == null ){
-                btnLogin.setEnabled(true);
-                findViewById(R.id.llProgress).setVisibility(View.INVISIBLE);
-                Snackbar.make(findViewById(R.id.root), "Error de autenticacion", Snackbar.LENGTH_LONG).show();
-                return;
-            }
-            for (DocumentSnapshot document : querySnapshot.getDocuments()) {
-
-                if(document != null){
-                    Users u = document.toObject(Users.class);
-                    usersController.delete(null, null);
-                    usersController.insert(u);
-
-                    if(!isValidUser(u)){
-                        btnLogin.setEnabled(true);
-                        findViewById(R.id.llProgress).setVisibility(View.INVISIBLE);
-                        return;
-                    }
-
-                    String codeUser = u.getCODE();
-                    Funciones.clearPreference(Login.this);
-                    Funciones.savePreferences(Login.this, CODES.PREFERENCE_USERSKEY_CODE, codeUser);
-                    Funciones.savePreferences(Login.this, CODES.PREFERENCE_USERSKEY_USERTYPE, UsersController.getInstance(Login.this).getUserByCode(codeUser).getROLE());
-                    ((TextView)findViewById(R.id.tvErrorMsg)).setText("");
-
-                    if(UsersController.getInstance(Login.this).isAdmin()|| UsersController.getInstance(Login.this).isSuperUser()){
-                        Intent i = new Intent(Login.this, MainActivity.class);
-                        startActivity(i);
-                    }else{
-                        Intent i = new Intent(Login.this, MainMenuActivity.class);
-                        startActivity(i);
-                    }
 
 
-                }else{
-                    Snackbar.make(findViewById(R.id.root), "ERROR obteniendo Usuario", Snackbar.LENGTH_LONG).show();
-                }
-            }
-
-            btnLogin.setEnabled(true);
-            findViewById(R.id.llProgress).setVisibility(View.INVISIBLE);
-
-        }
-
-    };
 
 
-    public boolean validateDevice(){
 
-        int code = devicesController.validateDevice();
+    public boolean validateDevice(Devices d){
+
+        int code = devicesController.validateDevice(d);
 
         if(code == CODES.CODE_DEVICES_UNREGISTERED){
-            Toast.makeText(Login.this, "Dispositivo no registrado. Contacte con el administrador", Toast.LENGTH_LONG).show();
-            startActivityLoginFromBegining();
+            Snackbar.make(findViewById(R.id.root), "Dispositivo no registrado. Contacte con el administrador", Snackbar.LENGTH_LONG).show();
+            //Toast.makeText(Login.this, "Dispositivo no registrado. Contacte con el administrador", Toast.LENGTH_LONG).show();
+            //startActivityLoginFromBegining();
             return false;
         }
 
         if(code == CODES.CODE_DEVICES_DISABLED){
-            Toast.makeText(Login.this, "Dispositivo inactivo. Contacte con el administrador", Toast.LENGTH_LONG).show();
-            startActivityLoginFromBegining();
+            Snackbar.make(findViewById(R.id.root), "Dispositivo inactivo. Contacte con el administrador", Snackbar.LENGTH_LONG).show();
+            //Toast.makeText(Login.this, "Dispositivo inactivo. Contacte con el administrador", Toast.LENGTH_LONG).show();
+            //startActivityLoginFromBegining();
             return false;
         }
 
@@ -352,11 +441,13 @@ public class Login extends AppCompatActivity implements OnFailureListener, FireB
         if(code != CODES.CODE_USERS_ENABLED){
 
             if(code == CODES.CODE_USERS_DISBLED){
-                Toast.makeText(Login.this, "Usuario inactivo. Contacte con el administrador", Toast.LENGTH_LONG).show();
+                Snackbar.make(findViewById(R.id.root), "Usuario inactivo. Contacte con el administrador", Snackbar.LENGTH_LONG).show();
+                //Toast.makeText(Login.this, "Usuario inactivo. Contacte con el administrador", Toast.LENGTH_LONG).show();
             }
 
             if(code == CODES.CODE_USERS_INVALID){
-                Toast.makeText(Login.this, "Usuario deshabilitado. Contacte con el administrador", Toast.LENGTH_LONG).show();
+                Snackbar.make(findViewById(R.id.root), "Usuario deshabilitado. Contacte con el administrador", Snackbar.LENGTH_LONG).show();
+                //Toast.makeText(Login.this, "Usuario deshabilitado. Contacte con el administrador", Toast.LENGTH_LONG).show();
 
             }
             return false;
@@ -389,21 +480,6 @@ public class Login extends AppCompatActivity implements OnFailureListener, FireB
     public void showPhoneID(){
         tvPhoneID.setText("Device: "+Funciones.getPhoneID(Login.this));
     }
-    public void agregarAlServer(){
-
-    }
-    public void filtroConWhere(){
-
-    }
-
-    public void colocandoMarcaDeTiempo(){
-
-    }
-
-    public void Transaccciones(){
-
-    }
-
 
 
     public int checkPermissions(String permission){
@@ -623,6 +699,7 @@ public class Login extends AppCompatActivity implements OnFailureListener, FireB
 
                 Licenses actualLicence = LicenseController.getInstance(Login.this).getLicense();
                 LicenseController.getInstance(Login.this).getQueryLicenceByCode(actualLicence.getCODE(), onSuccessLicence, onCompleteToken, onFailureToken);
+                tokenDialog.dismiss();
                 //TokenController.getInstance(Login.this).deleteFromFireBase(t);
                 return;
             }
@@ -682,4 +759,11 @@ public class Login extends AppCompatActivity implements OnFailureListener, FireB
     public void goToConfiguration(){
         startActivity(new Intent(Login.this, AdminConfiguration.class));
     }
+
+    public void startActivityLoginFromBegining(){
+        Intent intent = new Intent(getApplicationContext(), Login.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+    }
+
 }

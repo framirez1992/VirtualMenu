@@ -113,5 +113,9 @@ public class DetailFragment extends Fragment {
         gvPrices.invalidate();
     }
 
+    public void refresh(){
+
+    }
+
 
 }
