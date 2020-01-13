@@ -1,6 +1,7 @@
 package com.far.virtualmenu;
 
 import android.app.Dialog;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -17,6 +18,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.far.virtualmenu.Adapters.Models.SimpleRowModel;
 import com.far.virtualmenu.Adapters.SimpleRowEditionAdapter;
@@ -24,9 +26,14 @@ import com.far.virtualmenu.CloudFireStoreObjects.Licenses;
 import com.far.virtualmenu.CloudFireStoreObjects.MeasureUnits;
 import com.far.virtualmenu.Controllers.LicenseController;
 import com.far.virtualmenu.Controllers.MeasureUnitsController;
+import com.far.virtualmenu.DataBase.DB;
 import com.far.virtualmenu.Dialogs.MeasureUnitDialogFragment;
+import com.far.virtualmenu.Generic.KV2;
 import com.far.virtualmenu.Utils.Funciones;
+import com.far.virtualmenu.interfaces.DialogCaller;
 import com.far.virtualmenu.interfaces.ListableActivity;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
@@ -34,7 +41,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 
-public class MaintenanceUnitMeasure extends AppCompatActivity implements ListableActivity {
+public class MaintenanceUnitMeasure extends AppCompatActivity implements ListableActivity, DialogCaller {
 
     RecyclerView rvList;
     ArrayList<SimpleRowModel> objects;
@@ -67,7 +74,7 @@ public class MaintenanceUnitMeasure extends AppCompatActivity implements Listabl
     @Override
     protected void onStart() {
         super.onStart();
-        setUpListeners();
+        //setUpListeners();
     }
 
     @Override
@@ -118,23 +125,6 @@ public class MaintenanceUnitMeasure extends AppCompatActivity implements Listabl
         }
     }
 
-    public void setUpListeners(){
-            measureUnitsController.getReferenceFireStore().addSnapshotListener(new EventListener<QuerySnapshot>() {
-                @Override
-                public void onEvent(QuerySnapshot querySnapshot, FirebaseFirestoreException e) {
-                    measureUnitsController.delete(null, null);//limpia la tabla
-
-                    for(DocumentSnapshot ds: querySnapshot){
-
-                        MeasureUnits mu = ds.toObject(MeasureUnits.class);
-                        measureUnitsController.insert(mu);
-                    }
-
-                    refreshList(lastSearch);
-                }
-            });
-
-    }
     public void callAddDialog(boolean isNew){
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         Fragment prev = getSupportFragmentManager().findFragmentByTag("dialog");
@@ -142,7 +132,7 @@ public class MaintenanceUnitMeasure extends AppCompatActivity implements Listabl
             ft.remove(prev);
         }
         ft.addToBackStack(null);
-        DialogFragment newFragment =  MeasureUnitDialogFragment.newInstance( (isNew)?null:measureUnit);
+        DialogFragment newFragment =  MeasureUnitDialogFragment.newInstance( (isNew)?null:measureUnit, this);
         // Create and show the dialog.
         newFragment.show(ft, "dialog");
     }
@@ -156,15 +146,56 @@ public class MaintenanceUnitMeasure extends AppCompatActivity implements Listabl
 
         String msg = "Esta seguro que desea eliminar \'"+description+"\' permanentemente?";
         final Dialog d = Funciones.getCustomDialog2Btn(this,getResources().getColor(R.color.red_700),"Delete", msg,R.drawable.delete,null, null);
-        CardView btnAceptar = d.findViewById(R.id.btnPositive);
-        CardView btnCancelar = d.findViewById(R.id.btnNegative);
+        final CardView btnAceptar = d.findViewById(R.id.btnPositive);
+        final CardView btnCancelar = d.findViewById(R.id.btnNegative);
         btnAceptar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                d.findViewById(R.id.llProgress).setVisibility(View.VISIBLE);
+                btnAceptar.setEnabled(false);
+                btnCancelar.setEnabled(false);
+
                 if(measureUnit != null){
-                    measureUnitsController.deleteFromFireBase(measureUnit);
+                    measureUnitsController.deleteFromFireBase(measureUnit, new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            btnAceptar.setEnabled(true);
+                            d.findViewById(R.id.btnNegative).setEnabled(true);
+                            d.findViewById(R.id.llProgress).setVisibility(View.INVISIBLE);
+                            Toast.makeText(MaintenanceUnitMeasure.this, e.getMessage(), Toast.LENGTH_LONG).show();
+                        }
+                    });
+
+                    measureUnitsController.searchMeasureUnitFromFireBase(measureUnit.getCODE(), new OnSuccessListener<QuerySnapshot>() {
+                        @Override
+                        public void onSuccess(QuerySnapshot querySnapshot) {
+
+                            if(querySnapshot == null || querySnapshot.size()==0){
+
+                                for(KV2 data: MeasureUnitsController.getInstance(MaintenanceUnitMeasure.this).getDependencies(measureUnit.getCODE())){
+                                    String sql = "DELETE FROM "+data.getCode()+" WHERE "+data.getDescription()+" = '"+data.getDescription2()+"'";
+                                    DB.getInstance(MaintenanceUnitMeasure.this).getWritableDatabase().execSQL(sql);
+                                }
+                                measureUnitsController.delete(measureUnit);
+                                refreshList(lastSearch);
+                                d.dismiss();
+                            }else{
+                                btnAceptar.setEnabled(true);
+                                d.findViewById(R.id.btnNegative).setEnabled(true);
+                                d.findViewById(R.id.llProgress).setVisibility(View.INVISIBLE);
+                                Toast.makeText(MaintenanceUnitMeasure.this, "Error eliminando medida. Intente nuevamente", Toast.LENGTH_LONG).show();
+                            }
+                        }
+                    }, new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            btnAceptar.setEnabled(true);
+                            d.findViewById(R.id.btnNegative).setEnabled(true);
+                            d.findViewById(R.id.llProgress).setVisibility(View.INVISIBLE);
+                            Toast.makeText(MaintenanceUnitMeasure.this, e.getMessage(), Toast.LENGTH_LONG).show();
+                        }
+                    });
                 }
-                d.dismiss();
             }
         });
 
@@ -223,4 +254,8 @@ public class MaintenanceUnitMeasure extends AppCompatActivity implements Listabl
         }
     };
 
+    @Override
+    public void dialogClosed(Object o) {
+        refreshList(lastSearch);
+    }
 }

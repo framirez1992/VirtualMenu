@@ -22,12 +22,18 @@ import com.far.virtualmenu.Generic.KV;
 import com.far.virtualmenu.MaintenanceProductSubTypes;
 import com.far.virtualmenu.R;
 import com.far.virtualmenu.Utils.Funciones;
+import com.far.virtualmenu.interfaces.DialogCaller;
 import com.far.virtualmenu.interfaces.ListableActivity;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.Date;
 
 public class ProductSubTypeDialogFragment extends DialogFragment implements OnFailureListener {
 
     MaintenanceProductSubTypes parent;
+    DialogCaller dialogCaller;
     ProductsSubTypes tempObj;
     LinearLayout llFamilia;
     Spinner spnFamilia;
@@ -35,7 +41,7 @@ public class ProductSubTypeDialogFragment extends DialogFragment implements OnFa
     TextInputEditText etName, etOrden;
     CheckBox cbActivate;
     View vTextColor, vBackground;
-    LinearLayout llBackground, llTextColor;
+    LinearLayout llBackground, llTextColor, llProgress;
 
     ProductsSubTypesController productsSubTypesController;
 
@@ -43,11 +49,12 @@ public class ProductSubTypeDialogFragment extends DialogFragment implements OnFa
      * Create a new instance of MyDialogFragment, providing "num"
      * as an argument.
      */
-    public  static ProductSubTypeDialogFragment newInstance(MaintenanceProductSubTypes parent,  ProductsSubTypes pt) {
+    public  static ProductSubTypeDialogFragment newInstance(MaintenanceProductSubTypes parent, ProductsSubTypes pt, DialogCaller dialogCaller) {
 
         ProductSubTypeDialogFragment f = new ProductSubTypeDialogFragment();
         f.parent = parent;
         f.tempObj = pt;
+        f.dialogCaller = dialogCaller;
 
         // Supply num input as an argument.
         Bundle args = new Bundle();
@@ -102,6 +109,7 @@ public class ProductSubTypeDialogFragment extends DialogFragment implements OnFa
 
 
     public void init(View view){
+        llProgress = view.findViewById(R.id.llProgress);
         llFamilia = view.findViewById(R.id.llFamilia);
         spnFamilia = view.findViewById(R.id.spnFamilia);
         llSave = view.findViewById(R.id.llSave);
@@ -161,7 +169,6 @@ public class ProductSubTypeDialogFragment extends DialogFragment implements OnFa
     }
 
     public void SaveProductSubType(){
-        try {
             String code = Funciones.generateCode();
             String name = etName.getText().toString();
             String codeProductType = ((KV)spnFamilia.getSelectedItem()).getKey();
@@ -169,13 +176,26 @@ public class ProductSubTypeDialogFragment extends DialogFragment implements OnFa
             String hex1 = Funciones.convertToHexColor(((ColorDrawable)vBackground.getBackground()).getColor());
             String hex2 = Funciones.convertToHexColor(((ColorDrawable)vTextColor.getBackground()).getColor());
             ProductsSubTypes pst = new ProductsSubTypes(code,codeProductType,name,hex1, hex2, orden, cbActivate.isChecked());
+            pst.setDATE(new Date());
+            pst.setMDATE(new Date());
             productsSubTypesController.sendToFireBase(pst);
+            productsSubTypesController.searchProductSubTypeFromFireBase(pst.getCODE(), new OnSuccessListener<QuerySnapshot>() {
+                @Override
+                public void onSuccess(QuerySnapshot querySnapshot) {
+                    ProductsSubTypes pst = null;
+                    if(querySnapshot != null && querySnapshot.getDocuments().size() > 0){
+                        pst = querySnapshot.getDocuments().get(0).toObject(ProductsSubTypes.class);
+                    }
+                    if(pst != null){
+                        ProductsSubTypesController.getInstance(getContext()).insert(pst);
+                        dialogCaller.dialogClosed(pst);
+                        dismiss();
+                    }else{
+                        failure("Error guardando grupo. Intente nuevamente");
+                    }
+                }
+            }, this);
 
-
-            this.dismiss();
-        }catch(Exception e){
-            e.printStackTrace();
-        }
     }
 
     public void EditProductSubType(){
@@ -188,10 +208,27 @@ public class ProductSubTypeDialogFragment extends DialogFragment implements OnFa
             pst.setCODETYPE(((KV)spnFamilia.getSelectedItem()).getKey());
             pst.setHEXCOLOR1(hex1);
             pst.setHEXCOLOR2(hex2);
-            pst.setMDATE(null);
             pst.setORDEN(orden);
             pst.setENABLED(cbActivate.isChecked());
+            pst.setMDATE(new Date());
             productsSubTypesController.sendToFireBase(pst);
+            productsSubTypesController.searchProductSubTypeFromFireBase(pst.getCODE(), new OnSuccessListener<QuerySnapshot>() {
+                @Override
+                public void onSuccess(QuerySnapshot querySnapshot) {
+                    ProductsSubTypes pst = null;
+                    if(querySnapshot != null && querySnapshot.getDocuments().size() > 0){
+                        pst = querySnapshot.getDocuments().get(0).toObject(ProductsSubTypes.class);
+                    }
+                    if(pst != null){
+                        ProductsSubTypesController.getInstance(getContext()).update(pst);
+                        dialogCaller.dialogClosed(pst);
+                        dismiss();
+                    }else{
+                        failure("Error editando grupo. Intente nuevamente");
+                    }
+
+                }
+            }, this);
 
 
             this.dismiss();
@@ -220,7 +257,13 @@ public class ProductSubTypeDialogFragment extends DialogFragment implements OnFa
 
     @Override
     public void onFailure(@NonNull Exception e) {
+        failure(e.getMessage());
+    }
+
+    public void failure(String msg){
         llSave.setEnabled(true);
+        llProgress.setVisibility(View.INVISIBLE);
+        Snackbar.make(getView(), msg, Snackbar.LENGTH_LONG).show();
     }
 
     View.OnClickListener colorChangeListener = new View.OnClickListener() {

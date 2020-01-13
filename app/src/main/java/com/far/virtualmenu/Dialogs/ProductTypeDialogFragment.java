@@ -17,17 +17,24 @@ import com.far.virtualmenu.CloudFireStoreObjects.ProductsTypes;
 import com.far.virtualmenu.Controllers.ProductsTypesController;
 import com.far.virtualmenu.R;
 import com.far.virtualmenu.Utils.Funciones;
+import com.far.virtualmenu.interfaces.DialogCaller;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.Date;
 
 
 public  class ProductTypeDialogFragment extends DialogFragment implements OnFailureListener {
 
-    public ProductsTypes tempObj;
+    ProductsTypes tempObj;
+    DialogCaller dialogCaller;
 
     LinearLayout llSave;
     TextInputEditText etName;
     TextInputEditText etOrden;
     CheckBox cbActivate;
+    LinearLayout llProgress;
 
 
     ProductsTypesController productsTypesController;
@@ -36,10 +43,11 @@ public  class ProductTypeDialogFragment extends DialogFragment implements OnFail
      * Create a new instance of MyDialogFragment, providing "num"
      * as an argument.
      */
-    public  static ProductTypeDialogFragment newInstance(ProductsTypes pt) {
+    public  static ProductTypeDialogFragment newInstance(ProductsTypes pt, DialogCaller dialogCaller) {
 
         ProductTypeDialogFragment f = new ProductTypeDialogFragment();
         f.tempObj = pt;
+        f.dialogCaller = dialogCaller;
 
         // Supply num input as an argument.
         Bundle args = new Bundle();
@@ -95,6 +103,7 @@ public  class ProductTypeDialogFragment extends DialogFragment implements OnFail
     }
 
     public void init(View view){
+        llProgress = view.findViewById(R.id.llProgress);
         llSave = view.findViewById(R.id.llSave);
         etName = view.findViewById(R.id.etName);
         etOrden = view.findViewById(R.id.etOrden);
@@ -135,34 +144,62 @@ public  class ProductTypeDialogFragment extends DialogFragment implements OnFail
     }
 
     public void SaveProductType(){
-        try {
             String code = Funciones.generateCode();
             String name = etName.getText().toString();
             int orden = etOrden.getText().toString().trim().equals("")?9999:Integer.parseInt(etOrden.getText().toString());
             ProductsTypes pt = new ProductsTypes(code, name, orden, cbActivate.isChecked());
+            pt.setDATE(new Date());
+            pt.setMDATE(new Date());
             productsTypesController.sendToFireBase(pt);
+            productsTypesController.searchProductTypeFromFireBase(pt.getCODE(), new OnSuccessListener<QuerySnapshot>() {
+                @Override
+                public void onSuccess(QuerySnapshot querySnapshot) {
+                    ProductsTypes pt = null;
+                    if(querySnapshot != null && querySnapshot.size() > 0){
+                        pt = querySnapshot.getDocuments().get(0).toObject(ProductsTypes.class);
+                        dismiss();
+                    }
 
-            this.dismiss();
-        }catch(Exception e){
-            e.printStackTrace();
-        }
+                    if(pt != null){
+                        productsTypesController.insert(pt);
+                        dialogCaller.dialogClosed(pt);
+                        dismiss();
+                    }else{
+                        failure("Error creando familia. Intente nuevamente");
+                    }
+                }
+            }, this);
 
 
     }
 
     public void EditProductType(){
-        try {
             int orden = etOrden.getText().toString().trim().equals("")?9999:Integer.parseInt(etOrden.getText().toString());
             tempObj.setDESCRIPTION(etName.getText().toString());
-            tempObj.setMDATE(null);
             tempObj.setORDEN(orden);
             tempObj.setENABLED(cbActivate.isChecked());
+            tempObj.setMDATE(new Date());
             productsTypesController.sendToFireBase(tempObj);
+            productsTypesController.searchProductTypeFromFireBase(tempObj.getCODE(), new OnSuccessListener<QuerySnapshot>() {
+                @Override
+                public void onSuccess(QuerySnapshot querySnapshot) {
+                    ProductsTypes pt = null;
+                    if(querySnapshot != null && querySnapshot.size() > 0){
+                        pt = querySnapshot.getDocuments().get(0).toObject(ProductsTypes.class);
+                        dismiss();
+                    }
+
+                    if(pt != null){
+                        productsTypesController.update(pt);
+                        dialogCaller.dialogClosed(pt);
+                        dismiss();
+                    }else{
+                        failure("Error editando familia. Intente nuevamente");
+                    }
+                }
+            }, this);
 
             this.dismiss();
-        }catch(Exception e){
-            e.printStackTrace();
-        }
 
 
     }
@@ -180,6 +217,12 @@ public  class ProductTypeDialogFragment extends DialogFragment implements OnFail
 
     @Override
     public void onFailure(@NonNull Exception e) {
+        failure(e.getMessage());
+    }
+
+    public void failure(String msg){
         llSave.setEnabled(true);
+        llProgress.setVisibility(View.INVISIBLE);
+        Snackbar.make(getView(), msg, Snackbar.LENGTH_LONG).show();
     }
 }

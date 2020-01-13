@@ -1,5 +1,6 @@
 package com.far.virtualmenu;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
@@ -7,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputEditText;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -46,6 +48,8 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.ArrayList;
+
 public class Login extends AppCompatActivity implements OnFailureListener, FireBaseOK, AsyncExecutor {
 
 
@@ -78,13 +82,17 @@ public class Login extends AppCompatActivity implements OnFailureListener, FireB
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        init();
-        initDialog();
-
-        if(Funciones.getPreferencesInt(Login.this, CODES.EXTRA_SECURITY_ERROR_CODE)>-1){
-            int code = Funciones.getPreferencesInt(Login.this, CODES.EXTRA_SECURITY_ERROR_CODE);
-            ((TextView)findViewById(R.id.tvErrorMsg)).setText(Funciones.gerErrorMessage(code));
+        if(getUngrantedPermissions().size()>0){
+            requestPermissions(getUngrantedPermissions());
+        }else{
+            init();
+            initDialog();
+            if(Funciones.getPreferencesInt(Login.this, CODES.EXTRA_SECURITY_ERROR_CODE)>-1){
+                int code = Funciones.getPreferencesInt(Login.this, CODES.EXTRA_SECURITY_ERROR_CODE);
+                ((TextView)findViewById(R.id.tvErrorMsg)).setText(Funciones.gerErrorMessage(code));
+            }
         }
+
     }
 
     @Override
@@ -488,24 +496,22 @@ public class Login extends AppCompatActivity implements OnFailureListener, FireB
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if(requestCode == 1){
-
-            if (grantResults.length > 0) {
-
-                boolean granted = true;
-                for (int grantResult : grantResults){
-                    if (grantResult == PackageManager.PERMISSION_DENIED){
-                        granted = false;
-                    }
+        boolean granted = true;
+        if(requestCode == 123){
+            for(int result: grantResults){
+                if(result == PackageManager.PERMISSION_DENIED){
+                    granted = false;
+                    break;
                 }
-                if(granted){
-                    //Funciones.sendSMS("8099983580", "hola vato");
-                }else {
-                    Toast.makeText(Login.this, "Denegado", Toast.LENGTH_LONG).show();
-                }
+            }
+            if(granted){
+                recreate();
+            }else{
+                finish();
             }
         }
     }
+
 
     public void initDialog(){
         try {
@@ -763,5 +769,30 @@ public class Login extends AppCompatActivity implements OnFailureListener, FireB
         startActivity(new Intent(Login.this, AdminConfiguration.class));
     }
 
+
+
+    public ArrayList<String> getUngrantedPermissions(){
+        ArrayList<String> p = new ArrayList<>();
+        if(checkPermissions(Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED){
+            p.add(Manifest.permission.INTERNET);
+        }
+        if(checkPermissions(Manifest.permission.ACCESS_NETWORK_STATE) != PackageManager.PERMISSION_GRANTED){
+            p.add(Manifest.permission.ACCESS_NETWORK_STATE);
+        }
+        if(checkPermissions(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
+            p.add(Manifest.permission.READ_EXTERNAL_STORAGE);
+        }
+        if(checkPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
+            p.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        }
+
+        return p;
+    }
+
+
+    public void requestPermissions(ArrayList<String> permissions){
+        ActivityCompat.requestPermissions(Login.this,permissions.toArray(new String[permissions.size()]),
+                123);
+    }
 
 }

@@ -181,12 +181,12 @@ public class MainMenuActivity extends AppCompatActivity implements ListableActiv
 
     public void loadData(){
         switch (currentindex){
-            case 0:ProductsTypesController.getInstance(MainMenuActivity.this).searchChanges(this, this, this); break;
-            case 1:ProductsSubTypesController.getInstance(MainMenuActivity.this).searchChanges(this, this, this); break;
-            case 2:ProductsController.getInstance(MainMenuActivity.this).searchChanges(this, this, this); break;
-            case 3:ProductsMeasureController.getInstance(MainMenuActivity.this).searchChanges(this, this, this); break;
-            case 4:MeasureUnitsController.getInstance(MainMenuActivity.this).searchChanges(this, this, this); break;
-            case 5:ProductsImagesController.getInstance(MainMenuActivity.this).searchChanges(this, this, this); break;
+            case 0:ProductsTypesController.getInstance(MainMenuActivity.this).searchChanges(true, this, this, this); break;
+            case 1:ProductsSubTypesController.getInstance(MainMenuActivity.this).searchChanges(true, this, this, this); break;
+            case 2:ProductsController.getInstance(MainMenuActivity.this).searchChanges(true, this, this, this); break;
+            case 3:ProductsMeasureController.getInstance(MainMenuActivity.this).searchChanges(true, this, this, this); break;
+            case 4:MeasureUnitsController.getInstance(MainMenuActivity.this).searchChanges(true, this, this, this); break;
+            case 5:ProductsImagesController.getInstance(MainMenuActivity.this).searchChanges(true, this, this, this); break;
             default:
                 currentindex=0;
                 changeMenu(1);
@@ -226,12 +226,12 @@ public class MainMenuActivity extends AppCompatActivity implements ListableActiv
     @Override
     public void onSuccess(QuerySnapshot querySnapshot) {
         switch (currentindex){
-            case 0:ProductsTypesController.getInstance(MainMenuActivity.this).consumeQuerySnapshot(querySnapshot); break;
-            case 1:ProductsSubTypesController.getInstance(MainMenuActivity.this).consumeQuerySnapshot(querySnapshot); break;
-            case 2:ProductsController.getInstance(MainMenuActivity.this).consumeQuerySnapshot(querySnapshot); break;
-            case 3:ProductsMeasureController.getInstance(MainMenuActivity.this).consumeQuerySnapshot(querySnapshot); break;
-            case 4:MeasureUnitsController.getInstance(MainMenuActivity.this).consumeQuerySnapshot(querySnapshot); break;
-            case 5:ProductsImagesController.getInstance(MainMenuActivity.this).consumeQuerySnapshot(querySnapshot); break;
+            case 0:ProductsTypesController.getInstance(MainMenuActivity.this).consumeQuerySnapshot(true, querySnapshot); break;
+            case 1:ProductsSubTypesController.getInstance(MainMenuActivity.this).consumeQuerySnapshot(true, querySnapshot); break;
+            case 2:ProductsController.getInstance(MainMenuActivity.this).consumeQuerySnapshot(true, querySnapshot); break;
+            case 3:ProductsMeasureController.getInstance(MainMenuActivity.this).consumeQuerySnapshot(true ,querySnapshot); break;
+            case 4:MeasureUnitsController.getInstance(MainMenuActivity.this).consumeQuerySnapshot(true, querySnapshot); break;
+            case 5:ProductsImagesController.getInstance(MainMenuActivity.this).consumeQuerySnapshot(true, querySnapshot); break;
             default:break;
         }
         currentindex++;

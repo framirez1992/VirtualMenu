@@ -296,15 +296,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         MenuItem mantenimientoProductos = nav.getMenu().findItem(R.id.goMantProductos);
         MenuItem mantenimientoUsuarios = nav.getMenu().findItem(R.id.goMantUsuarios);
         MenuItem mantenimientoControles = nav.getMenu().findItem(R.id.goMantControls);
+        MenuItem mantenimientoEmpresa = nav.getMenu().findItem(R.id.goMantCompany);
 
 
         mantenimientoProductos.setVisible(false);
         mantenimientoUsuarios.setVisible(false);
         mantenimientoControles.setVisible(false);
+        mantenimientoEmpresa.setVisible(false);
 
         if(usersController.isSuperUser() || usersController.isAdmin()){//SU o Administrador
             //mantenimientoInventario.setVisible(usersController.isSuperUser());
             mantenimientoProductos.setVisible((usersController.isSuperUser() || usersController.isAdmin()));
+            mantenimientoEmpresa.setVisible(true);
             //mantenimientoUsuarios.setVisible(usersController.isSuperUser());
             //mantenimientoControles.setVisible(usersController.isSuperUser());
         }
@@ -334,6 +337,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void changeModule(int id){
 
         if((usersController.isSuperUser() || usersController.isAdmin())) {
+            fragmentMaintenance.llMaintenanceCompany.setVisibility((id == R.id.goMantCompany) ? View.VISIBLE : View.GONE);
             fragmentMaintenance.llMaintenanceProducts.setVisibility((id == R.id.goMantProductos) ? View.VISIBLE : View.GONE);
             fragmentMaintenance.llMaintenanceUsers.setVisibility((id == R.id.goMantUsuarios) ? View.VISIBLE : View.GONE);
             //fragmentMaintenance.llMaintenanceAreas.setVisibility((id == R.id.goMantAreas) ? View.VISIBLE : View.GONE);

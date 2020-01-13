@@ -12,6 +12,7 @@ import com.far.virtualmenu.CloudFireStoreObjects.Licenses;
 import com.far.virtualmenu.CloudFireStoreObjects.MeasureUnits;
 import com.far.virtualmenu.DataBase.DB;
 import com.far.virtualmenu.Generic.KV;
+import com.far.virtualmenu.Generic.KV2;
 import com.far.virtualmenu.Globales.Tablas;
 import com.far.virtualmenu.Utils.Funciones;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -71,6 +72,10 @@ public class MeasureUnitsController {
         return result;
     }
 
+    public long update(MeasureUnits d){
+        return  update(d, CODE+" = ?", new String[]{d.getCODE()});
+    }
+
     public long update(MeasureUnits d, String where, String[] args){
         ContentValues cv = new ContentValues();
         cv.put(CODE,d.getCODE() );
@@ -80,6 +85,10 @@ public class MeasureUnitsController {
         long result = DB.getInstance(context).getWritableDatabase().update(TABLE_NAME,cv,where, args);
         return result;
     }
+    public long delete(MeasureUnits mu){
+        return delete(CODE+" = ?", new String[]{mu.getCODE()});
+    }
+
 
     public long delete(String where, String[] args){
         long result = DB.getInstance(context).getWritableDatabase().delete(TABLE_NAME,where, args);
@@ -120,26 +129,26 @@ public class MeasureUnitsController {
         }
     }
 
-    public void sendToFireBase(MeasureUnits mu){
-        try {
+    public void sendToFireBase(MeasureUnits mu, OnFailureListener failureListener){
             WriteBatch lote = db.batch();
             lote.set(getReferenceFireStore().document(mu.getCODE()), mu.toMap());
-            lote.commit();
-
-        }catch(Exception e){
-            e.printStackTrace();
-        }
+            lote.commit().addOnFailureListener(failureListener);
 
     }
 
-    public void deleteFromFireBase(MeasureUnits mu){
-        try {
-            getReferenceFireStore().document(mu.getCODE()).delete();
-        }catch(Exception e){
-            e.printStackTrace();
-        }
+    public void deleteFromFireBase(MeasureUnits mu, OnFailureListener failureListener){
+            getReferenceFireStore().document(mu.getCODE()).delete().addOnFailureListener(failureListener);
     }
 
+
+    public void searchMeasureUnitFromFireBase(String code, OnSuccessListener<QuerySnapshot> success, OnFailureListener failure){
+        getReferenceFireStore().
+                whereEqualTo(CODE, code).
+                get().
+                addOnSuccessListener(success).
+                addOnFailureListener(failure);
+
+    }
 
     public ArrayList<MeasureUnits> getMeasureUnits(String where, String[]args, String orderBy){
             ArrayList<MeasureUnits> result = new ArrayList<>();
@@ -240,9 +249,9 @@ public class MeasureUnitsController {
     }
 
 
-    public void searchChanges(OnSuccessListener<QuerySnapshot> success, OnCompleteListener<QuerySnapshot> complete, OnFailureListener failure){
+    public void searchChanges(boolean all, OnSuccessListener<QuerySnapshot> success, OnCompleteListener<QuerySnapshot> complete, OnFailureListener failure){
 
-        Date mdate = DB.getLastMDateSaved(context, TABLE_NAME);
+        Date mdate = all?null: DB.getLastMDateSaved(context, TABLE_NAME);
         if(mdate != null){
             getReferenceFireStore().
                     whereGreaterThan(MDATE, mdate).//mayor que, ya que las fechas (la que buscamos de la DB) tienen hora, minuto y segundos.
@@ -258,7 +267,11 @@ public class MeasureUnitsController {
 
     }
 
-    public void consumeQuerySnapshot(QuerySnapshot querySnapshot){
+
+    public void consumeQuerySnapshot(boolean clear, QuerySnapshot querySnapshot){
+        if(clear){
+            delete(null, null);
+        }
         if (querySnapshot != null && querySnapshot.getDocuments()!= null && querySnapshot.getDocuments().size() > 0) {
             for(DocumentSnapshot doc: querySnapshot){
                 MeasureUnits obj = doc.toObject(MeasureUnits.class);
@@ -268,6 +281,21 @@ public class MeasureUnitsController {
             }
         }
 
+    }
+
+
+    /**
+     * retorna un arrayList con todas las  dependencias en otras tablas (llave foranea)
+     * @param code
+     * @return
+     */
+    public ArrayList<KV2> getDependencies(String code){
+        ArrayList<KV2> tables = new ArrayList<>();
+        if(DB.getInstance(context).hasDependencies(ProductsMeasureController.TABLE_NAME,ProductsMeasureController.CODEMEASURE,code))
+            tables.add(new KV2(ProductsMeasureController.TABLE_NAME,ProductsMeasureController.CODEMEASURE,code));
+
+
+        return tables;
     }
 
 }

@@ -1,6 +1,7 @@
 package com.far.virtualmenu;
 
 import android.app.Dialog;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -17,6 +18,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.far.virtualmenu.Adapters.Models.SimpleRowModel;
 import com.far.virtualmenu.Adapters.Models.TitleDetailRowModel;
@@ -29,7 +31,10 @@ import com.far.virtualmenu.Controllers.ProductsTypesController;
 import com.far.virtualmenu.Dialogs.ProductTypeDialogFragment;
 import com.far.virtualmenu.Utils.CODES;
 import com.far.virtualmenu.Utils.Funciones;
+import com.far.virtualmenu.interfaces.DialogCaller;
 import com.far.virtualmenu.interfaces.ListableActivity;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
@@ -37,7 +42,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 
-public class MaintenanceProductTypes extends AppCompatActivity implements ListableActivity {
+public class MaintenanceProductTypes extends AppCompatActivity implements ListableActivity, DialogCaller {
 
     RecyclerView rvList;
     ArrayList<TitleDetailRowModel> objects;
@@ -76,7 +81,6 @@ public class MaintenanceProductTypes extends AppCompatActivity implements Listab
     @Override
     protected void onStart() {
         super.onStart();
-        setUpListeners();
     }
 
     @Override
@@ -127,23 +131,6 @@ public class MaintenanceProductTypes extends AppCompatActivity implements Listab
         }
     }
 
-    public void setUpListeners(){
-            productsTypesController.getReferenceFireStore().addSnapshotListener(new EventListener<QuerySnapshot>() {
-                @Override
-                public void onEvent(QuerySnapshot querySnapshot, FirebaseFirestoreException e) {
-                    productsTypesController.delete(null, null);//limpia la tabla
-
-                    for (DocumentSnapshot ds : querySnapshot) {
-
-                        ProductsTypes pt = ds.toObject(ProductsTypes.class);
-                        productsTypesController.insert(pt);
-                    }
-                    refreshList(lastSearch);
-
-                }
-            });
-
-    }
     public void callAddDialog(boolean isNew){
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         Fragment prev = getSupportFragmentManager().findFragmentByTag("dialog");
@@ -153,9 +140,9 @@ public class MaintenanceProductTypes extends AppCompatActivity implements Listab
         ft.addToBackStack(null);
         DialogFragment newFragment = null;
         if(isNew){
-            newFragment = ProductTypeDialogFragment.newInstance(null);
+            newFragment = ProductTypeDialogFragment.newInstance(null, this);
         }else {
-            newFragment = ProductTypeDialogFragment.newInstance(productsType);
+            newFragment = ProductTypeDialogFragment.newInstance(productsType, this);
         }
 
         // Create and show the dialog.
@@ -171,12 +158,16 @@ public class MaintenanceProductTypes extends AppCompatActivity implements Listab
 
         String msg = "Esta seguro que desea eliminar \'"+description+"\' permanentemente?";
         final Dialog d = Funciones.getCustomDialog2Btn(this,getResources().getColor(R.color.red_700),"Delete", msg,R.drawable.delete,null, null);
-        CardView btnAceptar = d.findViewById(R.id.btnPositive);
-        CardView btnCancelar = d.findViewById(R.id.btnNegative);
+        final CardView btnAceptar = d.findViewById(R.id.btnPositive);
+        final CardView btnCancelar = d.findViewById(R.id.btnNegative);
 
         btnAceptar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                d.findViewById(R.id.llProgress).setVisibility(View.VISIBLE);
+                btnAceptar.setEnabled(false);
+                btnCancelar.setEnabled(false);
+
                 String msgDependency = getMsgDependency();
                 if(!msgDependency.isEmpty()) {
                     Funciones.showAlertDependencies(MaintenanceProductTypes.this, msgDependency);
@@ -185,9 +176,41 @@ public class MaintenanceProductTypes extends AppCompatActivity implements Listab
                 }
 
                 if(productsType != null){
-                        productsTypesController.deleteFromFireBase(productsType);
+                        productsTypesController.deleteFromFireBase(productsType,  new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                btnAceptar.setEnabled(true);
+                                btnCancelar.setEnabled(true);
+                                d.findViewById(R.id.llProgress).setVisibility(View.INVISIBLE);
+                                Toast.makeText(MaintenanceProductTypes.this, e.getMessage(), Toast.LENGTH_LONG).show();
+                            }
+                        });
+                        productsTypesController.searchProductTypeFromFireBase(productsType.getCODE(), new OnSuccessListener<QuerySnapshot>() {
+                            @Override
+                            public void onSuccess(QuerySnapshot querySnapshot) {
+                                if(querySnapshot == null || querySnapshot.size() ==0){
+                                    productsTypesController.delete(productsType);
+                                    refreshList(lastSearch);
+                                    d.dismiss();
+                                }else{
+                                    btnAceptar.setEnabled(true);
+                                    btnCancelar.setEnabled(true);
+                                    d.findViewById(R.id.llProgress).setVisibility(View.INVISIBLE);
+                                    Toast.makeText(MaintenanceProductTypes.this, "Error borrando Familia. Intente nuevamente", Toast.LENGTH_LONG).show();
+                                }
+
+                            }
+                        }, new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                btnAceptar.setEnabled(true);
+                                btnCancelar.setEnabled(true);
+                                d.findViewById(R.id.llProgress).setVisibility(View.INVISIBLE);
+                                Toast.makeText(MaintenanceProductTypes.this, e.getMessage(), Toast.LENGTH_LONG).show();
+                            }
+                        });
                 }
-                d.dismiss();
+
             }
         });
 
@@ -265,5 +288,10 @@ public class MaintenanceProductTypes extends AppCompatActivity implements Listab
 
         }
         return msgDependency;
+    }
+
+    @Override
+    public void dialogClosed(Object o) {
+        refreshList(lastSearch);
     }
 }

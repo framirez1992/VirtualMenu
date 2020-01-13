@@ -14,7 +14,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".AdminLicenseUserDevice"></activity>
+        <activity android:name=".MainActualizationCenter"></activity>
+        <activity android:name=".MaintenanceCompany" />
+        <activity android:name=".AdminLicenseUserDevice" />
         <activity android:name=".AdminLicenseUsers" />
         <activity android:name=".AdminLicenseDevices" />
         <activity android:name=".AdminLicenseTokens" />

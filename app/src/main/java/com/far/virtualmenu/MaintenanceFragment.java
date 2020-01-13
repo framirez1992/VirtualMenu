@@ -16,9 +16,9 @@ import com.far.virtualmenu.Utils.CODES;
 public class MaintenanceFragment extends Fragment {
 
 
-    ImageView btnFamily, btnGroup, btnMeasures, btnProducts,btnProductsImages, btnUsers, btnControls
-    , btnUsersControl, btnClients, btnPrinter;
-    LinearLayout llMainScreen, llMaintenanceControls, llMaintenanceUsers, llMaintenanceProducts, llConfiguration;
+    ImageView btnFamily, btnGroup, btnMeasures, btnProducts,btnProductsImages,btnCompany, btnUsers, btnControls
+    , btnUsersControl, btnClients, btnPrinter, btnActualizationCenter;
+    LinearLayout llMainScreen, llMaintenanceControls, llMaintenanceUsers, llMaintenanceProducts,llMaintenanceCompany,  llConfiguration;
     public MaintenanceFragment() {
         // Required empty public constructor
     }
@@ -39,24 +39,31 @@ public class MaintenanceFragment extends Fragment {
         llMaintenanceControls = view.findViewById(R.id.llMaintenanceControls);
         llMaintenanceUsers = view.findViewById(R.id.llMaintenanceUsers);
         llMaintenanceProducts = view.findViewById(R.id.llMaintenanceProducts);
+        llMaintenanceCompany = view.findViewById(R.id.llMaintenanceCompany);
         llConfiguration = view.findViewById(R.id.llConfiguration);
 
+        btnActualizationCenter = view.findViewById(R.id.btnActualizationCenter);
         btnFamily = view.findViewById(R.id.btnFamily);
         btnGroup = view.findViewById(R.id.btnGroups);
         btnMeasures = view.findViewById(R.id.btnMeasures);
         btnProducts = view.findViewById(R.id.btnProducts);
         btnProductsImages = view.findViewById(R.id.btnProductsImages);
+        btnCompany = view.findViewById(R.id.btnCompany);
         btnUsers = view.findViewById(R.id.btnUsers);
         btnControls = view.findViewById(R.id.btnControls);
         btnUsersControl = view.findViewById(R.id.btnUsersControl);
         btnClients = view.findViewById(R.id.btnClients);
         btnPrinter = view.findViewById(R.id.btnPrinter);
 
+        btnActualizationCenter.setOnClickListener(imageClick);
+
         btnFamily.setOnClickListener(imageClick);
         btnGroup.setOnClickListener(imageClick);
         btnMeasures.setOnClickListener(imageClick);
         btnProducts.setOnClickListener(imageClick);
         btnProductsImages.setOnClickListener(imageClick);
+
+        btnCompany.setOnClickListener(imageClick);
 
         btnUsers.setOnClickListener(imageClick);
 
@@ -97,11 +104,13 @@ public class MaintenanceFragment extends Fragment {
                 case R.id.btnProductsImages:
                     i = new Intent(getActivity(), MainUpload.class);
                     break;
-
-               /* case R.id.btnActualizationCenter:
+                case R.id.btnCompany:
+                    i = new Intent(getActivity(), MaintenanceCompany.class);
+                    break;
+                case R.id.btnActualizationCenter:
                     i = new Intent(getActivity(), MainActualizationCenter.class);
                     break;
-                case R.id.btnControls:
+                /*case R.id.btnControls:
                     i = new Intent(getActivity(), MaintenanceUsersControl.class);
                     break;
                 case R.id.btnUsersControl:

@@ -44,7 +44,7 @@ public class ProductsTypes {
         this.CODE = c.getString(c.getColumnIndex(ProductsTypesController.CODE));
         this.DESCRIPTION = c.getString(c.getColumnIndex(ProductsTypesController.DESCRIPTION));
         this.ORDEN = c.getInt(c.getColumnIndex(ProductsTypesController.ORDER));
-        this.ENABLED = c.getString(c.getColumnIndex(ProductsTypesController.ORDER)).equals("1");
+        this.ENABLED = c.getString(c.getColumnIndex(ProductsTypesController.ENABLED)).equals("1");
         this.DATE = Funciones.parseStringToDate(c.getString(c.getColumnIndex(ProductsTypesController.DATE)));
         this.MDATE = Funciones.parseStringToDate(c.getString(c.getColumnIndex(ProductsTypesController.MDATE)));
     }

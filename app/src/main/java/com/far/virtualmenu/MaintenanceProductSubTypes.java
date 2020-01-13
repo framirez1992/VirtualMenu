@@ -1,6 +1,7 @@
 package com.far.virtualmenu;
 
 import android.app.Dialog;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -20,6 +21,7 @@ import android.widget.AdapterView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.far.virtualmenu.Adapters.Models.ProductRowModel;
 import com.far.virtualmenu.Adapters.Models.ProductSubTypeRowModel;
@@ -36,7 +38,10 @@ import com.far.virtualmenu.Dialogs.ColorPickDialog;
 import com.far.virtualmenu.Dialogs.ProductSubTypeDialogFragment;
 import com.far.virtualmenu.Generic.KV;
 import com.far.virtualmenu.Utils.Funciones;
+import com.far.virtualmenu.interfaces.DialogCaller;
 import com.far.virtualmenu.interfaces.ListableActivity;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
@@ -44,7 +49,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 
-public class MaintenanceProductSubTypes extends AppCompatActivity implements ListableActivity {
+public class MaintenanceProductSubTypes extends AppCompatActivity implements ListableActivity, DialogCaller {
 
     RecyclerView rvList;
     ArrayList<ProductSubTypeRowModel> objects;
@@ -102,7 +107,6 @@ public class MaintenanceProductSubTypes extends AppCompatActivity implements Lis
     @Override
     protected void onStart() {
         super.onStart();
-        setUpListeners();
     }
 
     @Override
@@ -153,40 +157,6 @@ public class MaintenanceProductSubTypes extends AppCompatActivity implements Lis
         }
     }
 
-
-    public void setUpListeners(){
-
-            productsTypesController.getReferenceFireStore().addSnapshotListener(new EventListener<QuerySnapshot>() {
-                @Override
-                public void onEvent(QuerySnapshot querySnapshot, FirebaseFirestoreException e) {
-                    productsTypesController.delete(null, null);//limpia la tabla
-
-                    for (DocumentSnapshot ds : querySnapshot) {
-
-                        ProductsTypes pt = ds.toObject(ProductsTypes.class);
-                        productsTypesController.insert(pt);
-                    }
-
-                    refreshList();
-                }
-            });
-            productsSubTypesController.getReferenceFireStore().addSnapshotListener(new EventListener<QuerySnapshot>() {
-                @Override
-                public void onEvent(QuerySnapshot querySnapshot, FirebaseFirestoreException e) {
-                    productsSubTypesController.delete(null, null);
-
-                    for (DocumentSnapshot ds : querySnapshot) {
-                        if (ds.exists()) {
-                            ProductsSubTypes pst = ds.toObject(ProductsSubTypes.class);
-                            productsSubTypesController.insert(pst);
-                        }
-                    }
-
-                    refreshList();
-                }
-            });
-
-    }
     public void callAddDialog(boolean isNew){
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         Fragment prev = getSupportFragmentManager().findFragmentByTag("dialog");
@@ -196,9 +166,9 @@ public class MaintenanceProductSubTypes extends AppCompatActivity implements Lis
         ft.addToBackStack(null);
         DialogFragment newFragment = null;
         if(isNew)
-            newFragment = ProductSubTypeDialogFragment.newInstance(this, null);
+            newFragment = ProductSubTypeDialogFragment.newInstance(this, null, this);
         else
-            newFragment = ProductSubTypeDialogFragment.newInstance(this, productsSubType);
+            newFragment = ProductSubTypeDialogFragment.newInstance(this, productsSubType, this);
 
 
         // Create and show the dialog.
@@ -213,11 +183,14 @@ public class MaintenanceProductSubTypes extends AppCompatActivity implements Lis
         }
         String msg = "Esta seguro que desea eliminar \'"+description+"\' permanentemente?";
         final Dialog d = Funciones.getCustomDialog2Btn(this,getResources().getColor(R.color.red_700),"Delete", msg,R.drawable.delete,null, null);
-        CardView btnAceptar = d.findViewById(R.id.btnPositive);
-        CardView btnCancelar = d.findViewById(R.id.btnNegative);
+        final CardView btnAceptar = d.findViewById(R.id.btnPositive);
+        final CardView btnCancelar = d.findViewById(R.id.btnNegative);
         btnAceptar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                d.findViewById(R.id.llProgress).setVisibility(View.VISIBLE);
+                btnAceptar.setEnabled(false);
+                btnCancelar.setEnabled(false);
 
                 String msgDependency = getMsgDependency();
                 if(!msgDependency.isEmpty()) {
@@ -226,7 +199,40 @@ public class MaintenanceProductSubTypes extends AppCompatActivity implements Lis
                     return;
                 }
                 if(productsSubType != null){
-                    productsSubTypesController.deleteFromFireBase(productsSubType);
+                    productsSubTypesController.deleteFromFireBase(productsSubType, new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            btnAceptar.setEnabled(true);
+                            btnCancelar.setEnabled(true);
+                            d.findViewById(R.id.llProgress).setVisibility(View.INVISIBLE);
+                            Toast.makeText(MaintenanceProductSubTypes.this, e.getMessage(), Toast.LENGTH_LONG).show();
+
+                        }
+                    });
+                    productsSubTypesController.searchProductSubTypeFromFireBase(productsSubType.getCODE(), new OnSuccessListener<QuerySnapshot>() {
+                        @Override
+                        public void onSuccess(QuerySnapshot querySnapshot) {
+
+                            if(querySnapshot== null || querySnapshot.size()==0){
+                                productsSubTypesController.delete(productsSubType);
+                                refreshList();
+                                d.dismiss();
+                            }else{
+                                btnAceptar.setEnabled(true);
+                                btnCancelar.setEnabled(true);
+                                d.findViewById(R.id.llProgress).setVisibility(View.INVISIBLE);
+                                Toast.makeText(MaintenanceProductSubTypes.this, "Error eliminando grupo. Intente nuevamente", Toast.LENGTH_LONG).show();
+                            }
+                        }
+                    }, new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            btnAceptar.setEnabled(true);
+                            btnCancelar.setEnabled(true);
+                            d.findViewById(R.id.llProgress).setVisibility(View.INVISIBLE);
+                            Toast.makeText(MaintenanceProductSubTypes.this, e.getMessage(), Toast.LENGTH_LONG).show();
+                        }
+                    });
                 }
                 d.dismiss();
             }
@@ -332,5 +338,9 @@ public class MaintenanceProductSubTypes extends AppCompatActivity implements Lis
     }
 
 
+    @Override
+    public void dialogClosed(Object o) {
+        refreshList();
+    }
 }
 

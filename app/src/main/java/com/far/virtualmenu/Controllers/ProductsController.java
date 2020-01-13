@@ -35,6 +35,8 @@ import com.google.firebase.firestore.WriteBatch;
 import java.util.ArrayList;
 import java.util.Date;
 
+import io.grpc.internal.FailingClientStream;
+
 public class ProductsController {
 
     public static final String TABLE_NAME ="PRODUCTS";
@@ -88,6 +90,10 @@ public class ProductsController {
         return result;
     }
 
+    public long update(Products p){
+        return  update(p, CODE+" = ?", new String[]{p.getCODE()});
+    }
+
     public long update(Products p, String where, String[] args){
         ContentValues cv = new ContentValues();
         cv.put(CODE,p.getCODE() );
@@ -102,6 +108,10 @@ public class ProductsController {
 
         long result = DB.getInstance(context).getWritableDatabase().update(TABLE_NAME,cv,where, args);
         return result;
+    }
+
+    public long delete(Products p){
+        return delete(CODE+" = ?", new String[]{p.getCODE()});
     }
 
     public long delete(String where, String[] args){
@@ -228,21 +238,20 @@ public class ProductsController {
         }
     }
 
-    public void sendToFireBase(Products product){
-        sendToFireBase(product, null);
+    public void sendToFireBase(Products product, OnFailureListener failureListener){
+        sendToFireBase(product, null, failureListener);
 
     }
 
 
-    public void sendToFireBase(Products product, ArrayList<ProductsMeasure> newMeasures){
-        try {
+    public void sendToFireBase(Products product, ArrayList<ProductsMeasure> newMeasures, OnFailureListener failureListener){
             WriteBatch lote = db.batch();
 
-            if(product.getMDATE() == null){
+            //if(product.getMDATE() == null){
                 lote.set(getReferenceFireStore().document(product.getCODE()), product.toMap());
-            }else{
-                lote.update(getReferenceFireStore().document(product.getCODE()), product.toMap());
-            }
+            //}else{
+                //lote.update(getReferenceFireStore().document(product.getCODE()), product.toMap());
+            //}
 
             String notIn=" NOT IN ('1'";
             if (newMeasures != null && !newMeasures.isEmpty()){
@@ -261,11 +270,11 @@ public class ProductsController {
                         lote.update(ProductsMeasureController.getInstance(context).getReferenceFireStore().document(pm.getCODE()), pm.toMap());
 
                         //ACTUALIZAR LOCAL
-                        where = ProductsMeasureController.CODE+" = ?";
-                        ProductsMeasureController.getInstance(context).update(pm,where, new String[]{pm.getCODE()});
+                        //where = ProductsMeasureController.CODE+" = ?";
+                        //ProductsMeasureController.getInstance(context).update(pm,where, new String[]{pm.getCODE()});
                     }else{//INSERTAR
                         lote.set(ProductsMeasureController.getInstance(context).getReferenceFireStore().document(pm.getCODE()), pm.toMap());
-                        ProductsMeasureController.getInstance(context).insert(pm);
+                        //ProductsMeasureController.getInstance(context).insert(pm);
                     }
                     notIn+=",'"+pm.getCODE()+"'";
                 }
@@ -279,25 +288,26 @@ public class ProductsController {
             for(ProductsMeasure pm: toDisable){
                 pm.setENABLED(false);
                 pm.setMDATE(null);
-                where = ProductsMeasureController.CODE+" = ?";
-                ProductsMeasureController.getInstance(context).update(pm,where, new String[]{pm.getCODE()});
+                //where = ProductsMeasureController.CODE+" = ?";
+                //ProductsMeasureController.getInstance(context).update(pm,where, new String[]{pm.getCODE()});
 
                 lote.update(ProductsMeasureController.getInstance(context).getReferenceFireStore().document(pm.getCODE()), pm.toMap());
             }
 
-            lote.commit().addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    e.printStackTrace();
-                }
-            });
-        }catch(Exception e){
-            e.printStackTrace();
-        }
+            lote.commit().addOnFailureListener(failureListener);
 
     }
 
-    public void deleteFromFireBase(Products product){
+    public void searchProductFromFireBase(String code, OnSuccessListener<QuerySnapshot> success,  OnFailureListener failure){
+
+        getReferenceFireStore().
+                whereEqualTo(CODE, code).
+                get().addOnSuccessListener(success).
+                addOnFailureListener(failure);
+
+    }
+
+    public void deleteFromFireBase(Products product, OnFailureListener failureListener){
             boolean hasimages=false;
             WriteBatch lote = db.batch();
             lote.delete(getReferenceFireStore().document(product.getCODE()));
@@ -310,12 +320,7 @@ public class ProductsController {
                 }
             }
 
-            lote.commit().addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    e.printStackTrace();
-                }
-            });
+            lote.commit().addOnFailureListener(failureListener);
 
             if(hasimages){
                 for(ProductImage pi : ProductsImagesController.getInstance(context).getProductImageByCodeProduct(product.getCODE())){
@@ -350,9 +355,9 @@ public class ProductsController {
 
 
 
-    public void searchChanges(OnSuccessListener<QuerySnapshot> success, OnCompleteListener<QuerySnapshot> complete, OnFailureListener failure){
+    public void searchChanges(boolean all, OnSuccessListener<QuerySnapshot> success, OnCompleteListener<QuerySnapshot> complete, OnFailureListener failure){
 
-        Date mdate = DB.getLastMDateSaved(context, TABLE_NAME);
+        Date mdate = all?null: DB.getLastMDateSaved(context, TABLE_NAME);
         if(mdate != null){
             getReferenceFireStore().
                     whereGreaterThan(MDATE, mdate).//mayor que, ya que las fechas (la que buscamos de la DB) tienen hora, minuto y segundos.
@@ -368,7 +373,10 @@ public class ProductsController {
 
     }
 
-    public void consumeQuerySnapshot(QuerySnapshot querySnapshot){
+    public void consumeQuerySnapshot(boolean clear, QuerySnapshot querySnapshot){
+        if(clear){
+            delete(null, null);
+        }
         if (querySnapshot != null && querySnapshot.getDocuments()!= null && querySnapshot.getDocuments().size() > 0) {
             for(DocumentSnapshot doc: querySnapshot){
                 Products obj = doc.toObject(Products.class);

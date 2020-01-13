@@ -216,23 +216,15 @@ public class ProductsTypesController {
     }*/
 
     public void sendToFireBase(ProductsTypes pt){
-        try {
             WriteBatch lote = db.batch();
             lote.set(getReferenceFireStore().document(pt.getCODE()), pt.toMap());
             lote.commit();
-        }catch(Exception e){
-            e.printStackTrace();
-        }
 
     }
 
 
-    public void deleteFromFireBase(ProductsTypes pt){
-        try {
-            getReferenceFireStore().document(pt.getCODE()).delete();
-        }catch(Exception e){
-            e.printStackTrace();
-        }
+    public void deleteFromFireBase(ProductsTypes pt, OnFailureListener failureListener){
+            getReferenceFireStore().document(pt.getCODE()).delete().addOnFailureListener(failureListener);
     }
 
 
@@ -343,9 +335,9 @@ public class ProductsTypesController {
     }
 
 
-    public void searchChanges(OnSuccessListener<QuerySnapshot> success, OnCompleteListener<QuerySnapshot> complete, OnFailureListener failure){
+    public void searchChanges(boolean all, OnSuccessListener<QuerySnapshot> success, OnCompleteListener<QuerySnapshot> complete, OnFailureListener failure){
 
-        Date mdate = DB.getLastMDateSaved(context, TABLE_NAME);
+        Date mdate = all?null: DB.getLastMDateSaved(context, TABLE_NAME);
         if(mdate != null){
             getReferenceFireStore().
                     whereGreaterThan(MDATE, mdate).//mayor que, ya que las fechas (la que buscamos de la DB) tienen hora, minuto y segundos.
@@ -361,7 +353,11 @@ public class ProductsTypesController {
 
     }
 
-    public void consumeQuerySnapshot(QuerySnapshot querySnapshot){
+
+    public void consumeQuerySnapshot(boolean clear, QuerySnapshot querySnapshot){
+        if(clear){
+            delete(null, null);
+        }
         if (querySnapshot != null && querySnapshot.getDocuments()!= null && querySnapshot.getDocuments().size() > 0) {
             for(DocumentSnapshot doc: querySnapshot){
                 ProductsTypes obj = doc.toObject(ProductsTypes.class);
@@ -370,6 +366,17 @@ public class ProductsTypesController {
                 }
             }
         }
+
+    }
+
+
+    public void searchProductTypeFromFireBase(String code, OnSuccessListener<QuerySnapshot> success, OnFailureListener failure){
+
+        getReferenceFireStore().
+                whereEqualTo(CODE, code).//mayor que, ya que las fechas (la que buscamos de la DB) tienen hora, minuto y segundos.
+                get().
+                addOnSuccessListener(success).
+                addOnFailureListener(failure);
 
     }
 }

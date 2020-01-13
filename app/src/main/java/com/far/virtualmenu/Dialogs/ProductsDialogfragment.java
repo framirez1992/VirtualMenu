@@ -32,18 +32,21 @@ import com.far.virtualmenu.Generic.KV;
 import com.far.virtualmenu.R;
 import com.far.virtualmenu.Utils.CODES;
 import com.far.virtualmenu.Utils.Funciones;
+import com.far.virtualmenu.interfaces.DialogCaller;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 
 public class ProductsDialogfragment extends DialogFragment implements OnFailureListener {
 
     private Products tempObj;
+    DialogCaller dialogCaller;
 
-    LinearLayout llSave, llBack;
+    LinearLayout llSave, llBack, llProgress;
     TextInputEditText etCode, etName;
     Spinner spnFamily, spnGroup, spnTime;
     RecyclerView rvMeasures;
@@ -58,11 +61,14 @@ public class ProductsDialogfragment extends DialogFragment implements OnFailureL
     Dialog loadingDialg;
     Dialog errorDialog;
 
-    public  static ProductsDialogfragment newInstance(Products pt) {
+    private ArrayList<ProductsMeasure> toInsertProductMeasure;
+
+    public  static ProductsDialogfragment newInstance(Products pt, DialogCaller dialogCaller) {
 
 
         ProductsDialogfragment f = new ProductsDialogfragment();
         f.tempObj = pt;
+        f.dialogCaller = dialogCaller;
 
         // Supply num input as an argument.
         Bundle args = new Bundle();
@@ -117,6 +123,7 @@ public class ProductsDialogfragment extends DialogFragment implements OnFailureL
 
 
     public void init(View view){
+        llProgress = view.findViewById(R.id.llProgress);
         llMainScreen = view.findViewById(R.id.llMainScreen);
         llMeasureScreen = view.findViewById(R.id.llMeasureScreen);
         llNext = view.findViewById(R.id.llNext);
@@ -147,11 +154,9 @@ public class ProductsDialogfragment extends DialogFragment implements OnFailureL
                 if(tempObj == null){
                     Save();
                 }else{
-                    //showLoadingDialog();
                     EditProduct();
                 }
                 llSave.setEnabled(true);
-                //closeLoadingDialog();
             }
         });
 
@@ -233,7 +238,6 @@ public class ProductsDialogfragment extends DialogFragment implements OnFailureL
     }
 
     public void SaveProduct(){
-        try {
             String code = etCode.getText().toString();
             String description = etName.getText().toString();
             String menuDescription = etDescription.getText().toString();
@@ -241,25 +245,41 @@ public class ProductsDialogfragment extends DialogFragment implements OnFailureL
             String productSubType = ((KV)spnGroup.getSelectedItem()).getKey();
             String prepTime = (etTime.getText().toString().isEmpty())?"":(etTime.getText().toString()+"-"+((KV)spnTime.getSelectedItem()).getKey());
             Products product = new Products(code, description,menuDescription, productType, productSubType,prepTime, true, false);
+            product.setDATE(new Date());
+            product.setMDATE(new Date());
 
-            ArrayList<ProductsMeasure> list = new ArrayList<>();
+            toInsertProductMeasure = new ArrayList<>();
             for(EditSelectionRowModel ssrm: selected){
-                list.add(new ProductsMeasure(Funciones.generateCode(), code, ssrm.getCode(),Double.parseDouble(ssrm.getText()),true, null, null));
+                toInsertProductMeasure.add(new ProductsMeasure(Funciones.generateCode(), code, ssrm.getCode(),Double.parseDouble(ssrm.getText()),true, null, null));
             }
 
-            productsController.sendToFireBase(product, list);
+            productsController.sendToFireBase(product, toInsertProductMeasure, this);
+            productsController.searchProductFromFireBase(product.getCODE(), new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot querySnapshot) {
 
+                Products p = null;
+                if(querySnapshot != null && querySnapshot.getDocuments().size() > 0){
+                    p = querySnapshot.getDocuments().get(0).toObject(Products.class);
+                    p.setMDATE(new Date());
+                }
 
-            this.dismiss();
-        }catch(Exception e){
-            e.printStackTrace();
-        }
+                if(p != null){
+                    ProductsController.getInstance(getContext()).insert(p);
+                    modifyProductMeasureLocal(p.getCODE());
+
+                    dialogCaller.dialogClosed(p);
+                    dismiss();
+                }else{
+                    failure("Error guardando producto. Intente nuevamente");
+                }
+            }
+        }, this);
 
 
     }
 
     public void EditProduct(){
-        try {
             Products products = ((Products)tempObj);
             products.setDESCRIPTION(etName.getText().toString());
             products.setMENUDESCRIPTION(etDescription.getText().toString());
@@ -268,19 +288,34 @@ public class ProductsDialogfragment extends DialogFragment implements OnFailureL
             products.setENABLED(cbActivate.isChecked());
             String prepTime = (etTime.getText().toString().isEmpty())?"":(etTime.getText().toString()+"-"+((KV)spnTime.getSelectedItem()).getKey());
             products.setPREPTIME(prepTime);
-            products.setMDATE(null);
+            products.setMDATE(new Date());
 
-            ArrayList<ProductsMeasure> list = new ArrayList<>();
+            toInsertProductMeasure = new ArrayList<>();
             for(EditSelectionRowModel ssrm: selected){
-                list.add(new ProductsMeasure(Funciones.generateCode(), products.getCODE(), ssrm.getCode(),Double.parseDouble(ssrm.getText()),true, null, null));
+                toInsertProductMeasure.add(new ProductsMeasure(Funciones.generateCode(), products.getCODE(), ssrm.getCode(),Double.parseDouble(ssrm.getText()),true, null, null));
             }
 
-            productsController.sendToFireBase(products, list);
+            productsController.sendToFireBase(products, toInsertProductMeasure, this);
+            productsController.searchProductFromFireBase(products.getCODE(), new OnSuccessListener<QuerySnapshot>() {
+                @Override
+                public void onSuccess(QuerySnapshot querySnapshot) {
+                    Products p = null;
+                    if(querySnapshot != null && querySnapshot.getDocuments().size() > 0){
+                        p = querySnapshot.getDocuments().get(0).toObject(Products.class);
+                    }
 
-            this.dismiss();
-        }catch(Exception e){
-            e.printStackTrace();
-        }
+                    if(p != null){
+                        ProductsController.getInstance(getContext()).update(p);
+                        modifyProductMeasureLocal(p.getCODE());
+
+                        dialogCaller.dialogClosed(p);
+                        dismiss();
+                    }else{
+                        failure("Error editando producto. Intente nuevamente");
+                    }
+                }
+            }, this);
+
 
 
     }
@@ -315,13 +350,6 @@ public class ProductsDialogfragment extends DialogFragment implements OnFailureL
     }
 
 
-
-
-    @Override
-    public void onFailure(@NonNull Exception e) {
-        //Funciones.showNetworkErrorWithText(getView(), e.getMessage());
-        llSave.setEnabled(true);
-    }
 
     public void fillMeasures(){
 
@@ -400,4 +428,55 @@ public class ProductsDialogfragment extends DialogFragment implements OnFailureL
         ArrayAdapter<KV>adapter = new ArrayAdapter<KV>(getActivity(), android.R.layout.simple_list_item_1, time);
         spnTime.setAdapter(adapter);
     }
+
+
+
+    @Override
+    public void onFailure(@NonNull Exception e) {
+        failure(e.getMessage());
+    }
+
+    public void failure(String msg){
+        llSave.setEnabled(true);
+        llProgress.setVisibility(View.INVISIBLE);
+        Snackbar.make(getView(), msg, Snackbar.LENGTH_LONG).show();
+    }
+
+    public void modifyProductMeasureLocal(String codeProduct){
+        String notIn=" NOT IN ('1'";
+        if (toInsertProductMeasure != null && !toInsertProductMeasure.isEmpty()){
+
+            for(ProductsMeasure pm: toInsertProductMeasure){
+                String where = ProductsMeasureController.CODEMEASURE+" = ? AND "+ProductsMeasureController.CODEPRODUCT+" = ?";
+                String[]args = new String[]{pm.getCODEMEASURE(), pm.getCODEPRODUCT()};
+                ArrayList<ProductsMeasure> existingPM = ProductsMeasureController.getInstance(getContext()).getProductsMeasure(where, args);
+
+                if(existingPM.size() >0){//ACTUALIZAR
+                    pm.setCODE(existingPM.get(0).getCODE());//sustituye el codigo nuevo por el existente en la base de datos
+                    pm.setDATE(existingPM.get(0).getDATE());//permanecer la fecha de creacion.
+                    pm.setMDATE(null);
+
+                    //ACTUALIZAR LOCAL
+                    where = ProductsMeasureController.CODE+" = ?";
+                    ProductsMeasureController.getInstance(getActivity()).update(pm,where, new String[]{pm.getCODE()});
+                }else{//INSERTAR
+                    ProductsMeasureController.getInstance(getContext()).insert(pm);
+                }
+
+                notIn+=",'"+pm.getCODE()+"'";
+            }
+        }
+
+        notIn+=")";
+        String where = ProductsMeasureController.CODEPRODUCT+" = ? AND "+ProductsMeasureController.ENABLED+" = ? AND  "+ProductsMeasureController.CODE+notIn;
+        ArrayList<ProductsMeasure> toDisable = ProductsMeasureController.getInstance(getContext()).getProductsMeasure(where, new String[]{codeProduct, "1"});
+        for(ProductsMeasure pm: toDisable){
+            pm.setENABLED(false);
+            pm.setMDATE(null);
+            where = ProductsMeasureController.CODE+" = ?";
+            ProductsMeasureController.getInstance(getContext()).update(pm,where, new String[]{pm.getCODE()});
+        }
+
+    }
+
 }

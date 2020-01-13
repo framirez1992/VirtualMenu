@@ -114,6 +114,16 @@ public class Funciones {
         return d;
     }
 
+
+    public static String formatPhone(String phone){
+        String formatted =phone;
+        if(phone.length() == 10){
+            formatted = phone.substring(0, 3)+"-"+phone.substring(3, 6)+"-"+phone.substring(6);
+        }
+        return formatted;
+    }
+
+
     public static boolean fechaMayorQue(String fechaProtagonista, String fecha){
         try {
 

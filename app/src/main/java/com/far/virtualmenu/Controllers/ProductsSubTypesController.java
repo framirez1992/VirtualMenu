@@ -75,6 +75,11 @@ public class ProductsSubTypesController {
         return result;
     }
 
+
+    public long update(ProductsSubTypes pt){
+        return update(pt, CODE+" = ?", new String[]{pt.getCODE()});
+    }
+
     public long update(ProductsSubTypes pt, String where, String[] args){
         ContentValues cv = new ContentValues();
         cv.put(CODE,pt.getCODE() );
@@ -90,6 +95,9 @@ public class ProductsSubTypesController {
         return result;
     }
 
+    public long delete(ProductsSubTypes pst){
+        return delete(CODE+" = ?", new String[]{pst.getCODE()});
+    }
     public long delete(String where, String[] args){
         long result = DB.getInstance(context).getWritableDatabase().delete(TABLE_NAME,where, args);
         return result;
@@ -149,12 +157,8 @@ public class ProductsSubTypesController {
     }
 
 
-    public void deleteFromFireBase(ProductsSubTypes pst){
-        try {
-            getReferenceFireStore().document(pst.getCODE()).delete();
-        }catch(Exception e){
-            e.printStackTrace();
-        }
+    public void deleteFromFireBase(ProductsSubTypes pst, OnFailureListener failureListener){
+            getReferenceFireStore().document(pst.getCODE()).delete().addOnFailureListener(failureListener);
     }
 
     public void getDataFromFireBase(String key, OnSuccessListener<QuerySnapshot> onSuccessListener,
@@ -189,6 +193,16 @@ public class ProductsSubTypesController {
         }catch(Exception e){
             e.printStackTrace();
         }
+    }
+
+
+    public void searchProductSubTypeFromFireBase(String code, OnSuccessListener<QuerySnapshot> success, OnFailureListener failure){
+        getReferenceFireStore().
+                whereEqualTo(CODE, code).
+                get().
+                addOnSuccessListener(success).
+                addOnFailureListener(failure);
+
     }
 
  /*   public ArrayList<SimpleRowModel> getAllProductSubTypesSRM(String where, String[] args, String campoOrderBy){
@@ -368,9 +382,9 @@ public class ProductsSubTypesController {
     }
 
 
-    public void searchChanges(OnSuccessListener<QuerySnapshot> success, OnCompleteListener<QuerySnapshot> complete, OnFailureListener failure){
+    public void searchChanges(boolean all, OnSuccessListener<QuerySnapshot> success, OnCompleteListener<QuerySnapshot> complete, OnFailureListener failure){
 
-        Date mdate = DB.getLastMDateSaved(context, TABLE_NAME);
+        Date mdate = all?null: DB.getLastMDateSaved(context, TABLE_NAME);
         if(mdate != null){
             getReferenceFireStore().
                     whereGreaterThan(MDATE, mdate).//mayor que, ya que las fechas (la que buscamos de la DB) tienen hora, minuto y segundos.
@@ -386,7 +400,10 @@ public class ProductsSubTypesController {
 
     }
 
-    public void consumeQuerySnapshot(QuerySnapshot querySnapshot){
+    public void consumeQuerySnapshot(boolean clear, QuerySnapshot querySnapshot){
+        if(clear){
+            delete(null, null);
+        }
         if (querySnapshot != null && querySnapshot.getDocuments()!= null && querySnapshot.getDocuments().size() > 0) {
             for(DocumentSnapshot doc: querySnapshot){
                 ProductsSubTypes obj = doc.toObject(ProductsSubTypes.class);
@@ -397,5 +414,7 @@ public class ProductsSubTypesController {
         }
 
     }
+
+
 
 }

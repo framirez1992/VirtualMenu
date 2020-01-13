@@ -16,22 +16,30 @@ import com.far.virtualmenu.CloudFireStoreObjects.MeasureUnits;
 import com.far.virtualmenu.Controllers.MeasureUnitsController;
 import com.far.virtualmenu.R;
 import com.far.virtualmenu.Utils.Funciones;
+import com.far.virtualmenu.interfaces.DialogCaller;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.Date;
 
 
 public class MeasureUnitDialogFragment extends DialogFragment implements OnFailureListener {
 
     private MeasureUnits tempObj;
+    DialogCaller dialogCaller;
 
-    LinearLayout llSave;
+    LinearLayout llSave, llProgress;
     TextInputEditText etName;
+
 
     MeasureUnitsController measureUnitsController;
 
-    public  static MeasureUnitDialogFragment newInstance(MeasureUnits pt) {
+    public  static MeasureUnitDialogFragment newInstance(MeasureUnits pt, DialogCaller dialogCaller) {
 
         MeasureUnitDialogFragment f = new MeasureUnitDialogFragment();
         f.tempObj = pt;
+        f.dialogCaller = dialogCaller;
 
         // Supply num input as an argument.
         Bundle args = new Bundle();
@@ -86,6 +94,7 @@ public class MeasureUnitDialogFragment extends DialogFragment implements OnFailu
 
 
     public void init(View view){
+        llProgress = view.findViewById(R.id.llProgress);
         llSave = view.findViewById(R.id.llSave);
         etName = view.findViewById(R.id.etName);
         ((EditText)view.findViewById(R.id.etOrden)).setVisibility(View.GONE);
@@ -130,7 +139,26 @@ public class MeasureUnitDialogFragment extends DialogFragment implements OnFailu
             String code =Funciones.generateCode();
             String name = etName.getText().toString();
             MeasureUnits pt = new MeasureUnits(code, name);
-            measureUnitsController.sendToFireBase(pt);
+            pt.setDATE(new Date());
+            pt.setMDATE(new Date());
+            measureUnitsController.sendToFireBase(pt, this);
+            measureUnitsController.searchMeasureUnitFromFireBase(pt.getCODE(), new OnSuccessListener<QuerySnapshot>() {
+                @Override
+                public void onSuccess(QuerySnapshot querySnapshot) {
+                    MeasureUnits measureUnits =null;
+                    if(querySnapshot!= null && querySnapshot.size()>0){
+                        measureUnits = querySnapshot.getDocuments().get(0).toObject(MeasureUnits.class);
+                    }
+
+                    if(measureUnits!= null){
+                        MeasureUnitsController.getInstance(getContext()).insert(measureUnits);
+                        dialogCaller.dialogClosed(measureUnits);
+                        dismiss();
+                    }else{
+                        failure("Error guardando medida. Intente nuevamente");
+                    }
+                }
+            }, this);
 
             this.dismiss();
         }catch(Exception e){
@@ -144,8 +172,25 @@ public class MeasureUnitDialogFragment extends DialogFragment implements OnFailu
         try {
             MeasureUnits mu = ((MeasureUnits)tempObj);
             mu.setDESCRIPTION(etName.getText().toString());
-            mu.setMDATE(null);
-            measureUnitsController.sendToFireBase(mu);
+            mu.setMDATE(new Date());
+            measureUnitsController.sendToFireBase(mu, this);
+            measureUnitsController.searchMeasureUnitFromFireBase(mu.getCODE(), new OnSuccessListener<QuerySnapshot>() {
+                @Override
+                public void onSuccess(QuerySnapshot querySnapshot) {
+                    MeasureUnits measureUnits =null;
+                    if(querySnapshot!= null && querySnapshot.size()>0){
+                        measureUnits = querySnapshot.getDocuments().get(0).toObject(MeasureUnits.class);
+                    }
+
+                    if(measureUnits!= null){
+                        MeasureUnitsController.getInstance(getContext()).update(measureUnits);
+                        dialogCaller.dialogClosed(measureUnits);
+                        dismiss();
+                    }else{
+                        failure("Error guardando medida. Intente nuevamente");
+                    }
+                }
+            }, this);
 
             this.dismiss();
         }catch(Exception e){
@@ -162,8 +207,16 @@ public class MeasureUnitDialogFragment extends DialogFragment implements OnFailu
     }
 
 
+
     @Override
     public void onFailure(@NonNull Exception e) {
+        failure(e.getMessage());
+    }
+
+
+    public void failure(String msg){
         llSave.setEnabled(true);
+        llProgress.setVisibility(View.INVISIBLE);
+        Snackbar.make(getView(), msg, Snackbar.LENGTH_LONG).show();
     }
 }
