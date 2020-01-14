@@ -13,6 +13,7 @@ import android.view.Window;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.far.virtualmenu.CloudFireStoreObjects.ProductImage;
 import com.far.virtualmenu.Controllers.ProductsImagesController;
@@ -22,6 +23,7 @@ import com.far.virtualmenu.Utils.Funciones;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.annotations.Nullable;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
@@ -150,19 +152,32 @@ public class ImageOptionsDialog extends DialogFragment implements OnFailureListe
 
     @Override
     public void onFailure(@NonNull Exception e) {
+        enableAll();
        setMessage(e.getLocalizedMessage(), R.color.red_700);
     }
 
 
     public void deleteImage(){
+        disableAll();
         startLoading();
         setMessage("Borrando...");
-        ProductsImagesController.getInstance(parent).deleteFromStorage(productImage, new OnSuccessListener<Void>() {
+        ProductsImagesController.getInstance(parent).deleteFromStorage(productImage, new OnSuccessListener() {
             @Override
-            public void onSuccess(Void aVoid) {
-                endLoading();
-                parent.deleteProductImage(productImage);
-                dismiss();
+            public void onSuccess(Object o) {
+                ProductsImagesController.getInstance(parent).deleteFromFireBase(productImage, ImageOptionsDialog.this);
+                ProductsImagesController.getInstance(parent).searchProductImage(productImage.getCODE(), new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot querySnapshot) {
+                        if(querySnapshot == null || querySnapshot.size()==0){
+                            parent.deleteProductImage(productImage);//borrado local y refresh
+                            dismiss();
+                        }else{
+                            enableAll();
+                            Toast.makeText(parent, "Error eliminando imagen. Intente nuevamente", Toast.LENGTH_LONG).show();
+                        }
+
+                    }
+                }, ImageOptionsDialog.this);
             }
         }, this);
 
@@ -182,13 +197,8 @@ public class ImageOptionsDialog extends DialogFragment implements OnFailureListe
 
     public void startLoading(){
         tvMessageDialog.setText("");
-        //llProgressBar.setVisibility(View.VISIBLE);
-        setCancelable(false);
-        btnDelete.setEnabled(false);
     }
     public void endLoading(){
-        btnDelete.setEnabled(true);
-        //llProgressBar.setVisibility(View.INVISIBLE);
         setCancelable(true);
     }
 
@@ -203,19 +213,47 @@ public class ImageOptionsDialog extends DialogFragment implements OnFailureListe
     }
 
     public void save(){
+        disableAll();
         startLoading();
         setMessage("Actualizando...");
         productImage.setORDEN(Integer.parseInt(etOrden.getText().toString()));
-        ProductsImagesController.getInstance(parent).sendToFireBase(productImage, this, new OnSuccessListener() {
+        ProductsImagesController.getInstance(parent).sendToFireBase(productImage, this);
+        ProductsImagesController.getInstance(parent).searchProductImage(productImage.getCODE(), new OnSuccessListener<QuerySnapshot>() {
             @Override
-            public void onSuccess(Object o) {
-                ProductsImagesController.getInstance(parent).update(productImage, ProductsImagesController.CODE+" = ?", new String[]{productImage.getCODE()});
-                endLoading();
-                parent.refreshImages();
-                dismiss();
+            public void onSuccess(QuerySnapshot querySnapshot) {
+                ProductImage pi = null;
+                if(querySnapshot!= null && querySnapshot.size() > 0){
+                    pi = querySnapshot.getDocuments().get(0).toObject(ProductImage.class);
+                }
+                if(pi != null){
+                    ProductsImagesController.getInstance(parent).update(pi, ProductsImagesController.CODE+" = ?", new String[]{productImage.getCODE()});
+                    parent.refreshImages();
+                    dismiss();
+                }else{
+                    enableAll();
+                    Toast.makeText(parent, "Error actualizando Imagen. Intente nuevamente ", Toast.LENGTH_LONG).show();
+                }
+
             }
-        });
+        }, this);
     }
 
+
+
+    public void enableAll(){
+        setCancelable(true);
+        btnDelete.setEnabled(true);
+        btnEdit.setEnabled(true);
+        btnBack.setEnabled(true);
+        btnSave.setEnabled(true);
+    }
+
+    public void disableAll(){
+        setCancelable(false);
+        btnDelete.setEnabled(false);
+        btnEdit.setEnabled(false);
+        btnBack.setEnabled(false);
+        btnSave.setEnabled(false);
+    }
 
 }

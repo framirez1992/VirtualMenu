@@ -11,22 +11,56 @@
         android:layout_centerInParent="true"
         android:src="@mipmap/ic_launcher_round"/>
 
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_below="@id/logo"
-        android:gravity="center"
-        android:padding="10dp">
+        android:orientation="vertical"
+        android:layout_below="@id/logo">
 
-        <ProgressBar
-            android:layout_width="50dp"
-            android:layout_height="50dp" />
-        <TextView
-            android:layout_width="wrap_content"
+        <TextView android:id="@+id/tvErrorMsg"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Cargando..."
-            android:layout_gravity="center_vertical"/>
+            android:gravity="center"
+            android:paddingTop="10dp"
+            android:textColor="@color/red_700"
+            android:textStyle="bold"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:padding="10dp">
+
+            <Button android:id="@+id/btnRetry"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Retry"
+                android:visibility="invisible"
+                android:enabled="false"/>
+
+        </LinearLayout>
+
+        <LinearLayout android:id="@+id/llLoading"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:padding="10dp">
+
+            <ProgressBar
+                android:layout_width="50dp"
+                android:layout_height="50dp" />
+
+            <TextView android:id="@+id/tvLoading"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Cargando..."
+                android:layout_gravity="center_vertical"/>
+        </LinearLayout>
+
+
     </LinearLayout>
 
 

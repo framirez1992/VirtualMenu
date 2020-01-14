@@ -60,10 +60,10 @@ public class ProductsImagesController {
     }
 
 
-    public void sendToFireBase(ProductImage pm, OnFailureListener failureListener, OnSuccessListener successListener){
+    public void sendToFireBase(ProductImage pm, OnFailureListener failureListener){
             WriteBatch lote = db.batch();
             lote.set(getReferenceFireStore().document(pm.getCODE()), pm.toMap());
-            lote.commit().addOnSuccessListener(successListener).addOnFailureListener(failureListener);
+            lote.commit().addOnFailureListener(failureListener);
 
     }
 
@@ -78,10 +78,21 @@ public class ProductsImagesController {
 
     }
 
-    public void deleteFromFireBase(ProductImage pi, OnSuccessListener onSuccessListener){
+    public void searchProductImage(String code, OnSuccessListener<QuerySnapshot> success,  OnFailureListener failure){
+
+
+        getReferenceFireStore().
+                whereEqualTo(CODE, code).
+                get().
+                addOnSuccessListener(success).
+                addOnFailureListener(failure);
+
+    }
+
+    public void deleteFromFireBase(ProductImage pi,OnFailureListener failureListener){
             WriteBatch lote = db.batch();
             lote.delete(getReferenceFireStore().document(pi.getCODE()));
-            lote.commit().addOnSuccessListener(onSuccessListener);
+            lote.commit().addOnFailureListener(failureListener);
     }
 
     public long insert(ProductImage p){
@@ -190,13 +201,13 @@ public class ProductsImagesController {
     }
 
 
-    public void deleteFromStorage(ProductImage productImage, OnSuccessListener onSuccessListener, OnFailureListener failureListener){
+    public void deleteFromStorage(ProductImage productImage,OnSuccessListener successListener, OnFailureListener failureListener){
         StorageReference storageReference = mStorageRef.getStorage().getReferenceFromUrl(productImage.getURL());
-        storageReference.delete().addOnSuccessListener(onSuccessListener).addOnFailureListener(failureListener);
+        storageReference.delete().addOnSuccessListener(successListener).addOnFailureListener(failureListener);
     }
-    public void deleteFromStorage(String url, OnSuccessListener onSuccessListener, OnFailureListener failureListener){
+    public void deleteFromStorage(String url,OnSuccessListener successListener,  OnFailureListener failureListener){
         StorageReference storageReference = mStorageRef.getStorage().getReferenceFromUrl(url);
-        storageReference.delete().addOnSuccessListener(onSuccessListener).addOnFailureListener(failureListener);
+        storageReference.delete().addOnSuccessListener(successListener).addOnFailureListener(failureListener);
     }
 
 }

@@ -66,7 +66,7 @@ public class DetailFragment extends Fragment {
         tvTitle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                parentActivity.changeMenu(2);
+                //parentActivity.changeMenu(2);
             }
         });
         if(itemModel != null){

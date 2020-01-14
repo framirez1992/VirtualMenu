@@ -144,8 +144,7 @@ public class UploadDialog extends DialogFragment implements OnFailureListener {
                                 @Override
                                 public void onSuccess(Uri uri) {
                                     ProductImage productImage = new ProductImage(Funciones.generateCode(), productModel.getCode(), uri.toString(), 99);
-                                    ProductsImagesController.getInstance(parent).insert(productImage);
-                                    productModel.setImages(ProductsImagesController.getInstance(parent).getProductImageByCodeProduct(productModel.getCode()));
+
                                     parent.SaveProductImage(productImage);
                                     endLoading();
                                     dismiss();
@@ -170,7 +169,8 @@ public class UploadDialog extends DialogFragment implements OnFailureListener {
                 @Override
                 public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
                     double progress = (100.0*taskSnapshot.getBytesTransferred())/taskSnapshot.getTotalByteCount();
-                    setMessageUploadDialog(progress+"% Uploaded...");
+                    setMessageUploadDialog(String.format("%.2f", progress)+"% Uploaded...");
+
 
                 }
             });

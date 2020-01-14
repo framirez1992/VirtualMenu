@@ -23,7 +23,7 @@ public class AdminLicenseSetupFragment extends Fragment {
 
     AdminConfiguration adminConfiguration;
     Licenses licenses;
-    ImageView btnDevices, btnTokens, btnUserDevices, btnUsers, btnControls;
+    ImageView btnDevices, btnTokens, btnUserDevices, btnUsers, btnControls, btnMenuType;
 
     public AdminLicenseSetupFragment() {
         // Required empty public constructor
@@ -44,7 +44,7 @@ public class AdminLicenseSetupFragment extends Fragment {
         btnTokens = view.findViewById(R.id.btnTokens);
         btnUserDevices = view.findViewById(R.id.btnUserDevices);
         btnUsers = view.findViewById(R.id.btnUsers);
-        //btnControls = view.findViewById(R.id.btnControls);
+        btnMenuType = view.findViewById(R.id.btnMenuType);
 
         btnTokens.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -76,6 +76,15 @@ public class AdminLicenseSetupFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(getContext(), AdminLicenseUserDevice.class);
+                i.putExtra(CODES.EXTRA_ADMIN_LICENSE, licenses);
+                startActivity(i);
+            }
+        });
+
+        btnMenuType.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(getContext(), AdminLicenseMenuSelection.class);
                 i.putExtra(CODES.EXTRA_ADMIN_LICENSE, licenses);
                 startActivity(i);
             }

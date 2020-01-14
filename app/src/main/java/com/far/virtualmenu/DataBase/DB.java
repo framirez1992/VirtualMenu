@@ -18,6 +18,7 @@ import com.far.virtualmenu.Controllers.ProductsMeasureController;
 import com.far.virtualmenu.Controllers.ProductsSubTypesController;
 import com.far.virtualmenu.Controllers.ProductsTypesController;
 import com.far.virtualmenu.Controllers.RolesController;
+import com.far.virtualmenu.Controllers.UserControlController;
 import com.far.virtualmenu.Controllers.UsersController;
 import com.far.virtualmenu.Globales.Tablas;
 import com.far.virtualmenu.Utils.Funciones;
@@ -59,7 +60,7 @@ public class DB extends SQLiteOpenHelper {
             db.execSQL(ProductsControlController.QUERY_CREATE);
             db.execSQL(UsersController.QUERY_CREATE);
             db.execSQL(RolesController.QUERY_CREATE);
-            //db.execSQL(UserControlController.QUERY_CREATE);
+            db.execSQL(UserControlController.QUERY_CREATE);
 
 
             db.setTransactionSuccessful();

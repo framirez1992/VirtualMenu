@@ -48,7 +48,7 @@ public class GridFragment extends Fragment {
         logo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                parentActivity.changeMenu(1);
+                //parentActivity.changeMenu(1);
             }
         });
 
@@ -67,13 +67,6 @@ public class GridFragment extends Fragment {
         array.add(new ItemMenuDetailModel("Combo 3","Hot dog + papas mediana + refresco 12oz", 180, "https://defia.es/291-medium_default/combo-hot-dog.jpg"));
         array.add(new ItemMenuDetailModel("Combo 4","2 Pizza medianas + Papotas + Vegetales + Refresco 60oz", 1200, "https://5.imimg.com/data5/VE/GG/MY-53040683/combo-for-family-28just-499-2f-29-500x500.jpg"));
         array.add(new ItemMenuDetailModel("Banana Split","Banana split + toping + mermelada", 120, "https://www.tasteofhome.com/wp-content/uploads/2017/10/exps37953_Page_23.jpg"));
-        /*array.add(new ItemMenuDetailModel("Combo 2","", 200, ""));
-        array.add(new ItemMenuDetailModel("Combo 3","", 200, ""));
-        array.add(new ItemMenuDetailModel("Combo 4","", 200, ""));
-        array.add(new ItemMenuDetailModel("Combo 5","", 200, ""));
-        array.add(new ItemMenuDetailModel("Combo 6","", 200, ""));
-        array.add(new ItemMenuDetailModel("Combo 7","", 200, ""));
-        array.add(new ItemMenuDetailModel("Combo 7","", 200, ""));*/
 
         MenuDetailGridAdapter adapter = new MenuDetailGridAdapter(parentActivity,array);
         gridView.setAdapter(adapter);

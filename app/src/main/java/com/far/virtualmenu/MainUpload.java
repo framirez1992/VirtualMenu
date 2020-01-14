@@ -57,7 +57,7 @@ public class MainUpload extends AppCompatActivity implements ListableActivity, O
     @Override
     protected void onStart() {
         super.onStart();
-        setUpListeners();
+        //setUpListeners();
     }
 
     @Override
@@ -187,24 +187,35 @@ public class MainUpload extends AppCompatActivity implements ListableActivity, O
 
     public void SaveProductImage(ProductImage pi){
         ProductsImagesController productsImagesController = ProductsImagesController.getInstance(this);
-        productsImagesController.sendToFireBase(pi, this, new OnSuccessListener() {
+
+        productsImagesController.sendToFireBase(pi, this);
+        productsImagesController.searchProductImage(pi.getCODE(), new OnSuccessListener<QuerySnapshot>() {
             @Override
-            public void onSuccess(Object o) {
-                refreshImages();
+            public void onSuccess(QuerySnapshot querySnapshot) {
+
+                ProductImage pi = null;
+                if(querySnapshot!= null && querySnapshot.size()>0){
+                    pi = querySnapshot.getDocuments().get(0).toObject(ProductImage.class);
+                }
+
+                if(pi != null){
+                    ProductsImagesController.getInstance(MainUpload.this).insert(pi);
+                    if(lastFragment instanceof UploadsFragment){
+                        uploadsFragment.productModel.setImages(ProductsImagesController.getInstance(MainUpload.this)
+                                .getProductImageByCodeProduct(uploadsFragment.productModel.getCode()));
+                    }
+                    refreshImages();
+                }else{
+                    Toast.makeText(MainUpload.this, "Error creando imagen, intente nuevamente.", Toast.LENGTH_LONG).show();
+                }
             }
-        });
+        }, this);
 
     }
 
     public void deleteProductImage(final ProductImage pi){
-        ProductsImagesController productsImagesController = ProductsImagesController.getInstance(this);
-        productsImagesController.deleteFromFireBase(pi, new OnSuccessListener() {
-            @Override
-            public void onSuccess(Object o) {
-                ProductsImagesController.getInstance(MainUpload.this).delete(ProductsImagesController.CODE+" = ?", new String[]{ pi.getCODE()});
-                refreshImages();
-            }
-        });
+        ProductsImagesController.getInstance(MainUpload.this).delete(ProductsImagesController.CODE+" = ?", new String[]{ pi.getCODE()});
+        refreshImages();
 
     }
 

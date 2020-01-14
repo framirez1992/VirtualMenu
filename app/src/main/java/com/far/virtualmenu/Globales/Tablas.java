@@ -22,6 +22,7 @@ public class Tablas {
     public static final String generalUsersProductsMeasure = "ProductsMeasure";
     public static final String generalUsersProductsTypes = "ProductsTypes";
     public static final String generalUsersProductsSubTypes = "ProductsSubTypes";
+    public static final String generalUsersUserControl = "UserControl";
 
     public static final String generalUsersToken = "Token";
     public static final String generalUsersUsers = "Users";
@@ -29,11 +30,6 @@ public class Tablas {
     public static final String generalUsersUserTypes = "UserTypes";
     //GENERAL_LICENSES childs
     public static final String generalLicenciasDevices = "Devices";
-
-    public static String[]tablesFireBase = new String[]{generalUsersCombos,generalUsersCompany,
-            generalLicenciasDevices, generalUsersMeasureUnits, generalUsersPriceList, generalUsersProducts,generalUsersProductsControl,generalUsersProductsMeasure,
-            generalUsersProductsTypes, generalUsersProductsSubTypes, generalUsersUsers,
-            generalUsersUserTypes};
 
 
 

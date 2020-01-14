@@ -66,20 +66,6 @@ public class MainMenuActivity extends AppCompatActivity implements ListableActiv
     GridFragment gridFragment;
     Fragment lastFragment;
     int currentindex =0;
-    boolean firstLoad = true;
-
-    boolean licenseValidated = false;
-    boolean userValidated = false;
-    boolean deviceValidated = false;
-    boolean userDeviceValidated = false;
-
-    boolean isProductsTypesLoaded = false;
-    boolean isProductSubTypeLoaded = false;
-    boolean isProductLoaded = false;
-    boolean isProductsMeasureLoaded = false;
-    boolean isMeasureUnitsLoaded = false;
-    boolean isProductsimagesLoaded = false;
-    boolean exit;
 
 
     @Override
@@ -107,28 +93,10 @@ public class MainMenuActivity extends AppCompatActivity implements ListableActiv
     @Override
     protected void onStart() {
         super.onStart();
-        if(!exit && !licenseValidated ){
-           licenseController.getReferenceFireStore().addSnapshotListener(MainMenuActivity.this, licenceListener);
-        }
-        if(!exit && !userValidated ){
+            licenseController.getReferenceFireStore().addSnapshotListener(MainMenuActivity.this, licenceListener);
             usersController.getReferenceFireStore().addSnapshotListener(MainMenuActivity.this, usersListener);
-        }
-        if(!exit &&!deviceValidated ){
-          devicesController.getReferenceFireStore(licenseController.getLicense()).addSnapshotListener(MainMenuActivity.this, deviceListener);
-        }
-        if(!exit &&!userDeviceValidated ){
-           usersDevicesController.getReferenceFireStore(licenseController.getLicense()).addSnapshotListener(MainMenuActivity.this, userDevicesListener);
-        }
-
-
-        if(!exit && licenseValidated && userValidated && deviceValidated && userDeviceValidated){
-            productsTypesController.getReferenceFireStore().addSnapshotListener(MainMenuActivity.this, productsTypesListener);
-            productsSubTypesController.getReferenceFireStore().addSnapshotListener(MainMenuActivity.this, productsSubTypesListener);
-            productsController.getReferenceFireStore().addSnapshotListener(MainMenuActivity.this, productsListener);
-            productsMeasureController.getReferenceFireStore().addSnapshotListener(MainMenuActivity.this, productsMeasureListener);
-            measureUnitsController.getReferenceFireStore().addSnapshotListener(MainMenuActivity.this, measureUnitsListener);
-            productsImagesController.getReferenceFireStore().addSnapshotListener(MainMenuActivity.this, productsImagesListener);
-        }
+            devicesController.getReferenceFireStore(licenseController.getLicense()).addSnapshotListener(MainMenuActivity.this, deviceListener);
+            usersDevicesController.getReferenceFireStore(licenseController.getLicense()).addSnapshotListener(MainMenuActivity.this, userDevicesListener);
 
     }
 
@@ -147,9 +115,9 @@ public class MainMenuActivity extends AppCompatActivity implements ListableActiv
         ft.detach(detailFragment).attach(detailFragment).commit();
     }
 
-    public void changeMenu(int type){
+    public void changeMenu(String type){
 
-        if(type == 1){
+        if(type.equals("1")){
             findViewById(R.id.menu).setVisibility(View.VISIBLE);
             detailFragment = new DetailFragment();
             detailFragment.setParent(this);
@@ -160,7 +128,7 @@ public class MainMenuActivity extends AppCompatActivity implements ListableActiv
             changeFragment(listFragment, R.id.menu);
 
             lastFragment = detailFragment;
-        }else if(type == 2){
+        }else if(type.equals("2")){
             findViewById(R.id.menu).setVisibility(View.GONE);
             gridFragment = new GridFragment();
             gridFragment.setParentActivity(this);
@@ -173,13 +141,14 @@ public class MainMenuActivity extends AppCompatActivity implements ListableActiv
     public void setLoadingScreen(){
         findViewById(R.id.menu).setVisibility(View.GONE);
         logoFragment = new LogoFragment();
+        logoFragment.setParentActivity(MainMenuActivity.this);
         changeFragment(logoFragment, R.id.details);
     }
 
 
 
 
-    public void loadData(){
+   /* public void loadData(){
         switch (currentindex){
             case 0:ProductsTypesController.getInstance(MainMenuActivity.this).searchChanges(true, this, this, this); break;
             case 1:ProductsSubTypesController.getInstance(MainMenuActivity.this).searchChanges(true, this, this, this); break;
@@ -193,7 +162,7 @@ public class MainMenuActivity extends AppCompatActivity implements ListableActiv
                 onStart();
                 break;
         }
-    }
+    }*/
 
 
 
@@ -201,16 +170,12 @@ public class MainMenuActivity extends AppCompatActivity implements ListableActiv
     public void onFailure(@NonNull Exception e) {
         currentindex=0;
         Toast.makeText(MainMenuActivity.this, e.getMessage()+" - "+e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
-        //pb.setVisibility(View.INVISIBLE);
-        //btnExit.setVisibility(View.VISIBLE);
     }
 
     @Override
     public void onCanceled() {
         currentindex=0;
         Toast.makeText(MainMenuActivity.this, "Cancelado", Toast.LENGTH_LONG).show();
-        //pb.setVisibility(View.INVISIBLE);
-        //btnExit.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -218,14 +183,12 @@ public class MainMenuActivity extends AppCompatActivity implements ListableActiv
         if(task.getException() != null){
             currentindex=0;
             Toast.makeText(MainMenuActivity.this, task.getException().getLocalizedMessage(), Toast.LENGTH_LONG).show();
-            //pb.setVisibility(View.INVISIBLE);
-            //btnExit.setVisibility(View.VISIBLE);
         }
     }
 
     @Override
     public void onSuccess(QuerySnapshot querySnapshot) {
-        switch (currentindex){
+       /* switch (currentindex){
             case 0:ProductsTypesController.getInstance(MainMenuActivity.this).consumeQuerySnapshot(true, querySnapshot); break;
             case 1:ProductsSubTypesController.getInstance(MainMenuActivity.this).consumeQuerySnapshot(true, querySnapshot); break;
             case 2:ProductsController.getInstance(MainMenuActivity.this).consumeQuerySnapshot(true, querySnapshot); break;
@@ -235,7 +198,7 @@ public class MainMenuActivity extends AppCompatActivity implements ListableActiv
             default:break;
         }
         currentindex++;
-        loadData();
+        loadData();*/
 
     }
 
@@ -243,14 +206,13 @@ public class MainMenuActivity extends AppCompatActivity implements ListableActiv
     public EventListener<QuerySnapshot> licenceListener =  new EventListener<QuerySnapshot>() {
         @Override
         public void onEvent(@Nullable QuerySnapshot querySnapshot, @Nullable FirebaseFirestoreException e) {
+            Licenses lic = null;
                 if (querySnapshot != null && querySnapshot.getDocuments()!= null && querySnapshot.getDocuments().size() > 0) {
-                    Licenses lic = querySnapshot.getDocuments().get(0).toObject(Licenses.class);
+                    lic = querySnapshot.getDocuments().get(0).toObject(Licenses.class);
                     licenseController.delete(null, null);
                     licenseController.insert(lic);
                 }
-                licenseValidated = validateLicence(licenseController.getLicense());
-
-                verifyValidations();
+                validateLicence(lic);
 
         }
     };
@@ -268,8 +230,7 @@ public class MainMenuActivity extends AppCompatActivity implements ListableActiv
                         }
                     }
                 }
-                userValidated = validateUser();
-                verifyValidations();
+               validateUser();
 
         }
     };
@@ -290,9 +251,7 @@ public class MainMenuActivity extends AppCompatActivity implements ListableActiv
                         }
                     }
                 }
-
-                deviceValidated = validateDevices(devices);
-                verifyValidations();
+                validateDevices(devices);
 
         }
     };
@@ -311,10 +270,9 @@ public class MainMenuActivity extends AppCompatActivity implements ListableActiv
                         }
                     }
 
-
-
-                    userDeviceValidated = valid;
-                    verifyValidations();
+                   if(!valid){
+                       exitWithNoLoginCode(CODES.CODE_DEVICES_NOT_ASSIGNED_TO_USER);
+                   }
             }
 
         }
@@ -332,8 +290,6 @@ public class MainMenuActivity extends AppCompatActivity implements ListableActiv
                         ProductsTypesController.getInstance(MainMenuActivity.this).insert(obj);
                     }
                 }
-                isProductsTypesLoaded = true;
-                showMenu();
                 refresh();
         }
     };
@@ -350,8 +306,6 @@ public class MainMenuActivity extends AppCompatActivity implements ListableActiv
                 }
             }
 
-            isProductSubTypeLoaded = true;
-            showMenu();
         }
     };
 
@@ -367,9 +321,6 @@ public class MainMenuActivity extends AppCompatActivity implements ListableActiv
                     ProductsController.getInstance(MainMenuActivity.this).insert(obj);
                 }
             }
-
-            isProductLoaded = true;
-            showMenu();
         }
     };
 
@@ -384,9 +335,6 @@ public class MainMenuActivity extends AppCompatActivity implements ListableActiv
                     ProductsMeasureController.getInstance(MainMenuActivity.this).insert(obj);
                 }
             }
-
-            isProductsMeasureLoaded = true;
-            showMenu();
         }
     };
 
@@ -402,9 +350,6 @@ public class MainMenuActivity extends AppCompatActivity implements ListableActiv
                     MeasureUnitsController.getInstance(MainMenuActivity.this).insert(obj);
                 }
             }
-
-            isMeasureUnitsLoaded = true;
-            showMenu();
         }
     };
 
@@ -420,8 +365,6 @@ public class MainMenuActivity extends AppCompatActivity implements ListableActiv
                 }
             }
 
-            isProductsimagesLoaded = true;
-            showMenu();
         }
     };
 
@@ -447,13 +390,10 @@ public class MainMenuActivity extends AppCompatActivity implements ListableActiv
 
 
     public void exitWithNoLoginCode(int code){
-        if(!exit){
-            exit = true;
             Toast.makeText(MainMenuActivity.this, Funciones.gerErrorMessage(code), Toast.LENGTH_LONG).show();
             Funciones.savePreferences(MainMenuActivity.this, CODES.PREFERENCE_LOGIN_BLOQUED, "1");
             Funciones.savePreferences(MainMenuActivity.this, CODES.PREFERENCE_LOGIN_BLOQUED_REASON, code+"");
             startActivityLoginFromBegining(code);
-        }
     }
 
     public void startActivityLoginFromBegining(int code){
@@ -489,18 +429,6 @@ public class MainMenuActivity extends AppCompatActivity implements ListableActiv
         return true;
     }
 
-    public void verifyValidations(){
-        if(!exit && licenseValidated && userValidated && deviceValidated && userDeviceValidated){
-            onStart();
-        }
-    }
-
-    public void showMenu(){
-        if(firstLoad && !exit && isProductsTypesLoaded && isProductSubTypeLoaded && isProductLoaded && isProductsMeasureLoaded && isMeasureUnitsLoaded && isProductsimagesLoaded){
-            firstLoad = false;
-            changeMenu(1);
-        }
-    }
 
     public void refresh(){
         if(lastFragment != null){

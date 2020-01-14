@@ -324,7 +324,7 @@ public class ProductsController {
 
             if(hasimages){
                 for(ProductImage pi : ProductsImagesController.getInstance(context).getProductImageByCodeProduct(product.getCODE())){
-                    ProductsImagesController.getInstance(context).deleteFromStorage(pi.getURL(), null, new OnFailureListener() {
+                    ProductsImagesController.getInstance(context).deleteFromStorage(pi.getURL(),null, new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
                             e.printStackTrace();
@@ -350,7 +350,6 @@ public class ProductsController {
 
 
         return tables;
-        //priceList,productsControl, productsMeasure,combos
     }
 
 
