@@ -14,6 +14,7 @@ public class Tablas {
     public static final String generalUsersAttributeTypes = "AttributeTypes";
     public static final String generalUsersCombos = "Combos";
     public static final String generalUsersCompany = "Company";
+    public static final String generalUsersDownloadRequest = "DownloadRequest";
     public static final String generalUsersMeasureUnits = "MeasureUnits";
     public static final String generalUsersPriceList = "PriceList";
     public static final String generalUsersProducts = "Products";

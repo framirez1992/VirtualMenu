@@ -13,7 +13,14 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.far.virtualmenu.Adapters.GridAdapter;
+import com.far.virtualmenu.CloudFireStoreObjects.DownloadRequest;
+import com.far.virtualmenu.Controllers.DownloadRequestController;
 import com.far.virtualmenu.Model.ItemModel;
+import com.far.virtualmenu.Utils.Funciones;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.squareup.picasso.Picasso;
 import com.synnapps.carouselview.CarouselView;
 import com.synnapps.carouselview.ImageListener;
@@ -101,6 +108,22 @@ public class DetailFragment extends Fragment {
 
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        DownloadRequestController.getInstance(parentActivity).getReferenceFireStore()
+                .document(Funciones.getPhoneID(parentActivity)).addSnapshotListener(parentActivity, new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@javax.annotation.Nullable DocumentSnapshot documentSnapshot, @javax.annotation.Nullable FirebaseFirestoreException e) {
+                DownloadRequestController.getInstance(parentActivity).delete(null, null);
+                if(documentSnapshot.getData()!= null){
+                    downloadData();
+                }
+            }
+        });
+    }
+
     public void setItemData(ItemModel item){
 
             this.itemModel = item;
@@ -115,6 +138,10 @@ public class DetailFragment extends Fragment {
 
     public void refresh(){
 
+    }
+
+    public void downloadData(){
+    parentActivity.setLoadingScreen();
     }
 
 

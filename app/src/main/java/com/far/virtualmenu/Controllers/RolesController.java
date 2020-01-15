@@ -11,6 +11,7 @@ import com.far.virtualmenu.CloudFireStoreObjects.Roles;
 import com.far.virtualmenu.DataBase.DB;
 import com.far.virtualmenu.Generic.KV;
 import com.far.virtualmenu.Globales.Tablas;
+import com.far.virtualmenu.Utils.CODES;
 import com.far.virtualmenu.Utils.Funciones;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -192,9 +193,9 @@ public class RolesController {
 
     public void fillGeneralRolesLocal(Spinner spn){
         ArrayList<KV> spnList = new ArrayList<>();
-        spnList.add(new KV("0", "Super User"));
-        spnList.add(new KV("1", "Administrator"));
-        spnList.add(new KV("2", "User"));
+        spnList.add(new KV(CODES.USER_SYSTEM_CODE_SU, "Super User"));
+        spnList.add(new KV(CODES.USER_SYSTEM_CODE_ADMIN, "Administrator"));
+        spnList.add(new KV(CODES.USER_SYSTEM_CODE_USER, "User"));
         spn.setAdapter(new ArrayAdapter<KV>(context, android.R.layout.simple_list_item_1,spnList));
     }
 }

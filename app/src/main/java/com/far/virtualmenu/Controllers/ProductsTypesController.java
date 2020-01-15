@@ -335,19 +335,19 @@ public class ProductsTypesController {
     }
 
 
-    public void searchChanges(boolean all, OnSuccessListener<QuerySnapshot> success, OnCompleteListener<QuerySnapshot> complete, OnFailureListener failure){
+    public void searchChanges(boolean all, OnSuccessListener<QuerySnapshot> success,  OnFailureListener failure){
 
         Date mdate = all?null: DB.getLastMDateSaved(context, TABLE_NAME);
         if(mdate != null){
             getReferenceFireStore().
                     whereGreaterThan(MDATE, mdate).//mayor que, ya que las fechas (la que buscamos de la DB) tienen hora, minuto y segundos.
                     get().
-                    addOnSuccessListener(success).addOnCompleteListener(complete).
+                    addOnSuccessListener(success).
                     addOnFailureListener(failure);
         }else{//TODOS
             getReferenceFireStore().
                     get().
-                    addOnSuccessListener(success).addOnCompleteListener(complete).
+                    addOnSuccessListener(success).
                     addOnFailureListener(failure);
         }
 

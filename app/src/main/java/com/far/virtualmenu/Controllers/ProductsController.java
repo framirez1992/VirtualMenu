@@ -16,6 +16,7 @@ import com.far.virtualmenu.DataBase.CloudFireStoreDB;
 import com.far.virtualmenu.DataBase.DB;
 import com.far.virtualmenu.Generic.KV2;
 import com.far.virtualmenu.Globales.Tablas;
+import com.far.virtualmenu.Model.ItemMenuDetailModel;
 import com.far.virtualmenu.Model.ItemModel;
 import com.far.virtualmenu.Model.PriceModel;
 import com.far.virtualmenu.Model.ProductModel;
@@ -354,19 +355,19 @@ public class ProductsController {
 
 
 
-    public void searchChanges(boolean all, OnSuccessListener<QuerySnapshot> success, OnCompleteListener<QuerySnapshot> complete, OnFailureListener failure){
+    public void searchChanges(boolean all, OnSuccessListener<QuerySnapshot> success,  OnFailureListener failure){
 
         Date mdate = all?null: DB.getLastMDateSaved(context, TABLE_NAME);
         if(mdate != null){
             getReferenceFireStore().
                     whereGreaterThan(MDATE, mdate).//mayor que, ya que las fechas (la que buscamos de la DB) tienen hora, minuto y segundos.
                     get().
-                    addOnSuccessListener(success).addOnCompleteListener(complete).
+                    addOnSuccessListener(success).
                     addOnFailureListener(failure);
         }else{//TODOS
             getReferenceFireStore().
                     get().
-                    addOnSuccessListener(success).addOnCompleteListener(complete).
+                    addOnSuccessListener(success).
                     addOnFailureListener(failure);
         }
 
@@ -426,5 +427,39 @@ public class ProductsController {
 
         return list;
 
+    }
+
+
+    public ArrayList<ItemMenuDetailModel> getItemMenuDetailModels(){
+        ArrayList<ItemMenuDetailModel> list = new ArrayList<>();
+
+        String sql ="SELECT p."+CODE+" as CODE,  pt."+ProductsTypesController.ORDER+",pst."+ProductsSubTypesController.ORDER+", " +
+                "p."+DESCRIPTION+" as DESCRIPTION, p."+MENUDESCRIPTION+" as MENUDESCRIPTION, MIN(pm."+ProductsMeasureController.PRICE+") as PRICE  " +
+                "FROM "+TABLE_NAME+" p " +
+                "INNER JOIN "+ProductsMeasureController.TABLE_NAME+" pm on pm."+ProductsMeasureController.CODEPRODUCT+" = p."+CODE+" AND pm."+ProductsMeasureController.ENABLED+" = '1' " +
+                "INNER JOIN "+ProductsTypesController.TABLE_NAME+" pt on pt."+ProductsTypesController.CODE+" = p."+TYPE+" " +
+                "INNER JOIN "+ProductsSubTypesController.TABLE_NAME+" pst on pst."+ProductsSubTypesController.CODE+" = p."+SUBTYPE+" "+
+                "WHERE p."+ENABLED+" = ? " +
+                "GROUP BY p."+CODE+", pt."+ProductsTypesController.ORDER+",pst."+ProductsSubTypesController.ORDER+",p."+DESCRIPTION+", p."+MENUDESCRIPTION+" "+
+                "ORDER BY pt."+ProductsTypesController.ORDER+" ASC, pst."+ProductsSubTypesController.ORDER+" ASC, p."+DESCRIPTION+" ASC ";
+
+
+        Cursor c = DB.getInstance(context).getReadableDatabase().rawQuery(sql, new String[]{"1"});
+        while (c.moveToNext()) {
+            String codeProduct = c.getString(c.getColumnIndex("CODE"));
+            String url = null;
+            for (ProductImage pi : ProductsImagesController.getInstance(context).getProductImageByCodeProduct(codeProduct)) {
+                url =pi.getURL();
+                break;
+            }
+            if(url != null){
+                list.add(new ItemMenuDetailModel(c.getString(c.getColumnIndex("DESCRIPTION")),
+                        c.getString(c.getColumnIndex("MENUDESCRIPTION")),
+                        c.getDouble(c.getColumnIndex("PRICE")), url));
+            }
+        }c.close();
+
+
+            return list;
     }
 }

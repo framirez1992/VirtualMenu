@@ -18,10 +18,12 @@ public class MenuDetailGridAdapter extends BaseAdapter {
 
     Context context;
     ArrayList<ItemMenuDetailModel> objects;
+    int row=0;
 
-    public MenuDetailGridAdapter(Context c, ArrayList<ItemMenuDetailModel> o){
+    public MenuDetailGridAdapter(Context c, ArrayList<ItemMenuDetailModel> o, int row){
         this.context = c;
         this.objects = o;
+        this.row = row;
     }
     /**
      * How many items are in the data set represented by this Adapter.
@@ -78,7 +80,7 @@ public class MenuDetailGridAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         View v = convertView;
         if(v == null){
-            v = ((LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.single_item_menu,null);
+            v = ((LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(row,null);
         }
 
         TextView tvTitle = v.findViewById(R.id.tvTitle);

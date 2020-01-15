@@ -65,7 +65,6 @@ public class MainMenuActivity extends AppCompatActivity implements ListableActiv
     ListFragment listFragment;
     GridFragment gridFragment;
     Fragment lastFragment;
-    int currentindex =0;
 
 
     @Override
@@ -87,7 +86,6 @@ public class MainMenuActivity extends AppCompatActivity implements ListableActiv
 
 
         setLoadingScreen();
-        //loadData();
     }
 
     @Override
@@ -147,58 +145,26 @@ public class MainMenuActivity extends AppCompatActivity implements ListableActiv
 
 
 
-
-   /* public void loadData(){
-        switch (currentindex){
-            case 0:ProductsTypesController.getInstance(MainMenuActivity.this).searchChanges(true, this, this, this); break;
-            case 1:ProductsSubTypesController.getInstance(MainMenuActivity.this).searchChanges(true, this, this, this); break;
-            case 2:ProductsController.getInstance(MainMenuActivity.this).searchChanges(true, this, this, this); break;
-            case 3:ProductsMeasureController.getInstance(MainMenuActivity.this).searchChanges(true, this, this, this); break;
-            case 4:MeasureUnitsController.getInstance(MainMenuActivity.this).searchChanges(true, this, this, this); break;
-            case 5:ProductsImagesController.getInstance(MainMenuActivity.this).searchChanges(true, this, this, this); break;
-            default:
-                currentindex=0;
-                changeMenu(1);
-                onStart();
-                break;
-        }
-    }*/
-
-
-
     @Override
     public void onFailure(@NonNull Exception e) {
-        currentindex=0;
         Toast.makeText(MainMenuActivity.this, e.getMessage()+" - "+e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
     }
 
     @Override
     public void onCanceled() {
-        currentindex=0;
         Toast.makeText(MainMenuActivity.this, "Cancelado", Toast.LENGTH_LONG).show();
     }
 
     @Override
     public void onComplete(@NonNull Task task) {
         if(task.getException() != null){
-            currentindex=0;
             Toast.makeText(MainMenuActivity.this, task.getException().getLocalizedMessage(), Toast.LENGTH_LONG).show();
         }
     }
 
     @Override
     public void onSuccess(QuerySnapshot querySnapshot) {
-       /* switch (currentindex){
-            case 0:ProductsTypesController.getInstance(MainMenuActivity.this).consumeQuerySnapshot(true, querySnapshot); break;
-            case 1:ProductsSubTypesController.getInstance(MainMenuActivity.this).consumeQuerySnapshot(true, querySnapshot); break;
-            case 2:ProductsController.getInstance(MainMenuActivity.this).consumeQuerySnapshot(true, querySnapshot); break;
-            case 3:ProductsMeasureController.getInstance(MainMenuActivity.this).consumeQuerySnapshot(true ,querySnapshot); break;
-            case 4:MeasureUnitsController.getInstance(MainMenuActivity.this).consumeQuerySnapshot(true, querySnapshot); break;
-            case 5:ProductsImagesController.getInstance(MainMenuActivity.this).consumeQuerySnapshot(true, querySnapshot); break;
-            default:break;
-        }
-        currentindex++;
-        loadData();*/
+
 
     }
 
@@ -279,97 +245,6 @@ public class MainMenuActivity extends AppCompatActivity implements ListableActiv
     };
 
 
-    public EventListener<QuerySnapshot> productsTypesListener =  new EventListener<QuerySnapshot>() {
-        @Override
-        public void onEvent(@Nullable QuerySnapshot querySnapshot, @Nullable FirebaseFirestoreException e) {
-
-                ProductsTypesController.getInstance(MainMenuActivity.this).delete(null, null);
-                if (querySnapshot != null && querySnapshot.getDocuments()!= null && querySnapshot.getDocuments().size() > 0) {
-                    for(DocumentSnapshot doc: querySnapshot){
-                        ProductsTypes obj = doc.toObject(ProductsTypes.class);
-                        ProductsTypesController.getInstance(MainMenuActivity.this).insert(obj);
-                    }
-                }
-                refresh();
-        }
-    };
-
-    public EventListener<QuerySnapshot> productsSubTypesListener =  new EventListener<QuerySnapshot>() {
-        @Override
-        public void onEvent(@Nullable QuerySnapshot querySnapshot, @Nullable FirebaseFirestoreException e) {
-
-            ProductsSubTypesController.getInstance(MainMenuActivity.this).delete(null, null);
-            if (querySnapshot != null && querySnapshot.getDocuments()!= null && querySnapshot.getDocuments().size() > 0) {
-                for(DocumentSnapshot doc: querySnapshot){
-                    ProductsSubTypes obj = doc.toObject(ProductsSubTypes.class);
-                    ProductsSubTypesController.getInstance(MainMenuActivity.this).insert(obj);
-                }
-            }
-
-        }
-    };
-
-
-    public EventListener<QuerySnapshot> productsListener =  new EventListener<QuerySnapshot>() {
-        @Override
-        public void onEvent(@Nullable QuerySnapshot querySnapshot, @Nullable FirebaseFirestoreException e) {
-
-            ProductsController.getInstance(MainMenuActivity.this).delete(null, null);
-            if (querySnapshot != null && querySnapshot.getDocuments()!= null && querySnapshot.getDocuments().size() > 0) {
-                for(DocumentSnapshot doc: querySnapshot){
-                    Products obj = doc.toObject(Products.class);
-                    ProductsController.getInstance(MainMenuActivity.this).insert(obj);
-                }
-            }
-        }
-    };
-
-    public EventListener<QuerySnapshot> productsMeasureListener =  new EventListener<QuerySnapshot>() {
-        @Override
-        public void onEvent(@Nullable QuerySnapshot querySnapshot, @Nullable FirebaseFirestoreException e) {
-
-            ProductsMeasureController.getInstance(MainMenuActivity.this).delete(null, null);
-            if (querySnapshot != null && querySnapshot.getDocuments()!= null && querySnapshot.getDocuments().size() > 0) {
-                for(DocumentSnapshot doc: querySnapshot){
-                    ProductsMeasure obj = doc.toObject(ProductsMeasure.class);
-                    ProductsMeasureController.getInstance(MainMenuActivity.this).insert(obj);
-                }
-            }
-        }
-    };
-
-
-    public EventListener<QuerySnapshot> measureUnitsListener =  new EventListener<QuerySnapshot>() {
-        @Override
-        public void onEvent(@Nullable QuerySnapshot querySnapshot, @Nullable FirebaseFirestoreException e) {
-
-            MeasureUnitsController.getInstance(MainMenuActivity.this).delete(null, null);
-            if (querySnapshot != null && querySnapshot.getDocuments()!= null && querySnapshot.getDocuments().size() > 0) {
-                for(DocumentSnapshot doc: querySnapshot){
-                    MeasureUnits obj = doc.toObject(MeasureUnits.class);
-                    MeasureUnitsController.getInstance(MainMenuActivity.this).insert(obj);
-                }
-            }
-        }
-    };
-
-    public EventListener<QuerySnapshot> productsImagesListener =  new EventListener<QuerySnapshot>() {
-        @Override
-        public void onEvent(@Nullable QuerySnapshot querySnapshot, @Nullable FirebaseFirestoreException e) {
-
-            ProductsImagesController.getInstance(MainMenuActivity.this).delete(null, null);
-            if (querySnapshot != null && querySnapshot.getDocuments()!= null && querySnapshot.getDocuments().size() > 0) {
-                for(DocumentSnapshot doc: querySnapshot){
-                    ProductImage obj = doc.toObject(ProductImage.class);
-                    ProductsImagesController.getInstance(MainMenuActivity.this).insert(obj);
-                }
-            }
-
-        }
-    };
-
-
-
 
     public boolean validateLicence(Licenses lic){
 
@@ -430,16 +305,5 @@ public class MainMenuActivity extends AppCompatActivity implements ListableActiv
     }
 
 
-    public void refresh(){
-        if(lastFragment != null){
-            if(lastFragment instanceof DetailFragment){
-                detailFragment.refresh();
-                listFragment.refresh();
-            }else if(lastFragment instanceof GridFragment){
-                gridFragment.refresh();
-            }
-        }
-
-    }
 
 }

@@ -21,6 +21,7 @@ public class CODES {
 
     public static final String USER_SYSTEM_CODE_SU = "0";
     public static final String USER_SYSTEM_CODE_ADMIN = "1";
+    public static final String USER_SYSTEM_CODE_USER = "2";
 
     //USERS DEVICES
     public static final int CODE_DEVICES_NOT_ASSIGNED_TO_USER = 3100;

@@ -25,7 +25,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.QuerySnapshot;
 
-public class MainActualizationCenter extends AppCompatActivity implements OnSuccessListener<QuerySnapshot>, OnFailureListener, OnCompleteListener, OnCanceledListener {
+public class MainActualizationCenter extends AppCompatActivity implements OnSuccessListener<QuerySnapshot>, OnFailureListener,  OnCanceledListener {
 
     ProgressBar pb;
     TextView tvMessage;
@@ -73,14 +73,14 @@ public class MainActualizationCenter extends AppCompatActivity implements OnSucc
 
     public void loadData(){
         switch (currentindex){
-            case 0:CompanyController.getInstance(MainActualizationCenter.this).searchChanges(true, this, this, this); break;//ALL
-            case 1:ProductsTypesController.getInstance(MainActualizationCenter.this).searchChanges(true, this, this, this); break;//ALL
-            case 2:ProductsSubTypesController.getInstance(MainActualizationCenter.this).searchChanges(true, this, this, this); break;//ALL
-            case 3:ProductsController.getInstance(MainActualizationCenter.this).searchChanges(true, this, this, this); break;//ALL
-            case 4:ProductsMeasureController.getInstance(MainActualizationCenter.this).searchChanges(true, this, this, this); break;//ALL
-            case 5:ProductsControlController.getInstance(MainActualizationCenter.this).searchChanges(true, this, this, this); break;//ALL
-            case 6: ProductsImagesController.getInstance(MainActualizationCenter.this).searchChanges(true, this, this, this); break;//ALL
-            case 7:MeasureUnitsController.getInstance(MainActualizationCenter.this).searchChanges(true, this, this, this); break;//ALL
+            case 0:CompanyController.getInstance(MainActualizationCenter.this).searchChanges(true, this,  this); break;//ALL
+            case 1:ProductsTypesController.getInstance(MainActualizationCenter.this).searchChanges(true, this, this); break;//ALL
+            case 2:ProductsSubTypesController.getInstance(MainActualizationCenter.this).searchChanges(true, this,  this); break;//ALL
+            case 3:ProductsController.getInstance(MainActualizationCenter.this).searchChanges(true, this, this); break;//ALL
+            case 4:ProductsMeasureController.getInstance(MainActualizationCenter.this).searchChanges(true, this,  this); break;//ALL
+            case 5:ProductsControlController.getInstance(MainActualizationCenter.this).searchChanges(true, this, this); break;//ALL
+            case 6: ProductsImagesController.getInstance(MainActualizationCenter.this).searchChanges(true, this,  this); break;//ALL
+            case 7:MeasureUnitsController.getInstance(MainActualizationCenter.this).searchChanges(true, this,  this); break;//ALL
             default:
                 currentindex=0;
                 tvMessage.setText("Finalizado Correctamente");
@@ -106,16 +106,6 @@ public class MainActualizationCenter extends AppCompatActivity implements OnSucc
         tvMessage.setText("Canceled");
         pb.setVisibility(View.INVISIBLE);
         btnExit.setVisibility(View.VISIBLE);
-    }
-
-    @Override
-    public void onComplete(@NonNull Task task) {
-        if(task.getException() != null){
-            currentindex=0;
-            tvMessage.setText(task.getException().toString());
-            pb.setVisibility(View.INVISIBLE);
-            btnExit.setVisibility(View.VISIBLE);
-        }
     }
 
     @Override

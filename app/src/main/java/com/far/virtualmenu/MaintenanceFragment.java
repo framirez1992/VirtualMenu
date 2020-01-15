@@ -17,7 +17,7 @@ public class MaintenanceFragment extends Fragment {
 
 
     ImageView btnFamily, btnGroup, btnMeasures, btnProducts,btnProductsImages,btnCompany, btnUsers, btnControls
-    , btnUsersControl, btnClients, btnPrinter, btnActualizationCenter;
+    , btnUsersControl, btnClients, btnPrinter, btnActualizationCenter, btnActualizationDevices;
     LinearLayout llMainScreen, llMaintenanceControls, llMaintenanceUsers, llMaintenanceProducts,llMaintenanceCompany,  llConfiguration;
     public MaintenanceFragment() {
         // Required empty public constructor
@@ -54,8 +54,10 @@ public class MaintenanceFragment extends Fragment {
         btnUsersControl = view.findViewById(R.id.btnUsersControl);
         btnClients = view.findViewById(R.id.btnClients);
         btnPrinter = view.findViewById(R.id.btnPrinter);
+        btnActualizationDevices = view.findViewById(R.id.btnActualizationDevices);
 
         btnActualizationCenter.setOnClickListener(imageClick);
+        btnActualizationDevices.setOnClickListener(imageClick);
 
         btnFamily.setOnClickListener(imageClick);
         btnGroup.setOnClickListener(imageClick);
@@ -109,6 +111,9 @@ public class MaintenanceFragment extends Fragment {
                     break;
                 case R.id.btnActualizationCenter:
                     i = new Intent(getActivity(), MainActualizationCenter.class);
+                    break;
+                case R.id.btnActualizationDevices:
+                    i = new Intent(getActivity(), MainDevicesActualization.class);
                     break;
                 /*case R.id.btnControls:
                     i = new Intent(getActivity(), MaintenanceUsersControl.class);

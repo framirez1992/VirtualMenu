@@ -88,7 +88,7 @@ public class AdminLicenseMenuSelection extends AppCompatActivity implements List
                    return;
                 }
                 //String code, String target, String targetCode, String control, String value, boolean active
-                UserControl uc = new UserControl(model.getKey(), "0", "0", "MENUTYPE", "1", true);
+                UserControl uc = new UserControl(model.getKey(), "0", "0", "MENUTYPE", model.getValue(), true);
                 fs.collection(Tablas.generalUsers).document(license.getCODE())
                         .collection(Tablas.generalUsersUserControl).document(uc.getCONTROL()).set(uc.toMap());
                 searchMenuType();
@@ -135,7 +135,7 @@ public class AdminLicenseMenuSelection extends AppCompatActivity implements List
 
         ArrayList<MenuTypeModel> data= new ArrayList();
         data.add(new MenuTypeModel("1", "1", "Carta", ((key.equals("1"))?"(Activo)":"")+"Muestra los items en una lista y el detalle con imagenes en carrusel", key.equals("1")));
-        data.add(new MenuTypeModel("2", "0", "Grid", ((key.equals("2"))?"(Activo)":"")+"Muestra los items en un Grid", key.equals("2")));
+        data.add(new MenuTypeModel("2", "2", "Grid", ((key.equals("2"))?"(Activo)":"")+"Muestra los items en un Grid", key.equals("2")));
         return  data;
     }
 }

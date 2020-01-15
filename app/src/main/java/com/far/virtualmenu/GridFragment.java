@@ -13,7 +13,17 @@ import android.widget.ImageView;
 
 import com.far.virtualmenu.Adapters.GridAdapter;
 import com.far.virtualmenu.Adapters.MenuDetailGridAdapter;
+import com.far.virtualmenu.CloudFireStoreObjects.Company;
+import com.far.virtualmenu.CloudFireStoreObjects.ProductsControl;
+import com.far.virtualmenu.Controllers.CompanyController;
+import com.far.virtualmenu.Controllers.DownloadRequestController;
+import com.far.virtualmenu.Controllers.ProductsController;
 import com.far.virtualmenu.Model.ItemMenuDetailModel;
+import com.far.virtualmenu.Utils.Funciones;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -27,6 +37,7 @@ public class GridFragment extends Fragment {
     MainMenuActivity parentActivity;
     GridView gridView;
     ImageView logo;
+    int lastRow = 0;
 
     public GridFragment() {
         // Required empty public constructor
@@ -45,36 +56,81 @@ public class GridFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         gridView = view.findViewById(R.id.grid);
         logo = view.findViewById(R.id.logo);
+        lastRow = R.layout.single_item_menu;
+
         logo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //parentActivity.changeMenu(1);
+                changeStyle();
             }
         });
 
-        fillGrid();
+        setLogo();
+        fillGrid(lastRow);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        DownloadRequestController.getInstance(parentActivity).getReferenceFireStore()
+                .document(Funciones.getPhoneID(parentActivity)).addSnapshotListener(parentActivity, new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@javax.annotation.Nullable DocumentSnapshot documentSnapshot, @javax.annotation.Nullable FirebaseFirestoreException e) {
+                DownloadRequestController.getInstance(parentActivity).delete(null, null);
+                if(documentSnapshot.getData()!= null){
+                    downloadData();
+                }
+            }
+        });
     }
 
     public void setParentActivity(MainMenuActivity mainUserMenu){
         this.parentActivity = mainUserMenu;
     }
 
-    public void fillGrid(){
+    public void fillGrid(int row){
 
-        ArrayList<ItemMenuDetailModel> array = new ArrayList<>();
-        array.add(new ItemMenuDetailModel("Combo 1","Amburguesa + papas pequena + refresco 12oz", 200, "https://i0.wp.com/enzos.gofoodpng.biz/wp-content/uploads/2018/03/Chips-and-a-330ml.png?fit=484%2C368&ssl=1"));
+        ArrayList<ItemMenuDetailModel> array = ProductsController.getInstance(parentActivity).getItemMenuDetailModels();
+        /*array.add(new ItemMenuDetailModel("Combo 1","Amburguesa + papas pequena + refresco 12oz", 200, "https://i0.wp.com/enzos.gofoodpng.biz/wp-content/uploads/2018/03/Chips-and-a-330ml.png?fit=484%2C368&ssl=1"));
         array.add(new ItemMenuDetailModel("Combo 2","2 Tacos de pollo + Papas fritas + Refresco 12oz", 250, "https://www.deltaco.com/files/menu/item/thumb_1.jpg?v=2.6"));
         array.add(new ItemMenuDetailModel("Combo 3","Hot dog + papas mediana + refresco 12oz", 180, "https://defia.es/291-medium_default/combo-hot-dog.jpg"));
         array.add(new ItemMenuDetailModel("Combo 4","2 Pizza medianas + Papotas + Vegetales + Refresco 60oz", 1200, "https://5.imimg.com/data5/VE/GG/MY-53040683/combo-for-family-28just-499-2f-29-500x500.jpg"));
         array.add(new ItemMenuDetailModel("Banana Split","Banana split + toping + mermelada", 120, "https://www.tasteofhome.com/wp-content/uploads/2017/10/exps37953_Page_23.jpg"));
-
-        MenuDetailGridAdapter adapter = new MenuDetailGridAdapter(parentActivity,array);
+*/
+        MenuDetailGridAdapter adapter = new MenuDetailGridAdapter(parentActivity,array, row);
         gridView.setAdapter(adapter);
         gridView.invalidate();
     }
 
-    public void refresh(){
+    public void downloadData(){
+        parentActivity.setLoadingScreen();
+    }
 
+    public void setLogo(){
+        String url = null;
+        ArrayList<Company> list = CompanyController.getInstance(parentActivity).getCompanys(null, null, null);
+        for(Company c: list){
+            if(c.getLOGO()!= null && !c.getLOGO().isEmpty()){
+                url = c.getLOGO();
+                break;
+            }
+        }
+
+        if(url!= null){
+            Picasso.with(parentActivity).load(url).into(logo);
+        }
+
+
+    }
+
+    public void changeStyle(){
+        if(lastRow == R.layout.single_item_menu){
+            lastRow = R.layout.single_item_menu2;
+        }else{
+            lastRow = R.layout.single_item_menu;
+        }
+        fillGrid(lastRow);
     }
 
 }

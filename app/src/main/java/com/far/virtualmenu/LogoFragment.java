@@ -12,23 +12,41 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.far.virtualmenu.CloudFireStoreObjects.Company;
+import com.far.virtualmenu.CloudFireStoreObjects.DownloadRequest;
+import com.far.virtualmenu.CloudFireStoreObjects.ProductsControl;
+import com.far.virtualmenu.CloudFireStoreObjects.ProductsTypes;
 import com.far.virtualmenu.CloudFireStoreObjects.UserControl;
+import com.far.virtualmenu.Controllers.CompanyController;
+import com.far.virtualmenu.Controllers.DownloadRequestController;
+import com.far.virtualmenu.Controllers.MeasureUnitsController;
+import com.far.virtualmenu.Controllers.ProductsController;
+import com.far.virtualmenu.Controllers.ProductsImagesController;
+import com.far.virtualmenu.Controllers.ProductsMeasureController;
+import com.far.virtualmenu.Controllers.ProductsSubTypesController;
+import com.far.virtualmenu.Controllers.ProductsTypesController;
 import com.far.virtualmenu.Controllers.UserControlController;
+import com.far.virtualmenu.Utils.Funciones;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.ArrayList;
 
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class LogoFragment extends Fragment {
+public class LogoFragment extends Fragment implements OnSuccessListener<QuerySnapshot>, OnFailureListener {
 
     MainMenuActivity parent;
 
     LinearLayout llLoading;
     TextView tvLoading, tvErrorMsg;
     Button btnRetry;
+    String menuType = null;
+    int index = 0;
 
 
 
@@ -55,7 +73,12 @@ public class LogoFragment extends Fragment {
         btnRetry.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getMenuType();
+                if(menuType == null){
+                    getMenuType();
+                }else{
+                    searchDownloadRequest();
+                }
+
             }
         });
     }
@@ -84,7 +107,8 @@ public class LogoFragment extends Fragment {
 
                 if(uc != null){
                     UserControlController.getInstance(getContext()).insert(uc);
-                    parent.changeMenu(uc.getVALUE());
+                    menuType = uc.getVALUE();
+                   searchDownloadRequest();
                 }else{
                 endLoading();
                 setErrorMessage("No se ha configurado un tipo de menu.");
@@ -123,5 +147,90 @@ public class LogoFragment extends Fragment {
         tvErrorMsg.setVisibility(View.VISIBLE);
     }
 
+    public void searchDownloadRequest(){
+        showLoading();
+        DownloadRequestController.getInstance(parent).getReferenceFireStore().document(Funciones.getPhoneID(parent)).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                //PRIMERA VEZ
+                if(documentSnapshot.getData() == null && ProductsController.getInstance(parent).getProducts(null, null, null).size() == 0){
+                    endLoading();
+                    setErrorMessage("No hay carga de datos para el dispositivo. Comuniquese con el administrador");
+                    btnRetry.setVisibility(View.VISIBLE);
+                    btnRetry.setEnabled(true);
+                }else if(documentSnapshot.getData()!= null){//SI HAY DATA SI SE ENVIA UNA CARGA DE DATOS ON Demand
+                    DownloadRequest dr = documentSnapshot.toObject(DownloadRequest.class);
+                    loadData();
+                }else{
+                    parent.changeMenu(menuType);
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                endLoading();
+                setErrorMessage(e.getMessage());
+                btnRetry.setVisibility(View.VISIBLE);
+                btnRetry.setEnabled(true);
+            }
+        });
+    }
 
+    public void loadData(){
+        switch (index){
+            case 0:
+                ProductsTypesController.getInstance(parent).searchChanges(true,this, this); break;//familias
+            case 1:
+                ProductsSubTypesController.getInstance(parent).searchChanges(true,this, this); break;//grupos
+            case 2:
+                MeasureUnitsController.getInstance(parent).searchChanges(true, this, this); break;//medidas
+            case 3:
+                ProductsMeasureController.getInstance(parent).searchChanges(true, this, this); break;//products measure
+            case 4:
+                ProductsController.getInstance(parent).searchChanges(true, this, this); break;//products
+            case 5:
+                ProductsImagesController.getInstance(parent).searchChanges(true, this, this);  break;//productsImages
+            case 6:
+                CompanyController.getInstance(parent).searchChanges(true, this, this); break;//company
+            default:
+                index = 0;
+                DownloadRequestController.getInstance(parent).getReferenceFireStore().document(Funciones.getPhoneID(parent)).delete().addOnFailureListener(this);
+                searchDownloadRequest();
+                return;
+        }
+
+    }
+
+
+    @Override
+    public void onSuccess(QuerySnapshot querySnapshot) {
+        switch (index){
+            case 0:
+                ProductsTypesController.getInstance(parent).consumeQuerySnapshot(true,querySnapshot); break;//familias
+            case 1:
+                ProductsSubTypesController.getInstance(parent).consumeQuerySnapshot(true,querySnapshot); break;//grupos
+            case 2:
+                MeasureUnitsController.getInstance(parent).consumeQuerySnapshot(true,querySnapshot); break;//medidas
+            case 3:
+                ProductsMeasureController.getInstance(parent).consumeQuerySnapshot(true,querySnapshot); break;//products measure
+            case 4:
+                ProductsController.getInstance(parent).consumeQuerySnapshot(true,querySnapshot); break;//products
+            case 5:
+                ProductsImagesController.getInstance(parent).consumeQuerySnapshot(true,querySnapshot); break;//productsImages
+            case 6:
+                CompanyController.getInstance(parent).consumeQuerySnapshot(true,querySnapshot); break;//company
+        }
+
+        index++;
+        loadData();
+    }
+
+    @Override
+    public void onFailure(@NonNull Exception e) {
+        endLoading();
+        setErrorMessage(e.getMessage());
+        btnRetry.setVisibility(View.VISIBLE);
+        btnRetry.setEnabled(true);
+        index = 0;
+    }
 }
