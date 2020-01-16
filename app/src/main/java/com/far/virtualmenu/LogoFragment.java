@@ -14,12 +14,14 @@ import android.widget.TextView;
 
 import com.far.virtualmenu.CloudFireStoreObjects.Company;
 import com.far.virtualmenu.CloudFireStoreObjects.DownloadRequest;
+import com.far.virtualmenu.CloudFireStoreObjects.MenuType;
 import com.far.virtualmenu.CloudFireStoreObjects.ProductsControl;
 import com.far.virtualmenu.CloudFireStoreObjects.ProductsTypes;
 import com.far.virtualmenu.CloudFireStoreObjects.UserControl;
 import com.far.virtualmenu.Controllers.CompanyController;
 import com.far.virtualmenu.Controllers.DownloadRequestController;
 import com.far.virtualmenu.Controllers.MeasureUnitsController;
+import com.far.virtualmenu.Controllers.MenuTypeController;
 import com.far.virtualmenu.Controllers.ProductsController;
 import com.far.virtualmenu.Controllers.ProductsImagesController;
 import com.far.virtualmenu.Controllers.ProductsMeasureController;
@@ -45,7 +47,7 @@ public class LogoFragment extends Fragment implements OnSuccessListener<QuerySna
     LinearLayout llLoading;
     TextView tvLoading, tvErrorMsg;
     Button btnRetry;
-    String menuType = null;
+    MenuType menuType = null;
     int index = 0;
 
 
@@ -95,19 +97,18 @@ public class LogoFragment extends Fragment implements OnSuccessListener<QuerySna
 
     public void getMenuType(){
         showLoading();
-        UserControlController.getInstance(getContext()).getReferenceFireStore()
-                .whereEqualTo(UserControlController.CONTROL, "MENUTYPE").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+        MenuTypeController.getInstance(getContext()).getReferenceFireStore().get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @Override
             public void onSuccess(QuerySnapshot querySnapshot) {
-                UserControl uc = null;
-                UserControlController.getInstance(getContext()).delete(null, null);
+                MenuType mt = null;
+                MenuTypeController.getInstance(getContext()).delete(null, null);
                 if(querySnapshot!= null && querySnapshot.size() > 0){
-                    uc = querySnapshot.getDocuments().get(0).toObject(UserControl.class);
+                    mt = querySnapshot.getDocuments().get(0).toObject(MenuType.class);
                 }
 
-                if(uc != null){
-                    UserControlController.getInstance(getContext()).insert(uc);
-                    menuType = uc.getVALUE();
+                if(mt != null){
+                    MenuTypeController.getInstance(getContext()).insert(mt);
+                    menuType =mt;
                    searchDownloadRequest();
                 }else{
                 endLoading();

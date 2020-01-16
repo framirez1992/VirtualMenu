@@ -1,28 +1,32 @@
 package com.far.virtualmenu.Adapters.Models;
 
+import com.far.virtualmenu.Controllers.MenuTypeController;
+
 public class MenuTypeModel {
-    String key,value,  title, description;
+    String code,layout,  title, description;
+    int type,orientation;
     boolean selected;
 
-    public MenuTypeModel(String key, String value, String title, String description, boolean selected){
-        this.key = key; this.value = value; this.title = title; this.description = description;
-        this.selected = selected;
+    public MenuTypeModel(int type,int orientation, String layout, String title, String description, boolean selected){
+        this.code = MenuTypeController.TABLE_NAME; this.type = type;this.orientation = orientation; this.layout = layout;
+        this.title = title; this.description = description; this.selected = selected;
     }
 
-    public String getKey() {
-        return key;
+
+    public String getCode() {
+        return code;
     }
 
-    public void setKey(String key) {
-        this.key = key;
+    public void setCode(String code) {
+        this.code = code;
     }
 
-    public String getValue() {
-        return value;
+    public String getLayout() {
+        return layout;
     }
 
-    public void setValue(String value) {
-        this.value = value;
+    public void setLayout(String layout) {
+        this.layout = layout;
     }
 
     public String getTitle() {
@@ -39,6 +43,22 @@ public class MenuTypeModel {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
+    }
+
+    public int getOrientation() {
+        return orientation;
+    }
+
+    public void setOrientation(int orientation) {
+        this.orientation = orientation;
     }
 
     public boolean isSelected() {

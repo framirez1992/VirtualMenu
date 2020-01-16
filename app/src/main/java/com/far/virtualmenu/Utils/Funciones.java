@@ -1,10 +1,12 @@
 package com.far.virtualmenu.Utils;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.content.res.ColorStateList;
 import android.net.Uri;
 import android.preference.PreferenceManager;
@@ -322,5 +324,11 @@ public class Funciones {
         return String.format("#%06X", (0xFFFFFF & color));
     }
 
+    public static void setOrientationPortrait(Activity activity){
+        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+    }
+    public static void setOrientationLandscape(Activity activity){
+        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+    }
 
 }

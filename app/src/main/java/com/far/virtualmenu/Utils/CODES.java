@@ -40,4 +40,18 @@ public class CODES {
     //ACTIVITY EXTRA KEYS
     public static final String EXTRA_SECURITY_ERROR_CODE = "SECURITY_ERROR_CODE";
     public static final String EXTRA_ADMIN_LICENSE = "EXTRA_ADMIN_LICENSE";
+
+
+
+
+    //////////////////////////////////////////////
+    /// MENUTYPE KEYS
+    public static final int CODE_MENUTYPE_LIST_DETAIL_FRAGMENTS = 1;
+    public static final int CODE_MENUTYPE_GRID_FRAGMENT = 2;
+
+    public static final int CODE_MENUTYPE_ORIENTATION_PORTRAIT = 1;
+    public static final int CODE_MENUTYPE_ORIENTATION_LANDSCAPE = 2;
+
+    public static String CODE_MENUTYPE_LAYOUT_ROW1="single_item_menu";
+    public static String CODE_MENUTYPE_LAYOUT_ROW2="single_item_menu2";
 }

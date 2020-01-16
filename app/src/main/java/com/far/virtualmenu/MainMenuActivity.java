@@ -1,6 +1,7 @@
 package com.far.virtualmenu;
 
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -12,6 +13,7 @@ import android.widget.Toast;
 import com.far.virtualmenu.CloudFireStoreObjects.Devices;
 import com.far.virtualmenu.CloudFireStoreObjects.Licenses;
 import com.far.virtualmenu.CloudFireStoreObjects.MeasureUnits;
+import com.far.virtualmenu.CloudFireStoreObjects.MenuType;
 import com.far.virtualmenu.CloudFireStoreObjects.ProductImage;
 import com.far.virtualmenu.CloudFireStoreObjects.Products;
 import com.far.virtualmenu.CloudFireStoreObjects.ProductsMeasure;
@@ -113,9 +115,9 @@ public class MainMenuActivity extends AppCompatActivity implements ListableActiv
         ft.detach(detailFragment).attach(detailFragment).commit();
     }
 
-    public void changeMenu(String type){
+    public void changeMenu(MenuType menuType){
 
-        if(type.equals("1")){
+        if(menuType.getTYPE() == CODES.CODE_MENUTYPE_LIST_DETAIL_FRAGMENTS){
             findViewById(R.id.menu).setVisibility(View.VISIBLE);
             detailFragment = new DetailFragment();
             detailFragment.setParent(this);
@@ -126,7 +128,7 @@ public class MainMenuActivity extends AppCompatActivity implements ListableActiv
             changeFragment(listFragment, R.id.menu);
 
             lastFragment = detailFragment;
-        }else if(type.equals("2")){
+        }else if(menuType.getTYPE() == CODES.CODE_MENUTYPE_GRID_FRAGMENT){
             findViewById(R.id.menu).setVisibility(View.GONE);
             gridFragment = new GridFragment();
             gridFragment.setParentActivity(this);
@@ -303,6 +305,9 @@ public class MainMenuActivity extends AppCompatActivity implements ListableActiv
 
         return true;
     }
+
+
+
 
 
 

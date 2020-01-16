@@ -112,6 +112,8 @@ public class DetailFragment extends Fragment {
     public void onStart() {
         super.onStart();
 
+        Funciones.setOrientationLandscape(parentActivity);
+
         DownloadRequestController.getInstance(parentActivity).getReferenceFireStore()
                 .document(Funciones.getPhoneID(parentActivity)).addSnapshotListener(parentActivity, new EventListener<DocumentSnapshot>() {
             @Override

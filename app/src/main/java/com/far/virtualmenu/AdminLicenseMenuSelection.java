@@ -11,7 +11,9 @@ import android.widget.Toast;
 import com.far.virtualmenu.Adapters.MenuTypeRowAdapter;
 import com.far.virtualmenu.Adapters.Models.MenuTypeModel;
 import com.far.virtualmenu.CloudFireStoreObjects.Licenses;
+import com.far.virtualmenu.CloudFireStoreObjects.MenuType;
 import com.far.virtualmenu.CloudFireStoreObjects.UserControl;
+import com.far.virtualmenu.Controllers.MenuTypeController;
 import com.far.virtualmenu.Controllers.UserControlController;
 import com.far.virtualmenu.Globales.Tablas;
 import com.far.virtualmenu.Utils.CODES;
@@ -29,7 +31,7 @@ public class AdminLicenseMenuSelection extends AppCompatActivity implements List
     FirebaseFirestore fs;
     Licenses license;
     LinearLayout llSave;
-    ArrayList<UserControl> userControls;
+    ArrayList<MenuType> menuTypes;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,7 +45,6 @@ public class AdminLicenseMenuSelection extends AppCompatActivity implements List
         license = (Licenses) getIntent().getSerializableExtra(CODES.EXTRA_ADMIN_LICENSE);
 
         init();
-        //refreshList();
     }
 
     @Override
@@ -54,21 +55,6 @@ public class AdminLicenseMenuSelection extends AppCompatActivity implements List
 
 
     public void setUpListeners(){
-       /* fs.collection(Tablas.generalLicencias).document(license.getCODE())
-                .collection(Tablas.generalUsersProductsControl)
-                .addSnapshotListener(AdminLicenseMenuSelection.this, new EventListener<QuerySnapshot>() {
-                    @Override
-                    public void onEvent(@Nullable QuerySnapshot querySnapshot, @Nullable FirebaseFirestoreException e) {
-                        menuTypes = new ArrayList<>();
-                        for (DocumentSnapshot ds : querySnapshot) {
-                            Devices t = ds.toObject(Devices.class);
-                            t.setDocumentReference(ds.getReference());
-                            devices.add(t);
-                        }
-                        refreshList();
-
-                    }
-                });*/
 
        searchMenuType();
     }
@@ -87,10 +73,10 @@ public class AdminLicenseMenuSelection extends AppCompatActivity implements List
                     Toast.makeText(AdminLicenseMenuSelection.this, "Seleccione un tipo de menu", Toast.LENGTH_SHORT).show();
                    return;
                 }
-                //String code, String target, String targetCode, String control, String value, boolean active
-                UserControl uc = new UserControl(model.getKey(), "0", "0", "MENUTYPE", model.getValue(), true);
+
+                MenuType uc = new MenuType(model.getCode(), model.getType(), model.getOrientation(), model.getLayout());
                 fs.collection(Tablas.generalUsers).document(license.getCODE())
-                        .collection(Tablas.generalUsersUserControl).document(uc.getCONTROL()).set(uc.toMap());
+                        .collection(Tablas.generalUsersMenuType).document(uc.getCODE()).set(uc.toMap());
                 searchMenuType();
 
             }
@@ -99,14 +85,14 @@ public class AdminLicenseMenuSelection extends AppCompatActivity implements List
 
     public void searchMenuType(){
         fs.collection(Tablas.generalUsers).document(license.getCODE())
-                .collection(Tablas.generalUsersUserControl).whereEqualTo(UserControlController.CONTROL, "MENUTYPE")
+                .collection(Tablas.generalUsersMenuType)
                 .get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @Override
             public void onSuccess(QuerySnapshot querySnapshot) {
-                userControls = new ArrayList<>();
+                menuTypes = new ArrayList<>();
                 if(querySnapshot != null && querySnapshot.size()>0){
                     for(DocumentSnapshot ds: querySnapshot){
-                        userControls.add(ds.toObject(UserControl.class));
+                        menuTypes.add(ds.toObject(MenuType.class));
                     }
                 }
                 refreshList();
@@ -129,13 +115,23 @@ public class AdminLicenseMenuSelection extends AppCompatActivity implements List
 
     private ArrayList<MenuTypeModel> getList(){
         String key = "";
-        if(userControls.size()>0){
-            key = userControls.get(0).getCODE();
+        if(menuTypes.size()>0){
+            for(MenuType mt: menuTypes){
+                if(mt.getTYPE() == CODES.CODE_MENUTYPE_LIST_DETAIL_FRAGMENTS && mt.getLAYOUT().equals("")){
+                    key = "1";
+                }else if(mt.getTYPE() == CODES.CODE_MENUTYPE_GRID_FRAGMENT && mt.getLAYOUT().equals(CODES.CODE_MENUTYPE_LAYOUT_ROW1)){
+                    key = "2";
+                }else if(mt.getTYPE() == CODES.CODE_MENUTYPE_GRID_FRAGMENT && mt.getLAYOUT().equals(CODES.CODE_MENUTYPE_LAYOUT_ROW2)){
+                    key = "3";
+                }
+            }
         }
 
         ArrayList<MenuTypeModel> data= new ArrayList();
-        data.add(new MenuTypeModel("1", "1", "Carta", ((key.equals("1"))?"(Activo)":"")+"Muestra los items en una lista y el detalle con imagenes en carrusel", key.equals("1")));
-        data.add(new MenuTypeModel("2", "2", "Grid", ((key.equals("2"))?"(Activo)":"")+"Muestra los items en un Grid", key.equals("2")));
+        //int type,int orientation, String layout, String title, String description, boolean selected
+        data.add(new MenuTypeModel(CODES.CODE_MENUTYPE_LIST_DETAIL_FRAGMENTS, CODES.CODE_MENUTYPE_ORIENTATION_LANDSCAPE, "", "Carta", ((key.equals("1"))?"(Activo)":"")+"Muestra los items en una lista y el detalle con imagenes en carrusel", key.equals("1")));
+        data.add(new MenuTypeModel(CODES.CODE_MENUTYPE_GRID_FRAGMENT, CODES.CODE_MENUTYPE_ORIENTATION_PORTRAIT, CODES.CODE_MENUTYPE_LAYOUT_ROW1, "Grid", ((key.equals("2"))?"(Activo)":"")+"Muestra los items en un Grid", key.equals("2")));
+        data.add(new MenuTypeModel(CODES.CODE_MENUTYPE_GRID_FRAGMENT, CODES.CODE_MENUTYPE_ORIENTATION_PORTRAIT,  CODES.CODE_MENUTYPE_LAYOUT_ROW2, "Line", ((key.equals("3"))?"(Activo)":"")+"Muestra los items en una lista vertical.", key.equals("3")));
         return  data;
     }
 }

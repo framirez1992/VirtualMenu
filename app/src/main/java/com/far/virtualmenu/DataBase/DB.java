@@ -12,6 +12,7 @@ import com.far.virtualmenu.Controllers.DevicesController;
 import com.far.virtualmenu.Controllers.DownloadRequestController;
 import com.far.virtualmenu.Controllers.LicenseController;
 import com.far.virtualmenu.Controllers.MeasureUnitsController;
+import com.far.virtualmenu.Controllers.MenuTypeController;
 import com.far.virtualmenu.Controllers.ProductsControlController;
 import com.far.virtualmenu.Controllers.ProductsController;
 import com.far.virtualmenu.Controllers.ProductsImagesController;
@@ -66,6 +67,7 @@ public class DB extends SQLiteOpenHelper {
             db.execSQL(UsersController.QUERY_CREATE);
             db.execSQL(RolesController.QUERY_CREATE);
             db.execSQL(UserControlController.QUERY_CREATE);
+            db.execSQL(MenuTypeController.QUERY_CREATE);
 
 
             db.setTransactionSuccessful();

@@ -33,10 +33,11 @@
         android:layout_height="0dp"
         android:layout_weight="9"
         android:id="@+id/grid"
-        android:numColumns="auto_fit"
+        android:numColumns="1"
         android:verticalSpacing="20dp"
         android:horizontalSpacing="10dp"
-        android:background="@color/gray_900"/>
+        android:background="@color/gray_900"
+        android:padding="20dp"/>
 </LinearLayout>
 
 
