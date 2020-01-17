@@ -6,28 +6,7 @@
     tools:context=".GridFragment"
     android:orientation="vertical">
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:background="@color/purple">
 
-        <ImageView android:id="@+id/logo"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:layout_centerInParent="true"/>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="25sp"
-            android:textStyle="bold"
-            android:text="Menu"
-            android:gravity="center"
-            android:layout_below="@+id/logo"
-            android:textColor="@color/pink"
-            android:visibility="gone"/>
-
-    </RelativeLayout>
     <GridView
         android:layout_width="match_parent"
         android:layout_height="0dp"

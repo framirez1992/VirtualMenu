@@ -48,6 +48,7 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 import javax.annotation.Nullable;
 
@@ -157,7 +158,9 @@ public class MaintenanceProducts extends AppCompatActivity implements ListableAc
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_edit_delete, menu);
+        inflater.inflate(R.menu.menu_maintenance_products, menu);
+        menu.findItem(R.id.actionEnable).setVisible(!products.isENABLED());
+        menu.findItem(R.id.actionDisable).setVisible(products.isENABLED());
         super.onCreateContextMenu(menu, v, menuInfo);
     }
 
@@ -170,6 +173,13 @@ public class MaintenanceProducts extends AppCompatActivity implements ListableAc
                 return true;
             case R.id.actionDelete:
                 callDeleteConfirmation();
+                return  true;
+
+            case R.id.actionEnable:
+                enableDisableProduct(true);
+                return  true;
+            case R.id.actionDisable:
+                enableDisableProduct(false);
                 return  true;
 
             default:return super.onContextItemSelected(item);
@@ -319,6 +329,44 @@ public class MaintenanceProducts extends AppCompatActivity implements ListableAc
     @Override
     public void dialogClosed(Object o) {
         refreshList();
+    }
+
+
+
+    public void enableDisableProduct(boolean enable){
+
+            products.setENABLED(enable);
+            products.setMDATE(new Date());
+            productsController.sendToFireBase(products, null, new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Toast.makeText(MaintenanceProducts.this, e.getMessage(), Toast.LENGTH_LONG).show();
+                }
+            });
+            productsController.searchProductFromFireBase(products.getCODE(), new OnSuccessListener<QuerySnapshot>() {
+                @Override
+                public void onSuccess(QuerySnapshot querySnapshot) {
+                    Products p = null;
+                    if (querySnapshot != null && querySnapshot.getDocuments().size() > 0) {
+                        p = querySnapshot.getDocuments().get(0).toObject(Products.class);
+                    }
+
+                    if (p != null) {
+                        ProductsController.getInstance(MaintenanceProducts.this).update(p);
+                        refreshList();
+                    } else {
+                        Toast.makeText(MaintenanceProducts.this, "Error editando producto. Intente nuevamente", Toast.LENGTH_LONG).show();
+                    }
+                }
+            }, new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Toast.makeText(MaintenanceProducts.this, e.getMessage(), Toast.LENGTH_LONG).show();
+                }
+            });
+
+
+
     }
 }
 

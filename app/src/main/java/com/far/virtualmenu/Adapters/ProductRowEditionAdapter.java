@@ -41,9 +41,9 @@ public class ProductRowEditionAdapter extends RecyclerView.Adapter<ProductRowEdi
         holder.getMenuImage().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                listableActivity.onClick(objects.get(position));
                 activity.registerForContextMenu(v);
                 v.showContextMenu();
-                listableActivity.onClick(objects.get(position));
             }
         });
 

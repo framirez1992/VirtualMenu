@@ -51,7 +51,6 @@ public class ProductsDialogfragment extends DialogFragment implements OnFailureL
     Spinner spnFamily, spnGroup, spnTime;
     RecyclerView rvMeasures;
     LinearLayout llMeasureScreen, llMainScreen, llNext;
-    CheckBox cbActivate;
     EditText etTime, etDescription;
 
     ProductsController productsController;
@@ -99,8 +98,6 @@ public class ProductsDialogfragment extends DialogFragment implements OnFailureL
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
-
         return inflater.inflate(R.layout.dialog_add_edit_product, container, true);
     }
 
@@ -138,7 +135,6 @@ public class ProductsDialogfragment extends DialogFragment implements OnFailureL
         etDescription = view.findViewById(R.id.etDescription);
         rvMeasures = view.findViewById(R.id.rvMeasures);
         rvMeasures.setLayoutManager(new LinearLayoutManager(getActivity()));
-        cbActivate = view.findViewById(R.id.cbActivate);
 
         ProductsTypesController.getInstance(getActivity()).fillSpinner(spnFamily, false);
         ProductsSubTypesController.getInstance(getActivity()).fillSpinner(spnGroup, false);
@@ -179,8 +175,6 @@ public class ProductsDialogfragment extends DialogFragment implements OnFailureL
 
         if(tempObj != null){//EDIT
             setUpToEditUsers();
-        }else{//NEW
-            cbActivate.setChecked(true);
         }
 
 
@@ -285,7 +279,7 @@ public class ProductsDialogfragment extends DialogFragment implements OnFailureL
             products.setMENUDESCRIPTION(etDescription.getText().toString());
             products.setTYPE(((KV)spnFamily.getSelectedItem()).getKey());
             products.setSUBTYPE(((KV)spnGroup.getSelectedItem()).getKey());
-            products.setENABLED(cbActivate.isChecked());
+            products.setENABLED(products.isENABLED());
             String prepTime = (etTime.getText().toString().isEmpty())?"":(etTime.getText().toString()+"-"+((KV)spnTime.getSelectedItem()).getKey());
             products.setPREPTIME(prepTime);
             products.setMDATE(new Date());
@@ -327,7 +321,6 @@ public class ProductsDialogfragment extends DialogFragment implements OnFailureL
         etCode.setEnabled(false);
         etName.setText(p.getDESCRIPTION());
         etDescription.setText(p.getMENUDESCRIPTION());
-        cbActivate.setChecked(tempObj.isENABLED());
         setSpinnerposition(spnFamily, p.getTYPE());
         setSpinnerposition(spnGroup, p.getSUBTYPE());
 

@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:cardCornerRadius="10dp">
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -16,7 +18,7 @@
         <TextView android:id="@+id/tvTitle"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:text="Pequeno"
+            android:text="text"
             android:gravity="center_vertical"
             android:textStyle="bold"
             android:maxWidth="100dp"/>

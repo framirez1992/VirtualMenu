@@ -8,8 +8,10 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.far.virtualmenu.CloudFireStoreObjects.Company;
 import com.far.virtualmenu.CloudFireStoreObjects.Devices;
 import com.far.virtualmenu.CloudFireStoreObjects.Licenses;
 import com.far.virtualmenu.CloudFireStoreObjects.MeasureUnits;
@@ -21,6 +23,7 @@ import com.far.virtualmenu.CloudFireStoreObjects.ProductsSubTypes;
 import com.far.virtualmenu.CloudFireStoreObjects.ProductsTypes;
 import com.far.virtualmenu.CloudFireStoreObjects.Users;
 import com.far.virtualmenu.CloudFireStoreObjects.UsersDevices;
+import com.far.virtualmenu.Controllers.CompanyController;
 import com.far.virtualmenu.Controllers.DevicesController;
 import com.far.virtualmenu.Controllers.LicenseController;
 import com.far.virtualmenu.Controllers.MeasureUnitsController;
@@ -34,6 +37,7 @@ import com.far.virtualmenu.Controllers.UsersDevicesController;
 import com.far.virtualmenu.Model.ItemModel;
 import com.far.virtualmenu.Utils.CODES;
 import com.far.virtualmenu.Utils.Funciones;
+import com.far.virtualmenu.Utils.Picasso.CircleTransformation;
 import com.far.virtualmenu.interfaces.ListableActivity;
 import com.google.android.gms.tasks.OnCanceledListener;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -45,6 +49,9 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.squareup.picasso.Picasso;
+
+import java.util.ArrayList;
 
 import javax.annotation.Nullable;
 
@@ -116,6 +123,8 @@ public class MainMenuActivity extends AppCompatActivity implements ListableActiv
     }
 
     public void changeMenu(MenuType menuType){
+
+        setLogo();
 
         if(menuType.getTYPE() == CODES.CODE_MENUTYPE_LIST_DETAIL_FRAGMENTS){
             findViewById(R.id.menu).setVisibility(View.VISIBLE);
@@ -307,6 +316,22 @@ public class MainMenuActivity extends AppCompatActivity implements ListableActiv
     }
 
 
+    public void setLogo(){
+        String url = null;
+        ArrayList<Company> list = CompanyController.getInstance(MainMenuActivity.this).getCompanys(null, null, null);
+        for(Company c: list){
+            if(c.getLOGO()!= null && !c.getLOGO().isEmpty()){
+                url = c.getLOGO();
+                break;
+            }
+        }
+
+        if(url!= null){
+            Picasso.with(MainMenuActivity.this).load(url).transform(new CircleTransformation()).into((ImageView) findViewById(R.id.logo));
+        }
+
+
+    }
 
 
 

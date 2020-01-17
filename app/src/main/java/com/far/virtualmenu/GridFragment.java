@@ -41,7 +41,6 @@ public class GridFragment extends Fragment {
 
     MainMenuActivity parentActivity;
     GridView gridView;
-    ImageView logo;
 
     public GridFragment() {
         // Required empty public constructor
@@ -59,9 +58,6 @@ public class GridFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         gridView = view.findViewById(R.id.grid);
-        logo = view.findViewById(R.id.logo);
-
-        setLogo();
         fillGrid();
     }
 
@@ -109,23 +105,6 @@ public class GridFragment extends Fragment {
 
     public void downloadData(){
         parentActivity.setLoadingScreen();
-    }
-
-    public void setLogo(){
-        String url = null;
-        ArrayList<Company> list = CompanyController.getInstance(parentActivity).getCompanys(null, null, null);
-        for(Company c: list){
-            if(c.getLOGO()!= null && !c.getLOGO().isEmpty()){
-                url = c.getLOGO();
-                break;
-            }
-        }
-
-        if(url!= null){
-            Picasso.with(parentActivity).load(url).transform(new CircleTransformation()).into(logo);
-        }
-
-
     }
 
 

@@ -9,6 +9,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.far.virtualmenu.Model.ItemModel;
@@ -79,30 +80,38 @@ public class SimpleItemAdapter extends RecyclerView.Adapter<SimpleItemAdapter.It
 
     public class ItemHolder extends RecyclerView.ViewHolder {
         TextView text;
-        CardView cvParent;
+        RelativeLayout cvParent;
+        ViewGroup.MarginLayoutParams layoutParams;
         public ItemHolder(View itemView) {
             super(itemView);
             text = itemView.findViewById(R.id.tvText);
             cvParent = itemView.findViewById(R.id.cvParent);
+            layoutParams = (ViewGroup.MarginLayoutParams) cvParent.getLayoutParams();
         }
 
         public void fillData(ItemModel im){
             text.setText(im.getTitle());
-            cvParent.setCardBackgroundColor(Color.parseColor(im.getHexBackground()));
+            //cvParent.setCardBackgroundColor(Color.parseColor(im.getHexBackground()));
+            cvParent.setBackgroundColor(Color.parseColor(im.getHexBackground()));
+
             if(im.isHeader()){
                 text.setTextSize(20);
                 text.setTextColor(Color.WHITE);
                 text.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
-                ViewGroup.MarginLayoutParams layoutParams =
-                        (ViewGroup.MarginLayoutParams) cvParent.getLayoutParams();
-                layoutParams.setMargins(0, 20,0, 0);
+                text.setPadding(0, 30, 0, 30);
+
+                if(!im.getCode().equals(objects.get(0).getCode())){//al primer item no se le da marginTop
+                    layoutParams.setMargins(0, 40,0, 0);
+                }else{
+                    layoutParams.setMargins(0, 0,0, 0);
+                }
+
                 cvParent.requestLayout();
             }else{
                 text.setTextSize(16);
                 text.setTextColor(Color.BLACK);
                 text.setTypeface(Typeface.DEFAULT, Typeface.NORMAL);
-                ViewGroup.MarginLayoutParams layoutParams =
-                        (ViewGroup.MarginLayoutParams) cvParent.getLayoutParams();
+                text.setPadding(0, 15, 0, 15);
                 layoutParams.setMargins(0, 0,0, 0);
                 cvParent.requestLayout();
             }

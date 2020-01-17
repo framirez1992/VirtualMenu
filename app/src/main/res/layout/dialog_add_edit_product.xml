@@ -123,13 +123,13 @@
                         android:paddingTop="10dp">
 
                         <EditText android:id="@+id/etTime"
-                            android:layout_width="50dp"
+                            android:layout_width="80dp"
                             android:layout_height="wrap_content"
                             android:inputType="number"
                             android:gravity="center"/>
 
                         <Spinner android:id="@+id/spnTime"
-                            android:layout_width="120dp"
+                            android:layout_width="160dp"
                             android:layout_height="match_parent"
                             android:layout_marginLeft="10dp"/>
 
@@ -151,11 +151,6 @@
                            android:layout_height="match_parent" />
                     </ScrollView>
 
-                    <CheckBox android:id="@+id/cbActivate"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Activar"
-                        android:layout_marginTop="20dp"/>
 
                 </LinearLayout>
 
