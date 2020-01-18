@@ -56,7 +56,12 @@ public class AdminLicensesFragment extends Fragment {
         pb = view.findViewById(R.id.pb);
 
         searchLicenses();
-        adminConfiguration.showMenu();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        adminConfiguration.invalidateOptionsMenu();
     }
 
     public void setAdminConfiguration(AdminConfiguration adminConfiguration){

@@ -38,6 +38,12 @@ public class AdminLicenseSetupFragment extends Fragment {
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        adminConfiguration.invalidateOptionsMenu();
+    }
+
+    @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         btnDevices = view.findViewById(R.id.btnDevices);

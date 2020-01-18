@@ -39,7 +39,6 @@ public class AdminConfiguration  extends AppCompatActivity implements ListableAc
     AdminLicenseSetupFragment adminLicenseSetupFragment;
 
     Fragment lastFragment;
-    MenuItem addLicense;
     Licenses licenses;
 
     @Override
@@ -59,17 +58,11 @@ public class AdminConfiguration  extends AppCompatActivity implements ListableAc
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
 
-        try{
-            getMenuInflater().inflate(R.menu.admin_configuration_menu, menu);
-            addLicense = menu.findItem(R.id.action_new);
-            hideMenu();
-            /*MenuItem searchItem = menu.findItem(R.id.action_search);
-            SearchView search = (SearchView) searchItem.getActionView();
-
-            search.setOnQueryTextListener(searchListener);*/
-        }catch(Exception e){
-            e.printStackTrace();
-        }
+            if(lastFragment instanceof AdminLicensesFragment){
+                getMenuInflater().inflate(R.menu.admin_configuration_menu, menu);
+            }else{
+                getMenuInflater().inflate(R.menu.empty_menu, menu);
+            }
         return (super.onCreateOptionsMenu(menu));
     }
 
@@ -97,9 +90,6 @@ public class AdminConfiguration  extends AppCompatActivity implements ListableAc
             case R.id.actionEdit:
                 callAddDialog(false);
                 return true;
-            /*case R.id.actionDelete:
-                callDeleteConfirmation();
-                return  true;*/
             case R.id.actionConfigure:
                 showLicenseSetup();
                 return  true;
@@ -134,12 +124,6 @@ public class AdminConfiguration  extends AppCompatActivity implements ListableAc
         lastFragment = f;
     }
 
-    public void showMenu(){
-        addLicense.setVisible(true);
-    }
-    public void hideMenu(){
-        addLicense.setVisible(false);
-    }
     public void addLicense() {
         try {
             CloudFireStoreDB.getInstance(AdminConfiguration.this, AdminConfiguration.this, AdminConfiguration.this).crearNuevaEstructuraFireStore();
