@@ -171,14 +171,14 @@ public class LicenseDialogFragment extends DialogFragment implements OnFailureLi
 
     public void Save(){
         if(validateProductType()) {
-            SaveProductType();
+            SaveLicense();
         }
 
         llSave.setEnabled(true);
 
     }
 
-    public void SaveProductType(){
+    public void SaveLicense(){
         try {
             String code = etCode.getText().toString();
             String client = etClient.getText().toString();

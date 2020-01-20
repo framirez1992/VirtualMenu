@@ -23,6 +23,7 @@ import com.far.virtualmenu.Controllers.RolesController;
 import com.far.virtualmenu.Controllers.UsersController;
 import com.far.virtualmenu.Generic.KV2;
 import com.far.virtualmenu.Globales.Tablas;
+import com.far.virtualmenu.Utils.CODES;
 import com.far.virtualmenu.Utils.Funciones;
 import com.far.virtualmenu.interfaces.FireBaseOK;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -165,7 +166,7 @@ public class CloudFireStoreDB {
             }
             //////////////////////////////////////////////////
             //////////        LICENSES        ////////////////
-            licenseController.delete("", null);
+            licenseController.delete(null, null);
             licenseController.getDataFromFireBase(license.getCODE(), onSuccessListenerLicense,failureListener);
 
 
@@ -236,6 +237,7 @@ public class CloudFireStoreDB {
             productsSubTypesController.getDataFromFireBase(license.getCODE(), onSuccessListenerProductsSubTypes, failureListener);*/
             okListener.sendMessage("FINALIZADO CORRECTAMENTE ");
             okListener.OnFireBaseEndContact(1);
+            Funciones.savePreferences(context, CODES.PREFERENCE_LICENSE_CODE, license.getCODE());
         }
     };
 

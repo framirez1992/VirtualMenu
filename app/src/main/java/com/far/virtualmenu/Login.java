@@ -272,24 +272,31 @@ public class Login extends AppCompatActivity implements OnFailureListener, FireB
 
             for (DocumentSnapshot document : querySnapshot.getDocuments()) {
 
-                if(document != null){
+                if(document != null) {
                     UsersDevices ud = document.toObject(UsersDevices.class);
 
+                    String lastLicenseCodeSaved = Funciones.getCodeLicense(Login.this);
+                    if (lastLicenseCodeSaved.isEmpty()) {
+                        Snackbar.make(findViewById(R.id.root), "Realize una carga inicial. No se encontro licencia", Snackbar.LENGTH_LONG).show();
+                    }else {
+
                     Funciones.clearPreference(Login.this);
+                    Funciones.savePreferences(Login.this, CODES.PREFERENCE_LICENSE_CODE, lastLicenseCodeSaved);
                     Funciones.savePreferences(Login.this, CODES.PREFERENCE_USERSKEY_CODE, lastUser.getCODE());
                     Funciones.savePreferences(Login.this, CODES.PREFERENCE_USERSKEY_USERTYPE, lastUser.getROLE());
-                    ((TextView)findViewById(R.id.tvErrorMsg)).setText("");
+                    ((TextView) findViewById(R.id.tvErrorMsg)).setText("");
 
                     UsersController.getInstance(Login.this).insert(lastUser);
                     DevicesController.getInstance(Login.this).insert(lastDevice);
 
-                    if(UsersController.getInstance(Login.this).isAdmin()|| UsersController.getInstance(Login.this).isSuperUser()){
+                    if (UsersController.getInstance(Login.this).isAdmin() || UsersController.getInstance(Login.this).isSuperUser()) {
                         Intent i = new Intent(Login.this, MainActivity.class);
                         startActivity(i);
-                    }else{
+                    } else {
                         Intent i = new Intent(Login.this, MainMenuActivity.class);
                         startActivity(i);
                     }
+                }
 
                 }else{
                     Snackbar.make(findViewById(R.id.root), "ERROR obteniendo UserDevice", Snackbar.LENGTH_LONG).show();

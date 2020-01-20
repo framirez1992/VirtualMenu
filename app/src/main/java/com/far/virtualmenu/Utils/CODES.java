@@ -27,6 +27,9 @@ public class CODES {
     public static final int CODE_DEVICES_NOT_ASSIGNED_TO_USER = 3100;
 
     //PREFERENCES
+    //CARGA INICIAL
+    public static final String PREFERENCE_LICENSE_CODE = "LICENSE_CODE_PREFERENCE";//CODIGO DE USUARIO
+
     //LOGIN
     public static final String PREFERENCE_USERSKEY_CODE = "USERSKEY_CODE";//CODIGO DE USUARIOI
     public static final String PREFERENCE_USERSKEY_USERTYPE = "USERSKEY_USERTYPE";//TIPO DE USUARIO
@@ -40,8 +43,6 @@ public class CODES {
     //ACTIVITY EXTRA KEYS
     public static final String EXTRA_SECURITY_ERROR_CODE = "SECURITY_ERROR_CODE";
     public static final String EXTRA_ADMIN_LICENSE = "EXTRA_ADMIN_LICENSE";
-
-
 
 
     //////////////////////////////////////////////

@@ -318,12 +318,14 @@ public class LicenseController {
         //////////// JERARQUIA USUARIOS      ///////////////////////////////
         CollectionReference GeneralUsersCollection = fs.collection(Tablas.generalUsers);
         DocumentReference userLicense = GeneralUsersCollection.document(l.getCODE());
-        userLicense.collection(Tablas.generalUsersUsers).add(new Users("Admin", "0", "admin1212345", "admin", "", "", true).toMap());
+        String userCode = "Admin";
+        userLicense.collection(Tablas.generalUsersUsers).document(userCode).set(new Users(userCode, "0", "admin1212345", "admin", "", "", true).toMap());
+
         UsersDevices ud = new UsersDevices();
         ud.setCODE(Funciones.generateCode());
         ud.setCODEDEVICE(Funciones.getPhoneID(context));
         ud.setCODEUSER("Admin");
-        userLicense.collection(Tablas.generalUsersUsersDevices).add(ud);
+        userLicense.collection(Tablas.generalUsersUsersDevices).document(ud.getCODE()).set(ud);
 
 
     }

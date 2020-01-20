@@ -184,12 +184,18 @@ public class MainMenuActivity extends AppCompatActivity implements ListableActiv
         @Override
         public void onEvent(@Nullable QuerySnapshot querySnapshot, @Nullable FirebaseFirestoreException e) {
             Licenses lic = null;
-                if (querySnapshot != null && querySnapshot.getDocuments()!= null && querySnapshot.getDocuments().size() > 0) {
-                    lic = querySnapshot.getDocuments().get(0).toObject(Licenses.class);
-                    licenseController.delete(null, null);
-                    licenseController.insert(lic);
+
+            if (querySnapshot != null && querySnapshot.getDocuments()!= null && querySnapshot.getDocuments().size() > 0) {
+                licenseController.delete(null, null);
+
+                for(DocumentSnapshot ds: querySnapshot){
+                    lic = ds.toObject(Licenses.class);
+                    if(lic.getCODE().equals(Funciones.getCodeLicense(MainMenuActivity.this))){
+                        licenseController.insert(lic);
+                    }
                 }
-                validateLicence(lic);
+            }
+            validateLicence(lic);
 
         }
     };

@@ -179,18 +179,34 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         @Override
         public void onEvent(@Nullable QuerySnapshot querySnapshot, @Nullable FirebaseFirestoreException e) {
 
-            if (querySnapshot != null && querySnapshot.getDocuments()!= null && querySnapshot.getDocuments().size() > 0) {
-                Licenses lic = querySnapshot.getDocuments().get(0).toObject(Licenses.class);
-                licenseController.delete(null, null);
-                licenseController.insert(lic);
+            if(e != null){
+                Toast.makeText(MainActivity.this, e.getMessage()+" - "+e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+                return;
             }
-            validateLicence(licenseController.getLicense());
+            Licenses lic = null;
+
+            if (querySnapshot != null && querySnapshot.getDocuments()!= null && querySnapshot.getDocuments().size() > 0) {
+                licenseController.delete(null, null);
+
+                for(DocumentSnapshot ds: querySnapshot){
+                    lic = ds.toObject(Licenses.class);
+                    if(lic.getCODE().equals(Funciones.getCodeLicense(MainActivity.this))){
+                        licenseController.insert(lic);
+                    }
+                }
+            }
+            validateLicence(lic);
         }
     };
 
     public EventListener<QuerySnapshot> usersListener =  new EventListener<QuerySnapshot>() {
         @Override
         public void onEvent(@Nullable QuerySnapshot querySnapshot, @Nullable FirebaseFirestoreException e) {
+
+            if(e != null){
+                Toast.makeText(MainActivity.this, e.getMessage()+" - "+e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+                return;
+            }
 
             if (querySnapshot != null && querySnapshot.getDocuments()!= null && querySnapshot.getDocuments().size() > 0) {
                 usersController.delete(null, null);
@@ -206,6 +222,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public EventListener<QuerySnapshot> deviceListener =  new EventListener<QuerySnapshot>() {
         @Override
         public void onEvent(@Nullable QuerySnapshot querySnapshot, @Nullable FirebaseFirestoreException e) {
+            if(e != null){
+                Toast.makeText(MainActivity.this, e.getMessage()+" - "+e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+                return;
+            }
 
             Devices devices =null;
             if (querySnapshot != null && querySnapshot.getDocuments()!= null && querySnapshot.getDocuments().size() > 0) {
@@ -226,6 +246,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public EventListener<QuerySnapshot> userDevicesListener =  new EventListener<QuerySnapshot>() {
         @Override
         public void onEvent(@Nullable QuerySnapshot querySnapshot, @Nullable FirebaseFirestoreException e) {
+
+            if(e != null){
+                Toast.makeText(MainActivity.this, e.getMessage()+" - "+e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+                return;
+            }
+
 
             boolean valid = false;
             if (querySnapshot != null && querySnapshot.getDocuments()!= null && querySnapshot.getDocuments().size() > 0) {

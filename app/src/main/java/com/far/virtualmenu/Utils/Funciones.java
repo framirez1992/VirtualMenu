@@ -331,4 +331,10 @@ public class Funciones {
         activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
     }
 
+    public static String getCodeLicense(Context context){
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        return preferences.getString(CODES.PREFERENCE_LICENSE_CODE, "");
+    }
+
+
 }
